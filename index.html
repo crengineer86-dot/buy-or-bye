@@ -4228,16 +4228,18 @@
         // 2) 모바일 웹 브라우저 Web Share API (File 객체 공유 -> 앨범 저장/카톡/인스타 시트)
         if (mobile && preferShareOnMobile && blob && typeof File !== 'undefined' && typeof navigator.share === 'function') {
           const file = new File([blob], filename, { type: 'image/png' });
-          const shareData = shareText
+          const minimalShareData = { files: [file] };
+          const fullShareData = shareText
             ? { files: [file], title: shareTitle, text: shareText }
             : { files: [file], title: shareTitle };
-          const canShareFiles = !navigator.canShare || navigator.canShare({ files: [file] });
+          const canShareFiles = !navigator.canShare || navigator.canShare(minimalShareData);
           if (canShareFiles) {
             try {
               if (copyTextOnShare && successToast) {
                 showToast(successToast);
               }
-              await navigator.share(shareData);
+              const payload = !navigator.canShare || navigator.canShare(fullShareData) ? fullShareData : minimalShareData;
+              await navigator.share(payload);
               if (!copyTextOnShare && successToast) {
                 showToast(successToast);
               }
@@ -4251,9 +4253,15 @@
           }
         }
 
-        // 3) 데스크톱 또는 파일 공유 미지원 모바일(인앱 브라우저 등) 폴백
+        // 3) 데스크톱(직접 파일 다운로드) 또는 파일 공유 미지원 모바일(인앱 브라우저 등 -> 앨범 저장 보조 모달) 폴백
+        if (mobile) {
+          openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
+          showToast('📱 [공유 / 앨범 저장] 또는 이미지를 길게 눌러 앨범에 저장해 주세요!');
+          return 'mobile-fallback-modal';
+        }
+
         if (blob) {
-          triggerBlobDownload(blob, filename, mobile ? '' : successToast);
+          triggerBlobDownload(blob, filename, successToast);
         } else {
           const link = document.createElement('a');
           link.download = filename;
@@ -4261,11 +4269,6 @@
           document.body.appendChild(link);
           link.click();
           link.remove();
-          if (!mobile && successToast) showToast(successToast);
-        }
-
-        if (mobile) {
-          openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
           if (successToast) showToast(successToast);
         }
         return 'download-fallback';
@@ -4489,7 +4492,12 @@
         try {
           showToast('📸 레벨 인증 카드 이미지를 만들고 있어요...');
           const canvas = await createLevelCertCanvas();
-          triggerCanvasPngDownload(canvas, filename, '🏆 레벨 인증 카드 이미지가 저장되었어요!');
+          await saveOrShareCanvasImage(canvas, {
+            filename,
+            shareTitle: '나의 짠테크 레벨 인증 카드',
+            preferShareOnMobile: true,
+            successToast: '🏆 레벨 인증 카드 이미지가 준비되었어요!'
+          });
         } catch (err) {
           console.error(err);
           showToast('⚠️ 이미지 저장에 실패했어요');
@@ -4731,15 +4739,33 @@
         try {
           showToast('📸 고화질 영수증 이미지를 만들고 있어요...');
           const canvas = await createReceiptCanvas();
-          triggerCanvasPngDownload(canvas, filename, successMsg);
+          await saveOrShareCanvasImage(canvas, {
+            filename,
+            shareTitle: '살까 말까 팩폭 영수증',
+            preferShareOnMobile: true,
+            successToast: successMsg || '✅ 팩폭 영수증 이미지가 준비되었어요!'
+          });
         } catch (err) {
           console.error(err);
           showToast('⚠️ 이미지 저장에 실패했어요');
         }
       }
 
-      document.getElementById('downloadLevelCertBtn').addEventListener('click', () => {
-        drawLevelCertCardToPng(`짠테크_레벨인증카드_${Date.now()}.png`);
+      document.getElementById('downloadLevelCertBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('downloadLevelCertBtn');
+        const prevText = btn ? btn.textContent : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = '📸 인증 카드 준비 중...';
+        }
+        try {
+          await drawLevelCertCardToPng(`짠테크_레벨인증카드_${Date.now()}.png`);
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = prevText;
+          }
+        }
       });
 
       // ==========================================
