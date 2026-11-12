@@ -96,6 +96,13 @@ jobs:
               if perm not in manifest:
                   manifest = manifest.replace("</manifest>", f"    {tag}\n</manifest>", 1)
 
+          if "android.permission.WRITE_EXTERNAL_STORAGE" not in manifest:
+              manifest = manifest.replace(
+                  "</manifest>",
+                  '    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />\n</manifest>',
+                  1,
+              )
+
           if "android:usesCleartextTraffic" not in manifest:
               manifest = re.sub(
                   r"<application\b",
@@ -110,20 +117,122 @@ jobs:
           main_activity.write_text(
               """package com.buyorbye.app;
 
+          import android.content.ContentResolver;
+          import android.content.ContentValues;
+          import android.content.Context;
+          import android.media.MediaScannerConnection;
+          import android.net.Uri;
+          import android.os.Build;
           import android.os.Bundle;
+          import android.os.Environment;
+          import android.provider.MediaStore;
+          import android.util.Base64;
+          import android.webkit.DownloadListener;
+          import android.webkit.JavascriptInterface;
           import android.webkit.WebSettings;
+          import android.webkit.WebView;
           import com.getcapacitor.BridgeActivity;
+          import java.io.File;
+          import java.io.FileOutputStream;
+          import java.io.OutputStream;
 
           public class MainActivity extends BridgeActivity {
+              public static class AndroidGalleryBridge {
+                  private final Context context;
+
+                  public AndroidGalleryBridge(Context context) {
+                      this.context = context;
+                  }
+
+                  @JavascriptInterface
+                  public String saveImageToGallery(String dataUrlOrBase64, String fileName) {
+                      try {
+                          if (dataUrlOrBase64 == null || dataUrlOrBase64.isEmpty()) {
+                              return "ERR:EMPTY";
+                          }
+                          String cleanBase64 = dataUrlOrBase64.contains(",")
+                              ? dataUrlOrBase64.substring(dataUrlOrBase64.indexOf(",") + 1)
+                              : dataUrlOrBase64;
+                          byte[] imageBytes = Base64.decode(cleanBase64, Base64.DEFAULT);
+                          String safeName = (fileName == null || fileName.trim().isEmpty())
+                              ? "buy_or_bye_" + System.currentTimeMillis() + ".png"
+                              : fileName.trim();
+                          if (!safeName.toLowerCase().endsWith(".png")) {
+                              safeName += ".png";
+                          }
+
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                              ContentResolver resolver = context.getContentResolver();
+                              ContentValues values = new ContentValues();
+                              values.put(MediaStore.Images.Media.DISPLAY_NAME, safeName);
+                              values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                              values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/BuyOrBye");
+                              values.put(MediaStore.Images.Media.IS_PENDING, 1);
+
+                              Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                              if (uri == null) {
+                                  return "ERR:URI_NULL";
+                              }
+                              try (OutputStream out = resolver.openOutputStream(uri)) {
+                                  if (out == null) {
+                                      return "ERR:STREAM_NULL";
+                                  }
+                                  out.write(imageBytes);
+                                  out.flush();
+                              }
+                              values.clear();
+                              values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                              resolver.update(uri, values, null, null);
+                              return "OK";
+                          } else {
+                              File picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                              File appDir = new File(picturesDir, "BuyOrBye");
+                              if (!appDir.exists() && !appDir.mkdirs()) {
+                                  return "ERR:MKDIR_FAILED";
+                              }
+                              File outFile = new File(appDir, safeName);
+                              try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                  fos.write(imageBytes);
+                                  fos.flush();
+                              }
+                              MediaScannerConnection.scanFile(
+                                  context,
+                                  new String[] { outFile.getAbsolutePath() },
+                                  new String[] { "image/png" },
+                                  null
+                              );
+                              return "OK";
+                          }
+                      } catch (Exception e) {
+                          return "ERR:" + e.getMessage();
+                      }
+                  }
+              }
+
               @Override
               public void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   if (getBridge() != null && getBridge().getWebView() != null) {
-                      WebSettings settings = getBridge().getWebView().getSettings();
+                      WebView webView = getBridge().getWebView();
+                      WebSettings settings = webView.getSettings();
                       settings.setJavaScriptEnabled(true);
                       settings.setDomStorageEnabled(true);
                       settings.setDatabaseEnabled(true);
+                      settings.setTextZoom(100);
+                      settings.setUseWideViewPort(true);
+                      settings.setLoadWithOverviewMode(true);
                       settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+
+                      final AndroidGalleryBridge galleryBridge = new AndroidGalleryBridge(this);
+                      webView.addJavascriptInterface(galleryBridge, "AndroidGalleryBridge");
+                      webView.setDownloadListener(new DownloadListener() {
+                          @Override
+                          public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                              if (url != null && url.startsWith("data:image/")) {
+                                  galleryBridge.saveImageToGallery(url, "buy_or_bye_" + System.currentTimeMillis() + ".png");
+                              }
+                          }
+                      });
                   }
               }
           }

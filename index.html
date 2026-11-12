@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>살까 말까 판독기 - Buy or Bye</title>
   <!-- Open Graph (카카오톡/SNS 링크 미리보기) -->
   <meta property="og:title" content="💸 살까 말까 판독기 · 팩폭 영수증" />
@@ -49,8 +49,17 @@
       box-sizing: border-box;
     }
 
+    html {
+      font-size: 16px !important;
+      -webkit-text-size-adjust: 100% !important;
+      text-size-adjust: 100% !important;
+    }
+
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      font-size: 16px !important;
+      -webkit-text-size-adjust: 100% !important;
+      text-size-adjust: 100% !important;
       background-color: #E2E8F0;
       color: #191F28;
       margin: 0;
@@ -156,8 +165,8 @@
 </head>
 <body class="min-h-screen flex justify-center items-start">
 
-  <!-- Mobile App Viewport Frame (Max 430px) -->
-  <div id="appFrame" class="w-full max-w-[430px] mx-auto min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
+  <!-- Mobile App Viewport Frame (Max 420px, Centered) -->
+  <div id="appFrame" style="width: 100%; max-width: 420px; margin: 0 auto;" class="w-full max-w-[420px] mx-auto min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
 
     <!-- Floating Toast Notification -->
     <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[130] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3 w-full max-w-[420px] px-3 flex justify-center">
@@ -945,7 +954,7 @@
     <div id="wageBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="wageSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="wageSheetContent" class="w-full max-w-[430px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="wageSheetContent" class="w-full max-w-[420px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
 
           <div class="flex items-center justify-between mb-1.5">
@@ -1314,7 +1323,7 @@
     <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="shareSheetContent" class="w-full max-w-[430px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="shareSheetContent" class="w-full max-w-[420px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -1757,6 +1766,17 @@
           const val = snapshot.val() || {};
           state.pollBuyVotes = Math.max(0, Number(val.buy) || 0);
           state.pollByeVotes = Math.max(0, Number(val.bye) || 0);
+          if (val.comments && typeof val.comments === 'object') {
+            const rawList = Array.isArray(val.comments)
+              ? val.comments.filter(Boolean)
+              : Object.values(val.comments).filter(Boolean);
+            state.pollComments = rawList
+              .filter((c) => c && c.text)
+              .map((c) => ({ ...c, roomId: c.roomId || roomId }))
+              .sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
+          } else {
+            state.pollComments = [];
+          }
           isRoomSyncedInDb = true;
           saveState();
           renderPollAndVerdict();
@@ -1773,7 +1793,11 @@
             if (current === null || typeof current !== 'object') {
               return { buy: 0, bye: 0 };
             }
-            return current;
+            return {
+              ...current,
+              buy: Math.max(0, Number(current.buy) || 0),
+              bye: Math.max(0, Number(current.bye) || 0)
+            };
           });
           isRoomSyncedInDb = true;
           attachRoomListener(roomId);
@@ -1808,6 +1832,7 @@
 
       function generateShareUrl() {
         const roomId = ensureRoomId();
+        attachRoomListener(roomId);
         const displayName = (state.itemName || '').trim() || '노이즈 캔슬링 헤드폰';
         const resolvedCat = state.customItemIcon || pickItemEmoji(displayName);
         const params = new URLSearchParams();
@@ -2240,13 +2265,13 @@
 
         if (viewName === 'poll') {
           const curRoomId = ensureRoomId();
-          if (isRoomSyncedInDb || isSharedRoomEntry || getLocalVote(curRoomId) !== null) {
-            attachRoomListener(curRoomId);
-          }
+          attachRoomListener(curRoomId);
           renderPollAndVerdict();
           pollView.classList.remove('hidden');
           pollView.classList.add('flex');
         } else if (viewName === 'verdict') {
+          const curRoomId = ensureRoomId();
+          attachRoomListener(curRoomId);
           renderPollAndVerdict();
           verdictView.classList.remove('hidden');
           verdictView.classList.add('flex');
@@ -3480,6 +3505,7 @@
             const result = await roomRef.transaction((current) => {
               const base = current && typeof current === 'object'
                 ? {
+                    ...current,
                     buy: Math.max(0, Number(current.buy) || 0),
                     bye: Math.max(0, Number(current.bye) || 0)
                   }
@@ -3559,30 +3585,49 @@
         castRoomVote('bye');
       });
 
-      function addPollComment() {
+      async function addPollComment() {
         const input = document.getElementById('newPollCommentInput');
         const text = input.value.trim();
         if (!text) {
           showToast('참견 댓글 내용을 입력해 주세요!');
           return;
         }
+        const roomId = ensureRoomId();
         const randomNicknames = ['익명의 팩폭러', '통장 보안관', '무지출 요정', '현실 자각러', '지갑 수호자'];
         const randomAvatars = ['🔥', '🛡️', '🧚', '⚡', '🐷'];
         const pickIdx = Math.floor(Math.random() * randomNicknames.length);
+        const nowTs = Date.now();
+        const commentId = 'c_' + nowTs + '_' + Math.random().toString(36).slice(2, 6);
 
-        state.pollComments.unshift({
-          id: 'c-' + Date.now(),
-          roomId: ensureRoomId(),
+        const newComment = {
+          id: commentId,
+          roomId,
           author: randomNicknames[pickIdx],
           avatar: randomAvatars[pickIdx],
+          createdAt: nowTs,
           time: '방금 전',
           text,
           likes: 1
-        });
+        };
+
+        state.pollComments.unshift(newComment);
         input.value = '';
         saveState();
         renderPollAndVerdict();
-        showToast('💬 실시간 팩폭 참견이 등록되었어요!');
+
+        if (rtdb) {
+          try {
+            await ensureRoomCreatedInDb(roomId);
+            await rtdb.ref(`rooms/${roomId}/comments/${commentId}`).set(newComment);
+            attachRoomListener(roomId);
+            showToast('💬 실시간 팩폭 참견이 등록되었어요!');
+          } catch (err) {
+            console.error('Firebase comment save failed:', err);
+            showToast('⚠️ 서버 동기화에 실패했어요. 네트워크 상태를 확인해 주세요.');
+          }
+        } else {
+          showToast('💬 팩폭 참견이 등록되었어요!');
+        }
       }
 
       document.getElementById('addPollCommentBtn').addEventListener('click', addPollComment);
@@ -4066,7 +4111,7 @@
         document.body.appendChild(link);
         link.click();
         link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 15000);
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
         if (successMsg) showToast(successMsg);
       }
 
@@ -4194,10 +4239,24 @@
         const blob = await canvasToPngBlob(canvas);
         const mobile = isMobileClient();
 
-        // 1) Capacitor Android/iOS 앱 네이티브 공유 시트 (갤러리 저장/인스타/카톡 직접 전송)
+        // 0) 직접 저장 모드(preferShareOnMobile === false)일 때 Capacitor Android 네이티브 MediaStore 갤러리 브리지 우선 실행 (공유창 없음)
+        if (!preferShareOnMobile && window.AndroidGalleryBridge && typeof window.AndroidGalleryBridge.saveImageToGallery === 'function') {
+          try {
+            const bridgeResult = window.AndroidGalleryBridge.saveImageToGallery(dataUrl, filename);
+            if (bridgeResult === 'OK') {
+              showToast('📥 핸드폰 앨범(갤러리)에 바로 저장되었어요!');
+              return 'android-gallery-bridge';
+            }
+            console.warn('AndroidGalleryBridge non-OK result:', bridgeResult);
+          } catch (bridgeErr) {
+            console.warn('AndroidGalleryBridge error:', bridgeErr);
+          }
+        }
+
+        // 1) Capacitor Android/iOS 앱 네이티브 공유 시트 (공유 모드일 때만 사용)
         const cap = window.Capacitor;
         const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
-        if (isCapNative && cap.Plugins && cap.Plugins.Filesystem && cap.Plugins.Share) {
+        if (isCapNative && preferShareOnMobile && cap.Plugins && cap.Plugins.Filesystem && cap.Plugins.Share) {
           try {
             const base64Data = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
             await cap.Plugins.Filesystem.writeFile({
@@ -4253,8 +4312,9 @@
           }
         }
 
-        // 3) 데스크톱(직접 파일 다운로드) 또는 파일 공유 미지원 모바일(인앱 브라우저 등 -> 앨범 저장 보조 모달) 폴백
-        if (mobile) {
+        // 3) 직접 저장 모드(preferShareOnMobile === false) 또는 Web Share 미지원 폴백:
+        //    공유창 없이 Blob URL 강제 파일 다운로드 실행 (모바일 브라우저 및 PC 공통)
+        if (mobile && preferShareOnMobile) {
           openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
           showToast('📱 [공유 / 앨범 저장] 또는 이미지를 길게 눌러 앨범에 저장해 주세요!');
           return 'mobile-fallback-modal';
@@ -4495,8 +4555,8 @@
           await saveOrShareCanvasImage(canvas, {
             filename,
             shareTitle: '나의 짠테크 레벨 인증 카드',
-            preferShareOnMobile: true,
-            successToast: '🏆 레벨 인증 카드 이미지가 준비되었어요!'
+            preferShareOnMobile: false,
+            successToast: '📥 레벨 인증 카드가 기기 다운로드함(앨범)에 저장되었어요!'
           });
         } catch (err) {
           console.error(err);
@@ -4742,8 +4802,8 @@
           await saveOrShareCanvasImage(canvas, {
             filename,
             shareTitle: '살까 말까 팩폭 영수증',
-            preferShareOnMobile: true,
-            successToast: successMsg || '✅ 팩폭 영수증 이미지가 준비되었어요!'
+            preferShareOnMobile: false,
+            successToast: successMsg || '📥 팩폭 영수증이 기기 다운로드함(앨범)에 저장되었어요!'
           });
         } catch (err) {
           console.error(err);
@@ -5331,8 +5391,8 @@
       renderAll();
       renderHistory(false);
       updateHistoryCollapseUI();
+      attachRoomListener(ensureRoomId());
       if (openedFromSharedLink) {
-        attachRoomListener(ensureRoomId());
         switchScreen('poll');
       }
     })();
