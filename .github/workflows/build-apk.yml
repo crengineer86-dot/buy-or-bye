@@ -1,0 +1,133 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    name: Build Capacitor Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Prepare web assets
+        run: |
+          mkdir -p www
+          cp index.html www/
+          find . -maxdepth 1 -type f \( -name '*.css' -o -name '*.js' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' -o -name '*.webp' -o -name '*.ico' -o -name '*.json' \) ! -name 'package*.json' ! -name 'capacitor.config.*' -exec cp {} www/ \;
+          if [ -d assets ]; then cp -r assets www/; fi
+
+      - name: Initialize Capacitor and Add Android Platform
+        run: |
+          npm init -y
+          npm install @capacitor/core@^6.2.0 @capacitor/cli@^6.2.0 @capacitor/android@^6.2.0
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.buyorbye.app",
+            "appName": "살까말까판독기",
+            "webDir": "www",
+            "server": {
+              "androidScheme": "https",
+              "cleartext": true,
+              "allowNavigation": [
+                "*.firebaseio.com",
+                "*.firebasedatabase.app",
+                "*.googleapis.com",
+                "*.gstatic.com",
+                "cdn.tailwindcss.com",
+                "cdn.jsdelivr.net",
+                "crengineer86-dot.github.io"
+              ]
+            },
+            "android": {
+              "allowMixedContent": true
+            }
+          }
+          EOF
+          npx cap add android
+          npx cap sync android
+
+      - name: Configure Android Permissions & WebView Settings
+        run: |
+          python3 - << 'PY'
+          from pathlib import Path
+          import re
+
+          manifest_path = Path("android/app/src/main/AndroidManifest.xml")
+          manifest = manifest_path.read_text(encoding="utf-8")
+
+          for perm in [
+              "android.permission.INTERNET",
+              "android.permission.ACCESS_NETWORK_STATE",
+          ]:
+              tag = f'<uses-permission android:name="{perm}" />'
+              if perm not in manifest:
+                  manifest = manifest.replace("</manifest>", f"    {tag}\n</manifest>", 1)
+
+          if "android:usesCleartextTraffic" not in manifest:
+              manifest = re.sub(
+                  r"<application\b",
+                  '<application android:usesCleartextTraffic="true"',
+                  manifest,
+                  count=1,
+              )
+
+          manifest_path.write_text(manifest, encoding="utf-8")
+
+          main_activity = Path("android/app/src/main/java/com/buyorbye/app/MainActivity.java")
+          main_activity.write_text(
+              """package com.buyorbye.app;
+
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  if (getBridge() != null && getBridge().getWebView() != null) {
+                      WebSettings settings = getBridge().getWebView().getSettings();
+                      settings.setJavaScriptEnabled(true);
+                      settings.setDomStorageEnabled(true);
+                      settings.setDatabaseEnabled(true);
+                      settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+                  }
+              }
+          }
+          """,
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Build Debug APK with Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: buy-or-bye-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

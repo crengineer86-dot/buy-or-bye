@@ -1,0 +1,32 @@
+# Dependencies & Build Outputs
+node_modules/
+www/
+android/
+ios/
+dist/
+build/
+*.apk
+*.aab
+
+# Generated Capacitor / Node manifests (created cleanly in CI)
+package.json
+package-lock.json
+capacitor.config.json
+capacitor.config.ts
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Logs & Temporary / Verification / Memo files
+*.log
+*.tmp
+*.bak
+tmp_*
+verify_*
+check_*.ps1
+*preview*.html
+수정 사항.txt
