@@ -60,7 +60,7 @@
       font-size: 16px !important;
       -webkit-text-size-adjust: 100% !important;
       text-size-adjust: 100% !important;
-      background-color: #E2E8F0;
+      background-color: #F8FAFC;
       color: #191F28;
       margin: 0;
       padding: 0;
@@ -165,11 +165,11 @@
 </head>
 <body class="min-h-screen flex justify-center items-start">
 
-  <!-- Mobile App Viewport Frame (Max 420px, Centered) -->
-  <div id="appFrame" style="width: 100%; max-width: 420px; margin: 0 auto;" class="w-full max-w-[420px] mx-auto min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
+  <!-- Mobile App Viewport Frame (Max 540px, Edge-to-Edge on Phones) -->
+  <div id="appFrame" style="width: 100%; max-width: 540px; margin: 0;" class="w-full max-w-[540px] min-h-screen bg-[#F8FAFC] relative flex flex-col pb-6">
 
     <!-- Floating Toast Notification -->
-    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[130] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3 w-full max-w-[420px] px-3 flex justify-center">
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[130] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3 w-full max-w-[540px] px-4 flex justify-center">
       <div id="toastMessage" class="bg-[#191F28]/95 text-white text-[13px] font-semibold px-4 py-2.5 rounded-2xl shadow-lg flex items-center justify-center gap-2 text-center leading-snug max-w-full backdrop-blur-sm">
         <span>✅ 소득 기준이 설정되었어요</span>
       </div>
@@ -180,7 +180,7 @@
     <!-- ========================================== -->
     <div id="mainAppView" class="flex flex-col flex-1">
       <!-- ① 상단 헤더 -->
-      <header class="sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-5 pt-4 pb-3 flex items-center justify-between">
+      <header class="sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-4 pt-4 pb-3 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-[#3182F6] flex items-center justify-center text-white shadow-sm shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -954,7 +954,7 @@
     <div id="wageBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="wageSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="wageSheetContent" class="w-full max-w-[420px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="wageSheetContent" class="w-full max-w-[540px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
 
           <div class="flex items-center justify-between mb-1.5">
@@ -1323,7 +1323,7 @@
     <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="shareSheetContent" class="w-full max-w-[420px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="shareSheetContent" class="w-full max-w-[540px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -4244,7 +4244,7 @@
           try {
             const bridgeResult = window.AndroidGalleryBridge.saveImageToGallery(dataUrl, filename);
             if (bridgeResult === 'OK') {
-              showToast('📥 핸드폰 앨범(갤러리)에 바로 저장되었어요!');
+              showToast('📸 찰칵! 앨범에 예쁘게 저장됐어요!');
               return 'android-gallery-bridge';
             }
             console.warn('AndroidGalleryBridge non-OK result:', bridgeResult);
@@ -4556,7 +4556,7 @@
             filename,
             shareTitle: '나의 짠테크 레벨 인증 카드',
             preferShareOnMobile: false,
-            successToast: '📥 레벨 인증 카드가 기기 다운로드함(앨범)에 저장되었어요!'
+            successToast: '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
           });
         } catch (err) {
           console.error(err);
@@ -4803,7 +4803,7 @@
             filename,
             shareTitle: '살까 말까 팩폭 영수증',
             preferShareOnMobile: false,
-            successToast: successMsg || '📥 팩폭 영수증이 기기 다운로드함(앨범)에 저장되었어요!'
+            successToast: successMsg || '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
           });
         } catch (err) {
           console.error(err);
@@ -5217,7 +5217,7 @@
         drawReceiptCardToPng(
           'neutral',
           `살까말까_팩폭영수증_${Date.now()}.png`,
-          '✅ 팩폭 영수증 이미지로 저장되었어요!'
+          '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
         );
       });
 
