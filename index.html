@@ -146,16 +146,52 @@
       width: 0px;
       background: transparent;
     }
+
+    /* 모바일 기종별 화면 너비(320px~480px+) 풀-와이드 대응: 양옆 여백 제거 및 반응형 카드 스케일링 */
+    @media (max-width: 639px) {
+      #appFrame {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      #levelUpModal,
+      #instaShareModal,
+      #kakaoShareModal,
+      #levelGuideModal,
+      #categoryReportModal {
+        padding: 8px 0 !important;
+      }
+
+      #levelModalContent,
+      #instaModalContent,
+      #kakaoModalContent,
+      #levelGuideContent,
+      #categoryReportContent {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 20px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+      }
+
+      #levelCertificateCaptureBox,
+      #instaReceiptCaptureBox,
+      #kakaoCaptureBox {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 14px 12px !important;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex justify-center items-start">
 
-  <!-- Mobile App Viewport Frame (Max 430px) -->
-  <div id="appFrame" class="w-full max-w-[430px] min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
+  <!-- Mobile App Viewport Frame (Full width on mobile, max 440px on desktop) -->
+  <div id="appFrame" class="w-full max-w-full sm:max-w-[440px] min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
 
     <!-- Floating Toast Notification -->
-    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[130] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3">
-      <div id="toastMessage" class="bg-[#191F28]/95 text-white text-[13px] font-semibold px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 whitespace-nowrap backdrop-blur-sm">
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[130] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3 w-full max-w-[420px] px-3 flex justify-center">
+      <div id="toastMessage" class="bg-[#191F28]/95 text-white text-[13px] font-semibold px-4 py-2.5 rounded-2xl shadow-lg flex items-center justify-center gap-2 text-center leading-snug max-w-full backdrop-blur-sm">
         <span>✅ 소득 기준이 설정되었어요</span>
       </div>
     </div>
@@ -939,7 +975,7 @@
     <div id="wageBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="wageSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="wageSheetContent" class="w-full max-w-[430px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="wageSheetContent" class="w-full max-w-full sm:max-w-[440px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
 
           <div class="flex items-center justify-between mb-1.5">
@@ -1132,10 +1168,10 @@
     </div>
 
     <!-- 2-A. 레벨업 축하 및 [🏆 짠테크 레벨 인증 카드] 전용 모달 (물건 투표와 완전 분리!) -->
-    <div id="levelUpModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div id="levelUpModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 sm:p-4">
       <div id="levelModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="levelModalContent" class="relative z-10 w-full max-w-[360px] bg-white rounded-3xl p-5 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-2">
+      <div id="levelModalContent" class="relative z-10 w-full max-w-full sm:max-w-[400px] bg-white rounded-2xl sm:rounded-3xl px-2 py-4 sm:p-5 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[94vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-2 px-1">
           <span id="modalHeaderTag" class="text-[11px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
             🏆 짠테크 레벨 인증 카드
           </span>
@@ -1143,8 +1179,8 @@
         </div>
 
         <!-- 캡처 대상: 황금빛 레벨 인증서 디자인 카드 (물건 가격/투표 없음) -->
-        <div id="levelCertificateCaptureBox" class="bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl p-5 border-2 border-amber-200/90 shadow-inner text-center">
-          <span class="inline-block text-[10px] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mb-2">
+        <div id="levelCertificateCaptureBox" class="w-full max-w-full bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl p-4 sm:p-5 border-2 border-amber-200/90 shadow-inner text-center">
+          <span class="inline-block text-[clamp(9.5px,2.5vw,10.5px)] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mb-2">
             OFFICIAL SAVING CERTIFICATE
           </span>
 
@@ -1156,31 +1192,31 @@
             💰 프로 짠테크러 Lv.4
           </span>
 
-          <h3 id="modalLevelTitle" class="text-[19px] font-black text-[#191F28] leading-snug">
+          <h3 id="modalLevelTitle" class="text-[clamp(17px,4.8vw,20px)] font-black text-[#191F28] leading-snug">
             지름신 이겨내고 통장 방어 성공!
           </h3>
-          <p class="text-[12px] text-[#64748B] font-semibold mt-1">
+          <p class="text-[clamp(11px,3.1vw,12.5px)] text-[#64748B] font-semibold mt-1">
             충동구매 유혹을 뿌리치고 소중한 자산을 지켰어요
           </p>
 
           <!-- 핵심 성과 하이라이트 박스 -->
-          <div class="bg-white rounded-2xl p-4 my-3.5 border border-amber-200/80 shadow-2xs">
+          <div class="w-full bg-white rounded-2xl p-3.5 sm:p-4 my-3.5 border border-amber-200/80 shadow-2xs">
             <p class="text-[11.5px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
-            <p class="text-[15px] font-black text-[#191F28] mt-1 leading-snug">
+            <p class="text-[clamp(14px,3.9vw,16px)] font-black text-[#191F28] mt-1 leading-snug">
               지금까지 총 <span id="modalSavedCount" class="text-[#3182F6]">3번</span> 참아서<br />
-              누적 <span id="modalSavedAmount" class="text-[21px] text-[#3182F6]">1,050,000원</span> 절약 달성 🎉
+              누적 <span id="modalSavedAmount" class="text-[clamp(19px,5.4vw,22px)] text-[#3182F6]">1,050,000원</span> 절약 달성 🎉
             </p>
           </div>
 
           <!-- 구출한 노동 시간(또는 아낀 총 용돈 일수) 및 다음 레벨 요약 (각 네모 박스 기준 정중앙 정렬) -->
-          <div class="grid grid-cols-2 gap-2 text-center">
-            <div class="bg-[#F5F3FF] rounded-xl p-3 border border-purple-100 flex flex-col items-center justify-center text-center">
-              <span id="modalMetricLeftTitle" class="w-full text-[11px] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
-              <p id="modalSavedHours" class="w-full text-[14px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 105시간</p>
+          <div class="w-full grid grid-cols-2 gap-2 text-center">
+            <div class="bg-[#F5F3FF] rounded-xl p-2.5 sm:p-3 border border-purple-100 flex flex-col items-center justify-center text-center min-w-0">
+              <span id="modalMetricLeftTitle" class="w-full text-[clamp(10.5px,2.9vw,11.5px)] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
+              <p id="modalSavedHours" class="w-full text-[clamp(13px,3.7vw,15px)] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 105시간</p>
             </div>
-            <div class="bg-[#EFF6FF] rounded-xl p-3 border border-blue-100 flex flex-col items-center justify-center text-center">
-              <span class="w-full text-[11px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
-              <p id="modalGoalPct" class="w-full text-[14px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">52.5% 달성</p>
+            <div class="bg-[#EFF6FF] rounded-xl p-2.5 sm:p-3 border border-blue-100 flex flex-col items-center justify-center text-center min-w-0">
+              <span class="w-full text-[clamp(10.5px,2.9vw,11.5px)] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
+              <p id="modalGoalPct" class="w-full text-[clamp(13px,3.7vw,15px)] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">52.5% 달성</p>
             </div>
           </div>
         </div>
@@ -1308,7 +1344,7 @@
     <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="shareSheetContent" class="w-full max-w-[430px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="shareSheetContent" class="w-full max-w-full sm:max-w-[440px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -1385,67 +1421,67 @@
       </div>
     </div>
 
-    <!-- 4. 인스타 스토리 공유 카드 모달 (9:16 팩폭 영수증) -->
-    <div id="instaShareModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <!-- 4. 인스타 스토리 공유 카드 모달 (반응형 풀-와이드 팩폭 영수증) -->
+    <div id="instaShareModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 sm:p-4">
       <div id="instaModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="instaModalContent" class="relative z-10 w-full max-w-[360px] bg-white rounded-3xl p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-2.5 px-1">
+      <div id="instaModalContent" class="relative z-10 w-full max-w-full sm:max-w-[400px] bg-white rounded-2xl sm:rounded-3xl px-2 py-3.5 sm:p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[94vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-2 px-1">
           <span class="text-[11px] font-extrabold text-[#3182F6] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
             📸 INSTA STORY SHARE CARD
           </span>
           <button type="button" id="closeInstaModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="instaReceiptCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner">
-          <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-            <span class="text-[12px] font-extrabold text-[#191F28]">🧾 살까 말까 팩폭 영수증</span>
+        <div id="instaReceiptCaptureBox" class="w-full max-w-full bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4 sm:p-5 border border-slate-200 flex flex-col justify-between gap-2.5 sm:gap-3 shadow-inner">
+          <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-2.5">
+            <span class="text-[clamp(11.5px,3.2vw,13px)] font-extrabold text-[#191F28]">🧾 살까 말까 팩폭 영수증</span>
             <span class="inline-flex items-center gap-1">
               <span id="instaStatusBadge" class="text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">소비위험주의</span>
               <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0"></span>
             </span>
           </div>
 
-          <div class="text-center my-2">
+          <div class="text-center my-1.5 sm:my-2">
             <p class="text-[11px] font-bold text-[#64748B] mb-1">판독 대상 아이템</p>
-            <h4 id="instaItemName" class="text-[18px] font-black text-[#191F28] leading-tight">노이즈 캔슬링 헤드폰</h4>
-            <p id="instaItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">350,000원</p>
+            <h4 id="instaItemName" class="text-[clamp(17px,4.8vw,20px)] font-black text-[#191F28] leading-tight">노이즈 캔슬링 헤드폰</h4>
+            <p id="instaItemPrice" class="text-[clamp(24px,6.8vw,28px)] font-black text-[#3182F6] tracking-tight mt-1">350,000원</p>
           </div>
 
-          <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
-            <p id="instaWarningTitle" class="text-[15.5px] font-black leading-snug text-[#E11D48]">
+          <div id="instaWarningBox" class="w-full bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
+            <p id="instaWarningTitle" class="text-[clamp(14px,4.1vw,16.5px)] font-black leading-snug text-[#E11D48]">
               🚨 소비 경보! <span id="instaLaborHours">35시간</span> 노동 필요
             </p>
-            <p id="instaWarningSub" class="text-[11px] font-bold text-[#9F1239] mt-0.5">
+            <p id="instaWarningSub" class="text-[clamp(10.5px,2.9vw,11.5px)] font-bold text-[#9F1239] mt-0.5">
               일 8시간 근무 기준 약 <span id="instaLaborDays">4.4일치 월급</span>에 해당해요
             </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
+          <div class="w-full grid grid-cols-2 gap-2.5">
+            <div class="bg-white rounded-xl p-2.5 sm:p-3 border border-slate-200/80 text-center min-w-0">
               <p class="text-[10.5px] font-bold text-[#64748B]">1회 실사용 체감</p>
-              <p id="instaCostPerUse" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 4,118원 / 회</p>
+              <p id="instaCostPerUse" class="text-[clamp(12.5px,3.6vw,14.5px)] font-black text-[#1D4ED8] mt-1">약 4,118원 / 회</p>
             </div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
+            <div class="bg-white rounded-xl p-2.5 sm:p-3 border border-slate-200/80 text-center min-w-0">
               <p id="instaRightMetricLabel" class="text-[10.5px] font-bold text-[#64748B]">노동 시간 환산</p>
-              <p id="instaWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">35시간 근무치</p>
+              <p id="instaWorkHoursCard" class="text-[clamp(12.5px,3.6vw,14.5px)] font-black text-[#6D28D9] mt-1">35시간 근무치</p>
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
+          <div class="w-full bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
             <span class="inline-block bg-[#1E293B] text-white text-[9.5px] font-extrabold px-2 py-0.5 rounded mb-1.5">
               INSTA POLL STICKER
             </span>
-            <p class="text-[12px] font-extrabold text-[#191F28] mb-2">
+            <p class="text-[clamp(11.5px,3.2vw,12.5px)] font-extrabold text-[#191F28] mb-2">
               내 통장 살릴지 죽일지 대신 투표 좀 👇
             </p>
             <div class="grid grid-cols-2 gap-1.5">
-              <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2.5 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
+              <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2.5 px-1 rounded-xl border border-blue-200 cursor-pointer min-w-0">
                 <span class="text-[16px] leading-none">🔥</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
+                <span class="text-[clamp(10.5px,3vw,12px)] font-extrabold leading-tight tracking-tighter">한 번 사는 인생 질러라!</span>
               </button>
-              <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
+              <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 px-1 rounded-xl border border-rose-200 cursor-pointer min-w-0">
                 <span class="text-[16px] leading-none">🛑</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
+                <span class="text-[clamp(10.5px,3vw,12px)] font-extrabold leading-tight tracking-tighter">정신 차려! 당장 참아!</span>
               </button>
             </div>
           </div>
@@ -1469,67 +1505,67 @@
       </div>
     </div>
 
-    <!-- 5. 카카오톡 투표 공유 카드 모달 (인스타 공유 카드와 동일한 구성/문구로 통일) -->
-    <div id="kakaoShareModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <!-- 5. 카카오톡 투표 공유 카드 모달 (반응형 풀-와이드 구성) -->
+    <div id="kakaoShareModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 sm:p-4">
       <div id="kakaoModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="kakaoModalContent" class="relative z-10 w-full max-w-[360px] bg-white rounded-3xl p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-2.5 px-1">
+      <div id="kakaoModalContent" class="relative z-10 w-full max-w-full sm:max-w-[400px] bg-white rounded-2xl sm:rounded-3xl px-2 py-3.5 sm:p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[94vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-2 px-1">
           <span class="text-[11px] font-extrabold text-amber-900 bg-[#FEE500] px-2.5 py-1 rounded-full">
             💬 KAKAOTALK SHARE CARD
           </span>
           <button type="button" id="closeKakaoModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="kakaoCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner">
-          <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-            <span class="text-[12px] font-extrabold text-[#191F28]">🧾 살까 말까 팩폭 영수증</span>
+        <div id="kakaoCaptureBox" class="w-full max-w-full bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4 sm:p-5 border border-slate-200 flex flex-col justify-between gap-2.5 sm:gap-3 shadow-inner">
+          <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-2.5">
+            <span class="text-[clamp(11.5px,3.2vw,13px)] font-extrabold text-[#191F28]">🧾 살까 말까 팩폭 영수증</span>
             <span class="inline-flex items-center gap-1">
               <span id="kakaoStatusBadge" class="text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">소비위험주의</span>
               <span id="kakaoSirenIcon" class="inline-flex items-center justify-center shrink-0"></span>
             </span>
           </div>
 
-          <div class="text-center my-2">
+          <div class="text-center my-1.5 sm:my-2">
             <p class="text-[11px] font-bold text-[#64748B] mb-1">판독 대상 아이템</p>
-            <h4 id="kakaoItemName" class="text-[18px] font-black text-[#191F28] leading-tight">노이즈 캔슬링 헤드폰</h4>
-            <p id="kakaoItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">350,000원</p>
+            <h4 id="kakaoItemName" class="text-[clamp(17px,4.8vw,20px)] font-black text-[#191F28] leading-tight">노이즈 캔슬링 헤드폰</h4>
+            <p id="kakaoItemPrice" class="text-[clamp(24px,6.8vw,28px)] font-black text-[#3182F6] tracking-tight mt-1">350,000원</p>
           </div>
 
-          <div id="kakaoWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
-            <p id="kakaoLaborWarning" class="text-[15.5px] font-black leading-snug text-[#E11D48]">
+          <div id="kakaoWarningBox" class="w-full bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
+            <p id="kakaoLaborWarning" class="text-[clamp(14px,4.1vw,16.5px)] font-black leading-snug text-[#E11D48]">
               🚨 소비 경보! <span id="kakaoLaborHours">35시간</span> 노동 필요
             </p>
-            <p id="kakaoWarningSub" class="text-[11px] font-bold text-[#9F1239] mt-0.5">
+            <p id="kakaoWarningSub" class="text-[clamp(10.5px,2.9vw,11.5px)] font-bold text-[#9F1239] mt-0.5">
               일 8시간 근무 기준 약 <span id="kakaoLaborDays">4.4일치 월급</span>에 해당해요
             </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
+          <div class="w-full grid grid-cols-2 gap-2.5">
+            <div class="bg-white rounded-xl p-2.5 sm:p-3 border border-slate-200/80 text-center min-w-0">
               <p class="text-[10.5px] font-bold text-[#64748B]">1회 실사용 체감</p>
-              <p id="kakaoPerUseInfo" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 4,118원 / 회</p>
+              <p id="kakaoPerUseInfo" class="text-[clamp(12.5px,3.6vw,14.5px)] font-black text-[#1D4ED8] mt-1">약 4,118원 / 회</p>
             </div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
+            <div class="bg-white rounded-xl p-2.5 sm:p-3 border border-slate-200/80 text-center min-w-0">
               <p id="kakaoRightMetricLabel" class="text-[10.5px] font-bold text-[#64748B]">노동 시간 환산</p>
-              <p id="kakaoWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">35시간 근무치</p>
+              <p id="kakaoWorkHoursCard" class="text-[clamp(12.5px,3.6vw,14.5px)] font-black text-[#6D28D9] mt-1">35시간 근무치</p>
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
+          <div class="w-full bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
             <span class="inline-block bg-[#FEE500] text-[#191F28] text-[9.5px] font-extrabold px-2 py-0.5 rounded mb-1.5">
               KAKAO POLL STICKER
             </span>
-            <p class="text-[12px] font-extrabold text-[#191F28] mb-2">
+            <p class="text-[clamp(11.5px,3.2vw,12.5px)] font-extrabold text-[#191F28] mb-2">
               내 통장 살릴지 죽일지 대신 투표 좀 👇
             </p>
             <div class="grid grid-cols-2 gap-1.5">
-              <button type="button" id="kakaoCardGoPollBtn" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2.5 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
+              <button type="button" id="kakaoCardGoPollBtn" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2.5 px-1 rounded-xl border border-blue-200 cursor-pointer min-w-0">
                 <span class="text-[16px] leading-none">🔥</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
+                <span class="text-[clamp(10.5px,3vw,12px)] font-extrabold leading-tight tracking-tighter">한 번 사는 인생 질러라!</span>
               </button>
-              <button type="button" id="kakaoCardGoMainBtn" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
+              <button type="button" id="kakaoCardGoMainBtn" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 px-1 rounded-xl border border-rose-200 cursor-pointer min-w-0">
                 <span class="text-[16px] leading-none">🛑</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
+                <span class="text-[clamp(10.5px,3vw,12px)] font-extrabold leading-tight tracking-tighter">정신 차려! 당장 참아!</span>
               </button>
             </div>
           </div>
@@ -1548,6 +1584,31 @@
             class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[14px] py-3 rounded-xl shadow-md transition-all cursor-pointer"
           >
             💬 카카오톡으로 공유하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. 모바일 웹/인앱브라우저 이미지 저장 보조 모달 (길게 눌러 앨범 저장 지원) -->
+    <div id="imageSaveFallbackModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-2 sm:p-4">
+      <div id="imageSaveFallbackBackdrop" class="absolute inset-0 bg-black/75 backdrop-fade opacity-0"></div>
+      <div id="imageSaveFallbackContent" class="relative z-10 w-full max-w-full sm:max-w-[400px] bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[94vh] overflow-y-auto text-center">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[12px] font-extrabold text-[#191F28]">🖼️ 이미지 저장 미리보기</span>
+          <button type="button" id="closeImageSaveFallbackBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
+        </div>
+        <p class="text-[12px] font-semibold text-[#3182F6] bg-[#EFF6FF] rounded-xl py-2 px-3 mb-2.5">
+          📱 아래 이미지를 <strong>길게 눌러 [사진 앱에 저장]</strong>하거나 아래 버튼으로 내려받으세요!
+        </p>
+        <div class="w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
+          <img id="imageSaveFallbackPreviewImg" alt="저장할 카드 이미지" class="w-full h-auto block select-auto" />
+        </div>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <button type="button" id="imageSaveFallbackShareBtn" class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[13px] py-2.5 rounded-xl cursor-pointer">
+            📤 공유 / 앨범 저장
+          </button>
+          <button type="button" id="imageSaveFallbackDownloadBtn" class="w-full bg-[#1E293B] hover:bg-[#0F172A] text-white font-extrabold text-[13px] py-2.5 rounded-xl cursor-pointer">
+            📥 파일 다운로드
           </button>
         </div>
       </div>
@@ -3633,7 +3694,7 @@
       document.getElementById('closeLevelModalTopBtn').addEventListener('click', closeLevelUpModal);
       levelBackdrop.addEventListener('click', closeLevelUpModal);
 
-      // 레벨 인증 전용 공유 버튼 (절약 업적만 공유!)
+      // 레벨 인증 전용 공유 버튼 (모바일에서는 실제 카드 PNG 이미지 공유 지원)
       async function shareLevelAchievementText(channelLabel) {
         const { totalCount, totalSaved } = getHistoryStats();
         const levelInfo = getLevelInfo(totalSaved);
@@ -3644,16 +3705,21 @@
           : `⏱️ 구출한 내 노동 시간: 약 ${formatNumber(totalHours)}시간!`;
         const text = `🏆 [짠테크 레벨 인증 카드]\n현재 등급: ${levelInfo.badgeText}\n"지름신 이겨내고 통장 방어 성공!"\n✨ 지금까지 총 ${formatNumber(totalCount)}번 참아서 누적 ${formatNumber(totalSaved)}원 절약 달성 🎉\n${bottomMetricLine}`;
 
-        if (navigator.share) {
-          try {
-            await navigator.share({ title: '나의 짠테크 레벨 인증', text });
-            return;
-          } catch (_) {}
+        try {
+          const canvas = await createLevelCertCanvas();
+          await saveOrShareCanvasImage(canvas, {
+            filename: `짠테크_레벨인증카드_${Date.now()}.png`,
+            shareTitle: '나의 짠테크 레벨 인증 카드',
+            shareText: text,
+            copyTextOnShare: text,
+            preferShareOnMobile: true,
+            successToast: `${channelLabel}용 레벨 인증 카드 이미지와 문구가 준비되었어요! 🏆`
+          });
+        } catch (err) {
+          console.error('Level card share failed:', err);
+          await copyTextToClipboard(text);
+          showToast(`${channelLabel}용 레벨 인증 문구가 복사되었어요! 🏆`);
         }
-        if (navigator.clipboard) {
-          await navigator.clipboard.writeText(text);
-        }
-        showToast(`${channelLabel}용 레벨 인증 문구가 복사되었어요! 🏆`);
       }
 
       document.getElementById('shareLevelInstaBtn').addEventListener('click', () => {
@@ -3835,10 +3901,11 @@
         const link = document.createElement('a');
         link.download = filename;
         link.href = url;
+        link.rel = 'noopener';
         document.body.appendChild(link);
         link.click();
         link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        setTimeout(() => URL.revokeObjectURL(url), 15000);
         if (successMsg) showToast(successMsg);
       }
 
@@ -3847,13 +3914,14 @@
           const link = document.createElement('a');
           link.download = filename;
           link.href = url;
+          link.rel = 'noopener';
           document.body.appendChild(link);
           link.click();
           link.remove();
           if (revokeAfter) {
-            setTimeout(() => URL.revokeObjectURL(url), 4000);
+            setTimeout(() => URL.revokeObjectURL(url), 15000);
           }
-          showToast(successMsg);
+          if (successMsg) showToast(successMsg);
         };
 
         if (typeof canvas.toBlob === 'function') {
@@ -3870,24 +3938,194 @@
         }
       }
 
-      // ④ 절약 레벨 인증 카드 (1080px 폭 순수 HTML5 Canvas 2D 드로잉)
-      async function drawLevelCertCardToPng(filename) {
-        try {
-          showToast('📸 레벨 인증 카드 이미지를 만들고 있어요...');
-          if (document.fonts && document.fonts.ready) {
-            await document.fonts.ready;
-          }
+      function isMobileClient() {
+        return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+          || (navigator.maxTouchPoints > 1 && window.innerWidth <= 900);
+      }
 
-          const pixelRatio = 3;
-          const W = 400;
-          const H = 568;
-          const canvas = document.createElement('canvas');
-          canvas.width = W * pixelRatio;
-          canvas.height = H * pixelRatio;
-          canvas.style.width = `${W}px`;
-          canvas.style.height = `${H}px`;
-          const ctx = canvas.getContext('2d');
-          ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      let fallbackImagePayload = null;
+      const imageSaveFallbackModal = document.getElementById('imageSaveFallbackModal');
+      const imageSaveFallbackBackdrop = document.getElementById('imageSaveFallbackBackdrop');
+      const imageSaveFallbackContent = document.getElementById('imageSaveFallbackContent');
+      const imageSaveFallbackPreviewImg = document.getElementById('imageSaveFallbackPreviewImg');
+
+      function openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText) {
+        if (!imageSaveFallbackModal || !imageSaveFallbackPreviewImg) return;
+        fallbackImagePayload = { dataUrl, blob, filename, shareTitle, shareText };
+        imageSaveFallbackPreviewImg.src = dataUrl;
+        imageSaveFallbackModal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          imageSaveFallbackBackdrop.classList.remove('opacity-0');
+          imageSaveFallbackBackdrop.classList.add('opacity-100');
+          imageSaveFallbackContent.classList.remove('scale-95', 'opacity-0');
+          imageSaveFallbackContent.classList.add('scale-100', 'opacity-100');
+        });
+      }
+
+      function closeImageSaveFallbackModal() {
+        if (!imageSaveFallbackModal) return;
+        imageSaveFallbackBackdrop.classList.remove('opacity-100');
+        imageSaveFallbackBackdrop.classList.add('opacity-0');
+        imageSaveFallbackContent.classList.remove('scale-100', 'opacity-100');
+        imageSaveFallbackContent.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+          imageSaveFallbackModal.classList.add('hidden');
+        }, 220);
+      }
+
+      document.getElementById('closeImageSaveFallbackBtn').addEventListener('click', closeImageSaveFallbackModal);
+      imageSaveFallbackBackdrop.addEventListener('click', closeImageSaveFallbackModal);
+
+      document.getElementById('imageSaveFallbackShareBtn').addEventListener('click', async () => {
+        if (!fallbackImagePayload) return;
+        const { blob, filename, shareTitle, shareText } = fallbackImagePayload;
+        try {
+          if (blob && typeof File !== 'undefined' && typeof navigator.share === 'function') {
+            const file = new File([blob], filename, { type: 'image/png' });
+            if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: shareTitle || '살까 말까 판독기 카드',
+                text: shareText || undefined
+              });
+              return;
+            }
+          }
+          showToast('📱 이 브라우저에서는 위 이미지를 길게 눌러 [사진 앱에 저장]해 주세요!');
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+          showToast('📱 위 이미지를 길게 눌러 [사진 앱에 저장]해 주세요!');
+        }
+      });
+
+      document.getElementById('imageSaveFallbackDownloadBtn').addEventListener('click', () => {
+        if (!fallbackImagePayload) return;
+        const { dataUrl, blob, filename } = fallbackImagePayload;
+        if (blob) {
+          triggerBlobDownload(blob, filename, '📥 이미지 다운로드를 요청했어요!');
+          return;
+        }
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        showToast('📥 이미지 다운로드를 요청했어요!');
+      });
+
+      // 모바일(Capacitor Native Share / Web Share API 파일 공유) 우선 + PC/인앱브라우저 폴백 통합 이미지 저장·공유기
+      async function saveOrShareCanvasImage(canvas, options = {}) {
+        const {
+          filename = `buy_or_bye_${Date.now()}.png`,
+          shareTitle = '살까 말까 판독기',
+          shareText = '',
+          copyTextOnShare = '',
+          preferShareOnMobile = true,
+          successToast = '📸 이미지가 준비되었어요!'
+        } = options;
+
+        if (copyTextOnShare) {
+          copyTextToClipboard(copyTextOnShare);
+        }
+
+        const dataUrl = canvas.toDataURL('image/png');
+        const blob = await canvasToPngBlob(canvas);
+        const mobile = isMobileClient();
+
+        // 1) Capacitor Android/iOS 앱 네이티브 공유 시트 (갤러리 저장/인스타/카톡 직접 전송)
+        const cap = window.Capacitor;
+        const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
+        if (isCapNative && cap.Plugins && cap.Plugins.Filesystem && cap.Plugins.Share) {
+          try {
+            const base64Data = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+            await cap.Plugins.Filesystem.writeFile({
+              path: filename,
+              data: base64Data,
+              directory: 'CACHE'
+            });
+            const uriResult = await cap.Plugins.Filesystem.getUri({
+              directory: 'CACHE',
+              path: filename
+            });
+            await cap.Plugins.Share.share({
+              title: shareTitle,
+              text: shareText || undefined,
+              url: uriResult.uri,
+              dialogTitle: shareTitle
+            });
+            if (successToast) showToast(successToast);
+            return 'capacitor-share';
+          } catch (capErr) {
+            if (capErr && /cancel/i.test(String(capErr.message || capErr))) {
+              return 'cancelled';
+            }
+            console.warn('Capacitor native share fallback:', capErr);
+          }
+        }
+
+        // 2) 모바일 웹 브라우저 Web Share API (File 객체 공유 -> 앨범 저장/카톡/인스타 시트)
+        if (mobile && preferShareOnMobile && blob && typeof File !== 'undefined' && typeof navigator.share === 'function') {
+          const file = new File([blob], filename, { type: 'image/png' });
+          const shareData = shareText
+            ? { files: [file], title: shareTitle, text: shareText }
+            : { files: [file], title: shareTitle };
+          const canShareFiles = !navigator.canShare || navigator.canShare({ files: [file] });
+          if (canShareFiles) {
+            try {
+              if (copyTextOnShare && successToast) {
+                showToast(successToast);
+              }
+              await navigator.share(shareData);
+              if (!copyTextOnShare && successToast) {
+                showToast(successToast);
+              }
+              return 'web-share';
+            } catch (shareErr) {
+              if (shareErr && shareErr.name === 'AbortError') {
+                return 'cancelled';
+              }
+              console.warn('Web Share file fallback:', shareErr);
+            }
+          }
+        }
+
+        // 3) 데스크톱 또는 파일 공유 미지원 모바일(인앱 브라우저 등) 폴백
+        if (blob) {
+          triggerBlobDownload(blob, filename, mobile ? '' : successToast);
+        } else {
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = dataUrl;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          if (!mobile && successToast) showToast(successToast);
+        }
+
+        if (mobile) {
+          openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
+          if (successToast) showToast(successToast);
+        }
+        return 'download-fallback';
+      }
+
+      // ④ 절약 레벨 인증 카드 (400x568 @3x 순수 HTML5 Canvas 2D 드로잉)
+      async function createLevelCertCanvas() {
+        if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
+          await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
+        }
+
+        const pixelRatio = 3;
+        const W = 400;
+        const H = 568;
+        const canvas = document.createElement('canvas');
+        canvas.width = W * pixelRatio;
+        canvas.height = H * pixelRatio;
+        canvas.style.width = `${W}px`;
+        canvas.style.height = `${H}px`;
+        const ctx = canvas.getContext('2d');
+        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
           // 모바일 세로형 비율(400x568 @3x = 1200x1704) + 최소 외곽 여백(4px)
           ctx.clearRect(0, 0, W, H);
@@ -4083,7 +4321,20 @@
           ctx.fillStyle = '#2563EB';
           ctx.fillText(goalPctText, rightBoxX + subW / 2, subY + 76);
 
-          triggerCanvasPngDownload(canvas, filename, '🏆 레벨 인증 카드 이미지가 저장되었어요!');
+          return canvas;
+      }
+
+      async function drawLevelCertCardToPng(filename) {
+        try {
+          showToast('📸 레벨 인증 카드 이미지를 만들고 있어요...');
+          const canvas = await createLevelCertCanvas();
+          await saveOrShareCanvasImage(canvas, {
+            filename,
+            shareTitle: '나의 짠테크 레벨 인증 카드',
+            shareText: '🏆 내 짠테크 절약 레벨 인증 카드',
+            preferShareOnMobile: true,
+            successToast: '🏆 레벨 인증 카드 이미지가 준비되었어요!'
+          });
         } catch (err) {
           console.error(err);
           showToast('⚠️ 이미지 저장에 실패했어요');
@@ -4092,8 +4343,8 @@
 
       // ①②③ 팩폭 영수증 카드 Canvas 생성기 (400x672 @3x 모바일 세로형 비율 유지)
       async function createReceiptCanvas() {
-        if (document.fonts && document.fonts.ready) {
-          await document.fonts.ready;
+        if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
+          await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
         }
 
         const pixelRatio = 3;
@@ -4325,7 +4576,13 @@
         try {
           showToast('📸 고화질 영수증 이미지를 만들고 있어요...');
           const canvas = await createReceiptCanvas();
-          triggerCanvasPngDownload(canvas, filename, successMsg);
+          await saveOrShareCanvasImage(canvas, {
+            filename,
+            shareTitle: '살까 말까 팩폭 영수증',
+            shareText: '🧾 살까 말까 팩폭 영수증',
+            preferShareOnMobile: true,
+            successToast: successMsg
+          });
         } catch (err) {
           console.error(err);
           showToast('⚠️ 이미지 저장에 실패했어요');
@@ -4722,13 +4979,11 @@
 
       document.getElementById('actionDownloadImgBtn').addEventListener('click', () => {
         closeShareSheet();
-        setTimeout(() => {
-          drawReceiptCardToPng(
-            'neutral',
-            `살까말까_팩폭영수증_${Date.now()}.png`,
-            '✅ 팩폭 영수증 이미지로 저장되었어요!'
-          );
-        }, 280);
+        drawReceiptCardToPng(
+          'neutral',
+          `살까말까_팩폭영수증_${Date.now()}.png`,
+          '✅ 팩폭 영수증 이미지가 준비되었어요!'
+        );
       });
 
       // 인스타 스토리 공유 카드 모달
@@ -4786,33 +5041,14 @@
         }
 
         try {
-          const copyPromise = copyTextToClipboard(shareUrl);
           const canvas = await createReceiptCanvas();
-          const pngBlob = await canvasToPngBlob(canvas);
-          await copyPromise;
-          const filename = `살까말까_팩폭영수증_${Date.now()}.png`;
-
-          if (pngBlob && typeof File !== 'undefined') {
-            const file = new File([pngBlob], filename, { type: 'image/png' });
-            const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] }) && typeof navigator.share === 'function') {
-              showToast(instaToastMsg);
-              try {
-                await navigator.share({
-                  files: [file],
-                  title: '살까 말까 팩폭 영수증'
-                });
-                return;
-              } catch (shareErr) {
-                if (shareErr && shareErr.name === 'AbortError') {
-                  return;
-                }
-              }
-            }
-            triggerBlobDownload(pngBlob, filename, instaToastMsg);
-            return;
-          }
-          triggerCanvasPngDownload(canvas, filename, instaToastMsg);
+          await saveOrShareCanvasImage(canvas, {
+            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
+            shareTitle: '살까 말까 팩폭 영수증',
+            copyTextOnShare: shareUrl,
+            preferShareOnMobile: true,
+            successToast: instaToastMsg
+          });
         } catch (err) {
           console.error('Insta image share failed:', err);
           showToast('⚠️ 이미지 공유 준비에 실패했어요');
@@ -4868,7 +5104,7 @@
 
       document.getElementById('shareKakaoTextBtn').addEventListener('click', async () => {
         const roomId = ensureRoomId();
-        await ensureRoomCreatedInDb(roomId);
+        ensureRoomCreatedInDb(roomId);
 
         const shareUrl = generateShareUrl();
         const displayName = (state.itemName || '').trim() || '노이즈 캔슬링 헤드폰';
@@ -4881,8 +5117,23 @@
           : `내 노동 ${formatNumber(laborHours)}시간 필요 (약 ${laborDays}일치 월급)`;
         const shareText = `💸 [살까 말까 판독기] 내 통장 살릴지 죽일지 대신 투표 좀! 👇\n📦 ${displayName} (${formatNumber(state.itemPrice)}원) / ⏰ ${timeSummary}`;
 
-        const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-        if (isMobile && typeof navigator.share === 'function') {
+        const cap = window.Capacitor;
+        const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
+        if (isCapNative && cap.Plugins && cap.Plugins.Share) {
+          try {
+            await cap.Plugins.Share.share({
+              title: '살까 말까 투표 요청',
+              text: shareText,
+              url: shareUrl,
+              dialogTitle: '카카오톡/친구에게 투표 공유'
+            });
+            return;
+          } catch (capErr) {
+            if (capErr && /cancel/i.test(String(capErr.message || capErr))) return;
+          }
+        }
+
+        if (isMobileClient() && typeof navigator.share === 'function') {
           try {
             await navigator.share({
               title: '살까 말까 투표 요청',
