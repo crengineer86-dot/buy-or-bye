@@ -146,12 +146,18 @@
       width: 0px;
       background: transparent;
     }
+
+    @media (hover: hover) {
+      .poll-choice-unselected:hover {
+        border-color: #60A5FA;
+      }
+    }
   </style>
 </head>
 <body class="min-h-screen flex justify-center items-start">
 
-  <!-- Mobile App Viewport Frame (Full-width on mobile, centered max 460px on desktop) -->
-  <div id="appFrame" class="w-full max-w-full sm:max-w-[460px] mx-auto min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
+  <!-- Mobile App Viewport Frame (Max 430px) -->
+  <div id="appFrame" class="w-full max-w-[430px] mx-auto min-h-screen bg-[#F8FAFC] shadow-2xl relative flex flex-col pb-6">
 
     <!-- Floating Toast Notification -->
     <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-[130] pointer-events-none transition-all duration-300 opacity-0 -translate-y-3 w-full max-w-[420px] px-3 flex justify-center">
@@ -165,15 +171,15 @@
     <!-- ========================================== -->
     <div id="mainAppView" class="flex flex-col flex-1">
       <!-- ① 상단 헤더 -->
-      <header class="sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-4 sm:px-5 pt-4 pb-3 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5 min-w-0">
+      <header class="sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-5 pt-4 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-[#3182F6] flex items-center justify-center text-white shadow-sm shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
-          <div class="flex flex-col items-start text-left min-w-0">
-            <h1 class="text-[19px] sm:text-xl font-extrabold tracking-tight text-slate-900 leading-tight m-0 p-0 truncate">살까 말까 판독기</h1>
+          <div class="flex flex-col items-start text-left">
+            <h1 class="text-xl font-extrabold tracking-tight text-slate-900 leading-tight m-0 p-0">살까 말까 판독기</h1>
             <span class="text-xs font-medium text-slate-400 leading-tight mt-0.5 pl-[1.5px]">지름신 방어 계산기</span>
           </div>
         </div>
@@ -181,7 +187,7 @@
         <button
           id="openWageSheetBtn"
           type="button"
-          class="bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 transition-all border border-[#DBEAFE] rounded-full px-3 py-1.5 flex items-center gap-1 text-[12px] font-semibold shadow-2xs cursor-pointer shrink-0 whitespace-nowrap"
+          class="bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 transition-all border border-[#DBEAFE] rounded-full px-3 py-1.5 flex items-center gap-1 text-[12px] font-semibold shadow-2xs cursor-pointer"
         >
           <span id="headerWageLabel" class="text-[#64748B]">시급</span>
           <span id="headerWageText" class="text-[#3182F6] font-bold">10,000원</span>
@@ -190,13 +196,13 @@
       </header>
 
       <!-- Main Content Area -->
-      <main class="px-4 sm:px-5 space-y-3.5 flex-1">
+      <main class="px-4 space-y-3.5 flex-1">
 
         <!-- Capture Area Wrapper (Used when saving result image) -->
         <div id="captureReportArea" class="space-y-3.5 bg-[#F8FAFC] rounded-3xl">
 
           <!-- ② 소비 분석 입력 카드 -->
-          <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
+          <section class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
             <div class="flex items-center justify-between mb-4">
               <span class="inline-flex items-center gap-1 bg-[#EFF6FF] text-[#3182F6] text-[11px] font-bold px-2.5 py-1 rounded-full">
                 <span>✦</span> 소비 분석 시작하기
@@ -205,12 +211,12 @@
 
             <!-- 사고 싶은 아이템 (우측 아이콘 박스 클릭 시 12대 카테고리 미니 팝오버 오픈) -->
             <div class="mb-4 relative" id="itemInputWrapper">
-              <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div class="flex items-center justify-between mb-1.5">
                 <label for="itemNameInput" class="block text-[12px] font-bold text-[#4E5968]">사고 싶은 아이템</label>
-                <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#94A3B8] text-right">아이콘 클릭 시 직접 변경</span>
+                <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#94A3B8]">아이콘 클릭 시 직접 변경</span>
               </div>
               <div class="flex items-center gap-2">
-                <div class="relative flex-1 min-w-0">
+                <div class="relative flex-1">
                   <input
                     id="itemNameInput"
                     type="text"
@@ -437,7 +443,7 @@
               <span id="purpleCardRightLabel" class="text-[11px] font-semibold text-[#A78BFA]">시급 대비</span>
             </div>
 
-            <p id="purpleCardMainSentence" class="text-[clamp(16px,4.5vw,18px)] leading-snug font-extrabold text-[#191F28] tracking-tight my-2">
+            <p id="purpleCardMainSentence" class="text-[18px] leading-snug font-extrabold text-[#191F28] tracking-tight whitespace-nowrap my-2">
               이 물건을 사려면 총
               <span id="laborHoursText" class="text-[#6D28D9] underline decoration-2 underline-offset-4">35시간</span>
               일해야 해요
@@ -464,11 +470,11 @@
               <div id="challengePigIcon" class="w-12 h-12 rounded-2xl bg-[#FFF1F2] border border-[#FFE4E6] flex items-center justify-center text-[24px] shrink-0 shadow-2xs transition-colors">
                 🐷
               </div>
-              <div class="min-w-0 flex-1">
-                <h3 class="text-[14.5px] sm:text-[15px] font-extrabold text-[#191F28] leading-snug">
+              <div class="min-w-0 flex-1 overflow-hidden">
+                <h3 class="text-[15px] font-extrabold text-[#191F28] whitespace-nowrap">
                   안 사고 아낀 돈 저축 챌린지
                 </h3>
-                <p id="challengeSubDesc" class="text-[12px] font-semibold text-[#64748B] mt-0.5 leading-snug">
+                <p id="challengeSubDesc" class="text-[12px] font-semibold text-[#64748B] mt-0.5 leading-snug whitespace-nowrap overflow-hidden text-ellipsis">
                   <span id="challengePriceText" class="text-[#3182F6] font-extrabold">350,000원</span> 통장에 넣고 뿌듯함 챙기기
                 </p>
               </div>
@@ -520,7 +526,7 @@
 
             <!-- 하단: 프로그레스 바 영역 (별도 구분) -->
             <div class="mt-3 pt-2.5 border-t border-slate-200/70">
-              <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5 text-[11px] mb-1.5">
+              <div class="flex items-center justify-between text-[11px] mb-1.5">
                 <span id="nextLevelLabel" class="font-extrabold text-[#2563EB]">다음 프로 짠테크러 (Lv.4)</span>
                 <span id="remainingGoalLabel" class="font-semibold text-[#64748B]">
                   남은 금액 <strong class="text-[#3182F6] font-extrabold">29,000원 (94.2%)</strong>
@@ -545,17 +551,17 @@
         </section>
 
         <!-- ⑤ 참아낸 지출 기록부 (타임라인 히스토리) -->
-        <section class="bg-white rounded-3xl p-4 sm:p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
-              <span class="text-[16px] shrink-0">📜</span>
-              <h2 class="text-[14.5px] sm:text-[15px] font-extrabold text-[#191F28] truncate">참아낸 지출 기록부</h2>
-              <span id="historyCountBadge" class="bg-[#EFF6FF] text-[#3182F6] text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap">
+        <section class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-[16px]">📜</span>
+              <h2 class="text-[15px] font-extrabold text-[#191F28]">참아낸 지출 기록부</h2>
+              <span id="historyCountBadge" class="bg-[#EFF6FF] text-[#3182F6] text-[11px] font-extrabold px-2 py-0.5 rounded-full">
                 총 3건
               </span>
             </div>
 
-            <div class="flex items-center gap-1 shrink-0 whitespace-nowrap">
+            <div class="flex items-center gap-1">
               <button
                 id="resetHistoryBtn"
                 type="button"
@@ -632,22 +638,22 @@
     <!-- ========================================== -->
     <div id="friendPollView" class="hidden flex-col flex-1 bg-[#F8FAFC]">
       <!-- 상단 네비게이션 헤더 -->
-      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-2">
-        <button type="button" id="backFromPollToMainBtn" class="flex items-center gap-1 text-[#191F28] font-bold text-[13px] sm:text-[13.5px] py-1 px-2 rounded-lg hover:bg-slate-100 cursor-pointer shrink-0 whitespace-nowrap">
+      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <button type="button" id="backFromPollToMainBtn" class="flex items-center gap-1 text-[#191F28] font-bold text-[13.5px] py-1 px-2 rounded-lg hover:bg-slate-100 cursor-pointer">
           <span>← 메인으로</span>
         </button>
-        <h2 class="text-[15px] sm:text-[16px] font-extrabold text-[#191F28] truncate text-center">실시간 살까 말까 투표판</h2>
-        <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-rose-600 bg-rose-50 border border-rose-200/70 px-2.5 py-1 rounded-full shrink-0 whitespace-nowrap">
+        <h2 class="text-[16px] font-extrabold text-[#191F28]">실시간 살까 말까 투표판</h2>
+        <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-rose-600 bg-rose-50 border border-rose-200/70 px-2.5 py-1 rounded-full">
           <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
           LIVE
         </span>
       </header>
 
-      <div class="px-4 sm:px-5 py-4 space-y-3.5 flex-1">
+      <div class="p-4 space-y-3.5 flex-1">
         <!-- 상단 SOS 타이틀 카드 -->
         <section class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
           <span class="inline-flex items-center gap-1 bg-rose-50 text-rose-600 border border-rose-200/70 text-[11px] font-extrabold px-2.5 py-1 rounded-full mb-2.5">
-            민우님이 SOS를 보냈어요 🆘
+            살까 말까 고민 중인 SOS가 도착했어요! 🆘
           </span>
           <h3 class="text-[21px] font-black text-[#191F28] leading-snug">
             이거 진짜 살까 말까?<br />
@@ -679,15 +685,15 @@
           <div class="flex items-center justify-between mb-2.5">
             <span class="inline-flex items-center gap-1.5 bg-rose-50 text-rose-600 text-[11px] font-extrabold px-2.5 py-1 rounded-full">
               <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-              <span id="pollTotalVotesBadge">총 28명 참여 투표 중</span>
+              <span id="pollTotalVotesBadge">총 0명 참여 투표 중</span>
             </span>
             <span class="text-[11px] font-semibold text-[#8B95A1]">버튼을 눌러 투표하세요</span>
           </div>
 
           <!-- 실시간 득표율 게이지 바 -->
           <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex mb-4 p-0.5 border border-slate-200/70">
-            <div id="pollBuyBar" class="h-full bg-[#60A5FA] rounded-l-full transition-all duration-500" style="width: 21%"></div>
-            <div id="pollByeBar" class="h-full bg-[#3182F6] rounded-r-full transition-all duration-500" style="width: 79%"></div>
+            <div id="pollBuyBar" class="h-full bg-slate-200 rounded-l-full transition-all duration-500" style="width: 50%"></div>
+            <div id="pollByeBar" class="h-full bg-slate-200 rounded-r-full transition-all duration-500" style="width: 50%"></div>
           </div>
 
           <!-- 양자택일 투표 버튼 2종 -->
@@ -696,20 +702,18 @@
             <button
               type="button"
               id="voteBuyBtn"
-              class="text-left rounded-2xl p-3.5 sm:p-4 border-2 border-slate-200 hover:border-blue-400 bg-[#F8FAFC] active:scale-[0.98] transition-all cursor-pointer relative flex flex-col justify-between min-w-0"
+              class="poll-choice-unselected text-left rounded-2xl p-4 border-2 border-slate-200 bg-[#F8FAFC] active:scale-[0.98] transition-all cursor-pointer relative outline-none"
             >
               <span id="voteBuyLeaderBadge" class="hidden absolute -top-2.5 right-3 bg-[#3182F6] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs">
                 현재 우세 🔥
               </span>
-              <div>
-                <div class="flex items-center justify-between gap-1">
-                  <span id="voteBuyOptionLabel" class="block text-[10px] font-extrabold text-[#8B95A1] uppercase">OPTION A</span>
-                  <span id="voteBuyMyBadge" class="hidden text-[9.5px] sm:text-[10px] font-extrabold text-[#3182F6] bg-[#DBEAFE] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0">✓ 선택됨</span>
-                </div>
-                <p class="text-[13px] sm:text-[13.5px] font-extrabold text-[#191F28] mt-1 leading-snug">
-                  인생 한 번뿐 질러라 💸
-                </p>
+              <div class="flex items-center justify-between gap-1">
+                <span id="voteBuyOptionLabel" class="block text-[10px] font-extrabold text-[#8B95A1] uppercase">OPTION A</span>
+                <span id="voteBuyMyBadge" class="hidden text-[10px] font-extrabold text-[#3182F6] bg-[#DBEAFE] px-1.5 py-0.5 rounded-full whitespace-nowrap">✓ 선택됨</span>
               </div>
+              <p class="text-[13.5px] font-extrabold text-[#191F28] mt-1">
+                인생 한 번뿐 질러라 💸
+              </p>
               <div class="flex items-baseline justify-between mt-3">
                 <span id="voteBuyPctText" class="text-[22px] font-black text-[#475569]">0%</span>
                 <span id="voteBuyCountText" class="text-[11.5px] font-bold text-[#94A3B8]">0표</span>
@@ -720,20 +724,18 @@
             <button
               type="button"
               id="voteByeBtn"
-              class="text-left rounded-2xl p-3.5 sm:p-4 border-2 border-slate-200 hover:border-blue-400 bg-[#F8FAFC] active:scale-[0.98] transition-all cursor-pointer relative flex flex-col justify-between min-w-0"
+              class="poll-choice-unselected text-left rounded-2xl p-4 border-2 border-slate-200 bg-[#F8FAFC] active:scale-[0.98] transition-all cursor-pointer relative outline-none"
             >
               <span id="voteLeaderBadge" class="hidden absolute -top-2.5 right-3 bg-[#3182F6] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-2xs">
                 현재 우세 🔥
               </span>
-              <div>
-                <div class="flex items-center justify-between gap-1">
-                  <span id="voteByeOptionLabel" class="block text-[10px] font-extrabold text-[#8B95A1] uppercase">OPTION B</span>
-                  <span id="voteByeMyBadge" class="hidden text-[9.5px] sm:text-[10px] font-extrabold text-[#3182F6] bg-[#DBEAFE] px-1.5 py-0.5 rounded-full whitespace-nowrap shrink-0">✓ 선택됨</span>
-                </div>
-                <p class="text-[13px] sm:text-[13.5px] font-extrabold text-[#191F28] mt-1 leading-snug">
-                  정신 차려 텅장이야 🛑
-                </p>
+              <div class="flex items-center justify-between gap-1">
+                <span id="voteByeOptionLabel" class="block text-[10px] font-extrabold text-[#8B95A1] uppercase">OPTION B</span>
+                <span id="voteByeMyBadge" class="hidden text-[10px] font-extrabold text-[#3182F6] bg-[#DBEAFE] px-1.5 py-0.5 rounded-full whitespace-nowrap">✓ 선택됨</span>
               </div>
+              <p class="text-[13.5px] font-extrabold text-[#191F28] mt-1">
+                정신 차려 텅장이야 🛑
+              </p>
               <div class="flex items-baseline justify-between mt-3">
                 <span id="voteByePctText" class="text-[22px] font-black text-[#475569]">0%</span>
                 <span id="voteByeCountText" class="text-[11.5px] font-bold text-[#94A3B8]">0표</span>
@@ -744,7 +746,7 @@
           <div class="mt-3.5 bg-[#FFF1F2] border border-rose-100 rounded-2xl px-3.5 py-2.5 flex items-center gap-2">
             <span class="text-[15px]">🚨</span>
             <p id="pollStatusSummaryText" class="text-[12px] font-bold text-rose-700 leading-snug">
-              현재 '정신 차려 텅장이야' 의견이 압도적으로 많아요!
+              아직 투표가 없어요! 친구들에게 공유하거나 첫 표를 던져보세요 👇
             </p>
           </div>
         </section>
@@ -754,7 +756,7 @@
           <div class="flex items-center justify-between mb-3.5">
             <div class="flex items-center gap-1.5">
               <h4 class="text-[15px] font-extrabold text-[#191F28]">친구들의 실시간 팩폭</h4>
-              <span id="pollCommentCountText" class="text-[14px] font-black text-[#3182F6]">4</span>
+              <span id="pollCommentCountText" class="text-[14px] font-black text-[#3182F6]">0</span>
             </div>
             <span class="text-[11px] font-semibold text-[#94A3B8]">최신순</span>
           </div>
@@ -770,7 +772,7 @@
               id="newPollCommentInput"
               type="text"
               placeholder="한 줄 팩폭 참견 남기기..."
-              class="flex-1 min-w-0 bg-[#F8FAFC] focus:bg-white text-[13px] font-semibold text-[#191F28] px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#3182F6] focus:outline-none"
+              class="flex-1 bg-[#F8FAFC] focus:bg-white text-[13px] font-semibold text-[#191F28] px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-[#3182F6] focus:outline-none"
             />
             <button
               type="button"
@@ -807,34 +809,34 @@
     <!-- ========================================== -->
     <div id="finalVerdictView" class="hidden flex-col flex-1 bg-[#F8FAFC]">
       <!-- 상단 네비게이션 헤더 -->
-      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 sm:px-5 py-3.5 border-b border-slate-100 flex items-center justify-between gap-2">
-        <button type="button" id="backFromVerdictToPollBtn" class="flex items-center gap-1 text-[#191F28] font-bold text-[13px] sm:text-[13.5px] py-1 px-2 rounded-lg hover:bg-slate-100 cursor-pointer shrink-0 whitespace-nowrap">
+      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <button type="button" id="backFromVerdictToPollBtn" class="flex items-center gap-1 text-[#191F28] font-bold text-[13.5px] py-1 px-2 rounded-lg hover:bg-slate-100 cursor-pointer">
           <span>← 투표판으로</span>
         </button>
-        <h2 class="text-[15px] sm:text-[16px] font-extrabold text-[#191F28] truncate text-center">내가 보는 최종 판정 결과</h2>
-        <button type="button" id="backFromVerdictToMainBtn" class="text-[11.5px] font-extrabold text-[#64748B] bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-full cursor-pointer shrink-0 whitespace-nowrap">
+        <h2 class="text-[16px] font-extrabold text-[#191F28]">내가 보는 최종 판정 결과</h2>
+        <button type="button" id="backFromVerdictToMainBtn" class="text-[11.5px] font-extrabold text-[#64748B] bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-full cursor-pointer">
           홈으로
         </button>
       </header>
 
-      <div class="px-4 sm:px-5 py-4 space-y-3.5 flex-1">
+      <div class="p-4 space-y-3.5 flex-1">
         <!-- 최종 판정 헤드라인 카드 -->
         <section class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
           <div class="flex items-center gap-2 mb-2.5">
             <span id="verdictClosedBadge" class="inline-flex items-center gap-1 bg-slate-100 text-[#475569] text-[11px] font-extrabold px-2.5 py-1 rounded-full">
-              ● 투표 마감 • 총 28명 판정 참여
+              ● 아직 투표자가 없어요 • 0명 참여
             </span>
           </div>
 
-          <span id="verdictTopDecisionTag" class="inline-block bg-rose-100 text-rose-600 text-[11px] font-extrabold px-2.5 py-0.5 rounded-md mb-1.5">
-            🚨 최종 판정 : 구매 기각
+          <span id="verdictTopDecisionTag" class="inline-block bg-slate-100 text-[#475569] text-[11px] font-extrabold px-2.5 py-0.5 rounded-md mb-1.5">
+            ⏳ 투표 대기 중 • 집계 전
           </span>
-          <h3 class="text-[20px] font-black text-[#191F28] leading-snug">
-            친구들의 강력한 팩폭으로<br />
-            <span class="text-rose-600">구매가 기각되었습니다! 🚨</span>
+          <h3 id="verdictDecisionHeadline" class="text-[20px] font-black text-[#191F28] leading-snug">
+            아직 투표한 사람이 없어요!<br />
+            <span class="text-[#3182F6]">친구들에게 먼저 투표를 받아볼까요? 🗳️</span>
           </h3>
           <p id="verdictSubSummaryText" class="text-[12.5px] font-semibold text-[#64748B] mt-1.5">
-            친구 79%가 내 소중한 통장을 지키라고 단호하게 말렸어요.
+            아직 집계된 투표가 없어요. 친구들에게 공유해 첫 팩폭 투표를 받아보세요!
           </p>
 
           <!-- 지켜낸 가치 요약 박스 -->
@@ -844,7 +846,7 @@
                 🎧
               </div>
               <div>
-                <span class="text-[11px] font-bold text-rose-500">기각된 아이템</span>
+                <span id="verdictItemStatusLabel" class="text-[11px] font-bold text-[#64748B]">고민 중인 아이템</span>
                 <h4 id="verdictItemName" class="text-[14.5px] font-extrabold text-[#191F28]">노이즈 캔슬링 헤드폰</h4>
                 <p id="verdictItemPrice" class="text-[18px] font-black text-[#191F28]">350,000원</p>
               </div>
@@ -855,7 +857,7 @@
                 <span>🛡️</span>
                 <span id="verdictSavedHoursTitle">지켜낸 내 노동 시간 : 35시간!</span>
               </p>
-              <p id="verdictSavedDaysDesc" class="text-xs font-semibold text-[#3B82F6] mt-0.5 leading-snug tracking-tight">
+              <p id="verdictSavedDaysDesc" class="text-xs font-semibold text-[#3B82F6] mt-0.5 whitespace-nowrap tracking-tight">
                 일 8시간 기준 약 4.4일치 월급을 무사히 방어했어요.
               </p>
             </div>
@@ -866,32 +868,32 @@
         <section class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100">
           <div class="flex items-center justify-between mb-2.5">
             <h4 class="text-[14px] font-extrabold text-[#191F28]">📊 친구들의 최종 투표 결과</h4>
-            <span id="verdictTotalVoterText" class="text-[11px] font-bold text-[#8B95A1]">28명 참여</span>
+            <span id="verdictTotalVoterText" class="text-[11px] font-bold text-[#8B95A1]">0명 참여</span>
           </div>
 
           <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex mb-3">
-            <div id="verdictBuyBar" class="h-full bg-slate-300 transition-all duration-500" style="width: 21%"></div>
-            <div id="verdictByeBar" class="h-full bg-rose-500 transition-all duration-500" style="width: 79%"></div>
+            <div id="verdictBuyBar" class="h-full bg-slate-200 transition-all duration-500" style="width: 50%"></div>
+            <div id="verdictByeBar" class="h-full bg-slate-200 transition-all duration-500" style="width: 50%"></div>
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <!-- 좌측(1번): 질러라 -->
             <div id="verdictBuyCard" class="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-3">
               <div class="flex items-center justify-between">
-                <span id="verdictBuyTag" class="text-[11px] font-bold text-[#64748B]">소수 의견</span>
-                <span id="verdictBuyPct" class="text-[16px] font-black text-[#64748B]">21%</span>
+                <span id="verdictBuyTag" class="text-[11px] font-bold text-[#94A3B8]">대기 중</span>
+                <span id="verdictBuyPct" class="text-[16px] font-black text-[#64748B]">0%</span>
               </div>
-              <p id="verdictBuyCount" class="text-[12px] font-extrabold text-[#475569] mt-1.5">질러라 (6명)</p>
+              <p id="verdictBuyCount" class="text-[12px] font-extrabold text-[#475569] mt-1.5">질러라 (0명)</p>
               <p class="text-[11px] text-[#94A3B8] mt-0.5">"인생 한 번뿐 질러라 💸"</p>
             </div>
 
             <!-- 우측(2번): 참아라 -->
-            <div id="verdictByeCard" class="bg-rose-50/70 border border-rose-200 rounded-2xl p-3">
+            <div id="verdictByeCard" class="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-3">
               <div class="flex items-center justify-between">
-                <span id="verdictByeTag" class="bg-rose-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded">🔥 참아라 승리</span>
-                <span id="verdictByePct" class="text-[16px] font-black text-rose-600">79%</span>
+                <span id="verdictByeTag" class="text-[11px] font-bold text-[#94A3B8]">대기 중</span>
+                <span id="verdictByePct" class="text-[16px] font-black text-[#64748B]">0%</span>
               </div>
-              <p id="verdictByeCount" class="text-[12px] font-extrabold text-[#191F28] mt-1.5">참아라 (22명)</p>
+              <p id="verdictByeCount" class="text-[12px] font-extrabold text-[#475569] mt-1.5">참아라 (0명)</p>
               <p class="text-[11px] text-[#64748B] mt-0.5">"정신 차려 텅장이야 🛑"</p>
             </div>
           </div>
@@ -943,7 +945,7 @@
     <div id="wageBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="wageSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="wageSheetContent" class="w-full max-w-full sm:max-w-[460px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="wageSheetContent" class="w-full max-w-[430px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
 
           <div class="flex items-center justify-between mb-1.5">
@@ -1312,7 +1314,7 @@
     <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
       <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
       <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="shareSheetContent" class="w-full max-w-full sm:max-w-[460px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+        <div id="shareSheetContent" class="w-full max-w-[430px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -1628,41 +1630,9 @@
         }
       ];
 
-      // 초기 샘플 팩폭 댓글 4건
-      const DEFAULT_POLL_COMMENTS = [
-        {
-          id: 'c-1',
-          author: '익명의 통장 요정',
-          avatar: '🧚',
-          time: '방금 전',
-          text: '집에 있는 에어팟이나 잘 써라... 제발 방구석 음악가야 😭',
-          likes: 18
-        },
-        {
-          id: 'c-2',
-          author: '시급 루팡 직장인',
-          avatar: '💼',
-          time: '3분 전',
-          text: '35시간이면 일주일 내내 상사 눈치 보며 일하는 돈임 ㅋㅋ 당장 멈춰!',
-          likes: 14
-        },
-        {
-          id: 'c-3',
-          author: '팩폭러 제니',
-          avatar: '🔥',
-          time: '12분 전',
-          text: '노캔 켜도 이번 달 카드값 알림은 캔슬링 안 됨 ㅋㅋ 정신차려!',
-          likes: 11
-        },
-        {
-          id: 'c-4',
-          author: '프로 거절러',
-          avatar: '🛑',
-          time: '25분 전',
-          text: '이번 달 통장 잔고 얼마 남았는지 먼저 보고 말해라 ㅎㅎ',
-          likes: 7
-        }
-      ];
+      // 초기 팩폭 댓글은 빈 상태로 시작 (사용자가 직접 등록한 내용만 표시)
+      const DEFAULT_POLL_COMMENTS = [];
+      const LEGACY_SAMPLE_COMMENT_IDS = new Set(['c-1', 'c-2', 'c-3', 'c-4']);
 
       // 기본 상태
       const defaultState = {
@@ -1687,7 +1657,7 @@
         roomId: '',
         pollBuyVotes: 0,
         pollByeVotes: 0,
-        pollComments: DEFAULT_POLL_COMMENTS.map((c) => ({ ...c }))
+        pollComments: []
       };
 
       // Google Firebase Realtime Database 초기화
@@ -1938,7 +1908,7 @@
               ...defaultState,
               isInitialized: true,
               history: DEFAULT_HISTORY.map((i) => ({ ...i })),
-              pollComments: DEFAULT_POLL_COMMENTS.map((c) => ({ ...c }))
+              pollComments: []
             };
           }
           const parsed = JSON.parse(raw);
@@ -1947,21 +1917,22 @@
             : parsed.isInitialized
               ? []
               : DEFAULT_HISTORY.map((i) => ({ ...i }));
+          const loadedComments = Array.isArray(parsed.pollComments)
+            ? parsed.pollComments.filter((c) => c && !LEGACY_SAMPLE_COMMENT_IDS.has(String(c.id || '')))
+            : [];
           return {
             ...defaultState,
             ...parsed,
             isInitialized: true,
             history: loadedHistory,
-            pollComments: Array.isArray(parsed.pollComments) && parsed.pollComments.length > 0
-              ? parsed.pollComments
-              : DEFAULT_POLL_COMMENTS.map((c) => ({ ...c }))
+            pollComments: loadedComments
           };
         } catch (e) {
           return {
             ...defaultState,
             isInitialized: true,
             history: DEFAULT_HISTORY.map((i) => ({ ...i })),
-            pollComments: DEFAULT_POLL_COMMENTS.map((c) => ({ ...c }))
+            pollComments: []
           };
         }
       }
@@ -2525,15 +2496,21 @@
         const statusSummary = document.getElementById('pollStatusSummaryText');
 
         const selectedCardClass =
-          'text-left rounded-2xl p-4 border-2 border-[#3182F6] bg-[#EFF6FF]/90 ring-2 ring-[#3182F6]/25 active:scale-[0.98] transition-all cursor-pointer relative shadow-xs';
+          'text-left rounded-2xl p-4 border-2 border-[#3182F6] bg-[#EFF6FF]/90 ring-2 ring-[#3182F6]/25 active:scale-[0.98] transition-all cursor-pointer relative shadow-xs outline-none';
         const unselectedCardClass =
-          'text-left rounded-2xl p-4 border-2 border-slate-200 hover:border-blue-400 bg-[#F8FAFC] active:scale-[0.98] transition-all cursor-pointer relative';
+          'poll-choice-unselected text-left rounded-2xl p-4 border-2 border-slate-200 bg-[#F8FAFC] active:scale-[0.98] transition-all cursor-pointer relative ring-0 shadow-none outline-none';
 
         const isBuySelected = myVote === 'buy';
         const isByeSelected = myVote === 'bye';
 
-        if (voteBuyBtnEl) voteBuyBtnEl.className = isBuySelected ? selectedCardClass : unselectedCardClass;
-        if (voteByeBtnEl) voteByeBtnEl.className = isByeSelected ? selectedCardClass : unselectedCardClass;
+        if (voteBuyBtnEl) {
+          voteBuyBtnEl.className = isBuySelected ? selectedCardClass : unselectedCardClass;
+          if (!isBuySelected && document.activeElement === voteBuyBtnEl) voteBuyBtnEl.blur();
+        }
+        if (voteByeBtnEl) {
+          voteByeBtnEl.className = isByeSelected ? selectedCardClass : unselectedCardClass;
+          if (!isByeSelected && document.activeElement === voteByeBtnEl) voteByeBtnEl.blur();
+        }
         if (voteBuyMyBadgeEl) voteBuyMyBadgeEl.classList.toggle('hidden', !isBuySelected);
         if (voteByeMyBadgeEl) voteByeMyBadgeEl.classList.toggle('hidden', !isByeSelected);
 
@@ -2585,34 +2562,111 @@
         }
 
         // 댓글 리스트 렌더링
-        document.getElementById('pollCommentCountText').textContent = formatNumber(state.pollComments.length);
+        const comments = Array.isArray(state.pollComments) ? state.pollComments : [];
+        document.getElementById('pollCommentCountText').textContent = formatNumber(comments.length);
         const commentListEl = document.getElementById('pollCommentList');
         commentListEl.innerHTML = '';
-        state.pollComments.forEach((c) => {
-          const item = document.createElement('div');
-          item.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5';
-          item.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[15px] shrink-0">
-              ${escapeHtml(c.avatar || '💬')}
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[12px] font-extrabold text-[#191F28]">${escapeHtml(c.author)}</span>
-                <span class="text-[10.5px] font-medium text-[#94A3B8]">${escapeHtml(c.time)}</span>
-              </div>
-              <p class="text-[12.5px] font-semibold text-[#475569] mt-1 leading-snug">${escapeHtml(c.text)}</p>
+        if (comments.length === 0) {
+          commentListEl.innerHTML = `
+            <div class="text-center py-6 px-4 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
+              <p class="text-[12.5px] font-bold text-[#64748B]">아직 등록된 팩폭 참견이 없어요</p>
+              <p class="text-[11px] font-medium text-[#94A3B8] mt-1">아래 입력창에 첫 번째 한 줄 팩폭을 남겨보세요 💬</p>
             </div>
           `;
-          commentListEl.appendChild(item);
-        });
+        } else {
+          comments.forEach((c) => {
+            const item = document.createElement('div');
+            item.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5';
+            item.innerHTML = `
+              <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[15px] shrink-0">
+                ${escapeHtml(c.avatar || '💬')}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[12px] font-extrabold text-[#191F28]">${escapeHtml(c.author)}</span>
+                  <span class="text-[10.5px] font-medium text-[#94A3B8]">${escapeHtml(c.time)}</span>
+                </div>
+                <p class="text-[12.5px] font-semibold text-[#475569] mt-1 leading-snug">${escapeHtml(c.text)}</p>
+              </div>
+            `;
+            commentListEl.appendChild(item);
+          });
+        }
 
-        // 화면 ②: 최종 판정 결과 동기화
-        document.getElementById('verdictClosedBadge').textContent = `● 투표 마감 • 총 ${formatNumber(rawTotalVotes)}명 판정 참여`;
-        document.getElementById('verdictSubSummaryText').textContent = rawTotalVotes === 0
-          ? '아직 집계된 투표가 없어요. 친구들에게 공유해 첫 팩폭 투표를 받아보세요!'
-          : buyVotes > byeVotes
-            ? `친구 ${buyPct}%가 한 번쯤은 질러도 좋다고 응원했어요.`
-            : `친구 ${byePct}%가 내 소중한 통장을 지키라고 만장일치급 팩폭을 날렸어요.`;
+        // 화면 ②: 최종 판정 결과 동기화 (0표 / 질러라 우세 / 참아라 우세 / 동률 분기)
+        const verdictClosedBadgeEl = document.getElementById('verdictClosedBadge');
+        const verdictTopDecisionTagEl = document.getElementById('verdictTopDecisionTag');
+        const verdictDecisionHeadlineEl = document.getElementById('verdictDecisionHeadline');
+        const verdictSubSummaryEl = document.getElementById('verdictSubSummaryText');
+        const verdictItemStatusLabelEl = document.getElementById('verdictItemStatusLabel');
+
+        if (verdictClosedBadgeEl) {
+          verdictClosedBadgeEl.textContent = rawTotalVotes === 0
+            ? '● 아직 투표자가 없어요 • 0명 참여'
+            : `● 투표 마감 • 총 ${formatNumber(rawTotalVotes)}명 판정 참여`;
+        }
+        if (rawTotalVotes === 0) {
+          if (verdictTopDecisionTagEl) {
+            verdictTopDecisionTagEl.className = 'inline-block bg-slate-100 text-[#475569] text-[11px] font-extrabold px-2.5 py-0.5 rounded-md mb-1.5';
+            verdictTopDecisionTagEl.textContent = '⏳ 투표 대기 중 • 집계 전';
+          }
+          if (verdictDecisionHeadlineEl) {
+            verdictDecisionHeadlineEl.innerHTML = '아직 투표한 사람이 없어요!<br /><span class="text-[#3182F6]">친구들에게 먼저 투표를 받아볼까요? 🗳️</span>';
+          }
+          if (verdictSubSummaryEl) {
+            verdictSubSummaryEl.textContent = '아직 집계된 투표가 없어요. 친구들에게 공유해 첫 팩폭 투표를 받아보세요!';
+          }
+          if (verdictItemStatusLabelEl) {
+            verdictItemStatusLabelEl.className = 'text-[11px] font-bold text-[#64748B]';
+            verdictItemStatusLabelEl.textContent = '고민 중인 아이템';
+          }
+        } else if (buyVotes > byeVotes) {
+          if (verdictTopDecisionTagEl) {
+            verdictTopDecisionTagEl.className = 'inline-block bg-[#DBEAFE] text-[#1D4ED8] text-[11px] font-extrabold px-2.5 py-0.5 rounded-md mb-1.5';
+            verdictTopDecisionTagEl.textContent = '💸 최종 판정 : 구매 허가';
+          }
+          if (verdictDecisionHeadlineEl) {
+            verdictDecisionHeadlineEl.innerHTML = '친구들의 화끈한 응원으로<br /><span class="text-[#3182F6]">구매가 승인되었습니다! 💸</span>';
+          }
+          if (verdictSubSummaryEl) {
+            verdictSubSummaryEl.textContent = `친구 ${buyPct}%가 한 번쯤은 질러도 좋다고 응원했어요.`;
+          }
+          if (verdictItemStatusLabelEl) {
+            verdictItemStatusLabelEl.className = 'text-[11px] font-bold text-[#3182F6]';
+            verdictItemStatusLabelEl.textContent = '승인된 아이템';
+          }
+        } else if (byeVotes > buyVotes) {
+          if (verdictTopDecisionTagEl) {
+            verdictTopDecisionTagEl.className = 'inline-block bg-rose-100 text-rose-600 text-[11px] font-extrabold px-2.5 py-0.5 rounded-md mb-1.5';
+            verdictTopDecisionTagEl.textContent = '🚨 최종 판정 : 구매 기각';
+          }
+          if (verdictDecisionHeadlineEl) {
+            verdictDecisionHeadlineEl.innerHTML = '친구들의 강력한 팩폭으로<br /><span class="text-rose-600">구매가 기각되었습니다! 🚨</span>';
+          }
+          if (verdictSubSummaryEl) {
+            verdictSubSummaryEl.textContent = `친구 ${byePct}%가 내 소중한 통장을 지키라고 단호하게 말렸어요.`;
+          }
+          if (verdictItemStatusLabelEl) {
+            verdictItemStatusLabelEl.className = 'text-[11px] font-bold text-rose-500';
+            verdictItemStatusLabelEl.textContent = '기각된 아이템';
+          }
+        } else {
+          if (verdictTopDecisionTagEl) {
+            verdictTopDecisionTagEl.className = 'inline-block bg-amber-100 text-amber-700 text-[11px] font-extrabold px-2.5 py-0.5 rounded-md mb-1.5';
+            verdictTopDecisionTagEl.textContent = '⚖️ 최종 판정 : 50:50 동률';
+          }
+          if (verdictDecisionHeadlineEl) {
+            verdictDecisionHeadlineEl.innerHTML = '찬반 의견이 팽팽하게 맞서고 있어요!<br /><span class="text-[#3182F6]">한 번만 더 고민해 볼까요? ⚖️</span>';
+          }
+          if (verdictSubSummaryEl) {
+            verdictSubSummaryEl.textContent = '질러라와 참아라 의견이 정확히 반반으로 나뉘었어요.';
+          }
+          if (verdictItemStatusLabelEl) {
+            verdictItemStatusLabelEl.className = 'text-[11px] font-bold text-amber-600';
+            verdictItemStatusLabelEl.textContent = '보류된 아이템';
+          }
+        }
+
         document.getElementById('verdictItemEmoji').innerHTML = renderCategoryIconHtml(emoji, 'w-6 h-6');
         document.getElementById('verdictItemName').textContent = displayName;
         document.getElementById('verdictItemPrice').textContent = `${formatNumber(state.itemPrice)}원`;
@@ -2643,7 +2697,22 @@
         const verdictBuyPctEl = document.getElementById('verdictBuyPct');
         const verdictByePctEl = document.getElementById('verdictByePct');
 
-        if (buyVotes > byeVotes) {
+        if (rawTotalVotes === 0) {
+          if (verdictBuyBarEl) verdictBuyBarEl.className = 'h-full bg-slate-200 transition-all duration-500';
+          if (verdictByeBarEl) verdictByeBarEl.className = 'h-full bg-slate-200 transition-all duration-500';
+          if (verdictBuyCardEl) verdictBuyCardEl.className = 'bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-3';
+          if (verdictByeCardEl) verdictByeCardEl.className = 'bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-3';
+          if (verdictBuyTagEl) {
+            verdictBuyTagEl.className = 'text-[11px] font-bold text-[#94A3B8]';
+            verdictBuyTagEl.textContent = '대기 중';
+          }
+          if (verdictByeTagEl) {
+            verdictByeTagEl.className = 'text-[11px] font-bold text-[#94A3B8]';
+            verdictByeTagEl.textContent = '대기 중';
+          }
+          if (verdictBuyPctEl) verdictBuyPctEl.className = 'text-[16px] font-black text-[#64748B]';
+          if (verdictByePctEl) verdictByePctEl.className = 'text-[16px] font-black text-[#64748B]';
+        } else if (buyVotes > byeVotes) {
           if (verdictBuyBarEl) verdictBuyBarEl.className = 'h-full bg-[#3182F6] transition-all duration-500';
           if (verdictByeBarEl) verdictByeBarEl.className = 'h-full bg-slate-300 transition-all duration-500';
           if (verdictBuyCardEl) verdictBuyCardEl.className = 'bg-[#EFF6FF]/80 border border-[#BFDBFE] rounded-2xl p-3';
@@ -2658,7 +2727,7 @@
           }
           if (verdictBuyPctEl) verdictBuyPctEl.className = 'text-[16px] font-black text-[#3182F6]';
           if (verdictByePctEl) verdictByePctEl.className = 'text-[16px] font-black text-[#64748B]';
-        } else {
+        } else if (byeVotes > buyVotes) {
           if (verdictBuyBarEl) verdictBuyBarEl.className = 'h-full bg-slate-300 transition-all duration-500';
           if (verdictByeBarEl) verdictByeBarEl.className = 'h-full bg-rose-500 transition-all duration-500';
           if (verdictBuyCardEl) verdictBuyCardEl.className = 'bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-3';
@@ -2673,33 +2742,69 @@
           }
           if (verdictBuyPctEl) verdictBuyPctEl.className = 'text-[16px] font-black text-[#64748B]';
           if (verdictByePctEl) verdictByePctEl.className = 'text-[16px] font-black text-rose-600';
+        } else {
+          if (verdictBuyBarEl) verdictBuyBarEl.className = 'h-full bg-[#60A5FA] transition-all duration-500';
+          if (verdictByeBarEl) verdictByeBarEl.className = 'h-full bg-[#3182F6] transition-all duration-500';
+          if (verdictBuyCardEl) verdictBuyCardEl.className = 'bg-[#EFF6FF]/60 border border-[#BFDBFE] rounded-2xl p-3';
+          if (verdictByeCardEl) verdictByeCardEl.className = 'bg-[#EFF6FF]/60 border border-[#BFDBFE] rounded-2xl p-3';
+          if (verdictBuyTagEl) {
+            verdictBuyTagEl.className = 'bg-[#3182F6] text-white text-[10px] font-extrabold px-2 py-0.5 rounded';
+            verdictBuyTagEl.textContent = '⚖️ 동률';
+          }
+          if (verdictByeTagEl) {
+            verdictByeTagEl.className = 'bg-[#3182F6] text-white text-[10px] font-extrabold px-2 py-0.5 rounded';
+            verdictByeTagEl.textContent = '⚖️ 동률';
+          }
+          if (verdictBuyPctEl) verdictBuyPctEl.className = 'text-[16px] font-black text-[#3182F6]';
+          if (verdictByePctEl) verdictByePctEl.className = 'text-[16px] font-black text-[#3182F6]';
         }
 
-        document.getElementById('verdictAiSummary').textContent = isAllowanceMode()
-          ? `${formatNumber(allowanceDays)}일치 용돈(월 용돈의 ${formatNumber(allowanceMonthPct)}%)이 순삭될 뻔했어요! 친구들의 팩폭 덕분에 ${formatNumber(state.itemPrice)}원을 구출할 절호의 기회입니다.`
-          : `${formatNumber(laborHours)}시간 동안 땀 흘려 번 소중한 돈! 친구들의 팩폭 덕분에 ${formatNumber(state.itemPrice)}원을 구출할 절호의 기회입니다.`;
+        const aiSummaryEl = document.getElementById('verdictAiSummary');
+        if (aiSummaryEl) {
+          if (rawTotalVotes === 0) {
+            aiSummaryEl.textContent = '아직 투표 데이터가 모이지 않았어요. 실시간 투표판에서 직접 투표를 시작하거나 친구들에게 링크를 공유해 보세요!';
+          } else if (buyVotes > byeVotes) {
+            aiSummaryEl.textContent = isAllowanceMode()
+              ? `친구들이 용돈 ${formatNumber(allowanceDays)}일치(${formatNumber(state.itemPrice)}원) 가치에 공감했어요! 그래도 충동구매인지 한 번만 더 생각해 보세요.`
+              : `친구들이 ${formatNumber(laborHours)}시간 노동 가치(${formatNumber(state.itemPrice)}원)에 공감했어요! 그래도 꼭 필요한 소비인지 한 번만 더 점검해 보세요.`;
+          } else if (byeVotes > buyVotes) {
+            aiSummaryEl.textContent = isAllowanceMode()
+              ? `${formatNumber(allowanceDays)}일치 용돈(월 용돈의 ${formatNumber(allowanceMonthPct)}%)이 순삭될 뻔했어요! 친구들의 팩폭 덕분에 ${formatNumber(state.itemPrice)}원을 구출할 절호의 기회입니다.`
+              : `${formatNumber(laborHours)}시간 동안 땀 흘려 번 소중한 돈! 친구들의 팩폭 덕분에 ${formatNumber(state.itemPrice)}원을 구출할 절호의 기회입니다.`;
+          } else {
+            aiSummaryEl.textContent = `찬반이 50:50으로 팽팽해요! ${formatNumber(state.itemPrice)}원 지출 전 하루만 장바구니에 두고 다시 고민해 보는 건 어떨까요?`;
+          }
+        }
 
         // 베스트 팩폭 TOP 3 렌더링
         const bestListEl = document.getElementById('verdictBestCommentsList');
         bestListEl.innerHTML = '';
         const medals = ['🥇 BEST 1', '🥈 BEST 2', '🥉 BEST 3'];
-        state.pollComments.slice(0, 3).forEach((c, idx) => {
-          const card = document.createElement('div');
-          card.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100';
-          card.innerHTML = `
-            <div class="flex items-center justify-between mb-1">
-              <div class="flex items-center gap-1.5">
-                <span class="text-[13px]">${escapeHtml(c.avatar || '🔥')}</span>
-                <span class="text-[12px] font-extrabold text-[#191F28]">${escapeHtml(c.author)}</span>
-              </div>
-              <span class="bg-blue-50 text-[#3182F6] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
-                ${medals[idx]}
-              </span>
+        if (comments.length === 0) {
+          bestListEl.innerHTML = `
+            <div class="text-center py-5 px-4 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
+              <p class="text-[12px] font-bold text-[#64748B]">아직 등록된 팩폭 참견이 없어요</p>
             </div>
-            <p class="text-[12.5px] font-semibold text-[#475569] leading-snug">"${escapeHtml(c.text)}"</p>
           `;
-          bestListEl.appendChild(card);
-        });
+        } else {
+          comments.slice(0, 3).forEach((c, idx) => {
+            const card = document.createElement('div');
+            card.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100';
+            card.innerHTML = `
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[13px]">${escapeHtml(c.avatar || '🔥')}</span>
+                  <span class="text-[12px] font-extrabold text-[#191F28]">${escapeHtml(c.author)}</span>
+                </div>
+                <span class="bg-blue-50 text-[#3182F6] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                  ${medals[idx]}
+                </span>
+              </div>
+              <p class="text-[12.5px] font-semibold text-[#475569] leading-snug">"${escapeHtml(c.text)}"</p>
+            `;
+            bestListEl.appendChild(card);
+          });
+        }
 
         // 하단 저축 챌린지 넣기 버튼 텍스트
         document.getElementById('verdictSaveBtnText').textContent =
@@ -3313,7 +3418,6 @@
               state.pollBuyVotes = Math.max(0, Number(updated.buy) || 0);
               state.pollByeVotes = Math.max(0, Number(updated.bye) || 0);
               isRoomSyncedInDb = true;
-              attachRoomListener(roomId);
             }
           } else {
             // 오프라인/SDK 미로드 대비 로컬 폴백
@@ -3340,6 +3444,8 @@
 
           if (prevVote === choice) {
             setLocalVote(roomId, null);
+            const btnEl = document.getElementById(choice === 'buy' ? 'voteBuyBtn' : 'voteByeBtn');
+            if (btnEl) btnEl.blur();
             showToast('↩️ 선택했던 투표를 취소했어요!');
           } else if (prevVote === 'buy' || prevVote === 'bye') {
             setLocalVote(roomId, choice);
@@ -3349,6 +3455,9 @@
             showToast(`${choiceLabel}에 소중한 1표가 반영되었어요!`);
           }
 
+          if (rtdb && isRoomSyncedInDb) {
+            attachRoomListener(roomId);
+          }
           saveState();
           renderPollAndVerdict();
         } catch (err) {
