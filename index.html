@@ -3270,7 +3270,7 @@
 
         if (isAllowanceMode()) {
           if (instaWarningTitleEl) {
-            instaWarningTitleEl.innerHTML = `${alertPrefix} <span id="instaLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)</span>`;
+            instaWarningTitleEl.innerHTML = `${alertPrefix} <span id="instaLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭</span>`;
           }
           if (instaWarningSubEl) {
             instaWarningSubEl.innerHTML = `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준 한 달 용돈의 <span id="instaLaborDays">${formatNumber(allowanceMonthPct)}%</span>예요`;
@@ -3310,7 +3310,7 @@
 
         if (isAllowanceMode()) {
           if (kakaoWarningTitleEl) {
-            kakaoWarningTitleEl.innerHTML = `${alertPrefix} <span id="kakaoLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)</span>`;
+            kakaoWarningTitleEl.innerHTML = `${alertPrefix} <span id="kakaoLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭</span>`;
           }
           if (kakaoWarningSubEl) {
             kakaoWarningSubEl.innerHTML = `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준 한 달 용돈의 <span id="kakaoLaborDays">${formatNumber(allowanceMonthPct)}%</span>예요`;
@@ -4859,7 +4859,7 @@
 
           const alertPrefix = isDanger ? '🚨 소비 경보!' : '💚 소비 안심!';
           const warningHeadline = isAllowanceMode()
-            ? `${alertPrefix} ${formatNumber(allowanceDays)}일치 용돈 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)`
+            ? `${alertPrefix} ${formatNumber(allowanceDays)}일치 용돈 순삭`
             : `${alertPrefix} ${formatNumber(laborHours)}시간 노동 필요`;
           const warningSub = isAllowanceMode()
             ? `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준 한 달 용돈의 ${formatNumber(allowanceMonthPct)}%예요`
