@@ -210,15 +210,27 @@
           </div>
         </div>
 
-        <button
-          id="openWageSheetBtn"
-          type="button"
-          class="bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 transition-all border border-[#DBEAFE] rounded-full px-3 py-1.5 flex items-center gap-1 text-[12px] font-semibold shadow-2xs cursor-pointer"
-        >
-          <span id="headerWageLabel" class="text-[#64748B]">시급</span>
-          <span id="headerWageText" class="text-[#3182F6] font-bold">10,000원</span>
-          <span class="text-[12px] ml-0.5">⚙️</span>
-        </button>
+        <div class="flex items-center gap-1.5">
+          <button
+            id="soundToggleBtn"
+            type="button"
+            title="소리·진동 켜짐 (클릭하여 무음 전환)"
+            aria-label="소리·진동 켜기/끄기"
+            class="w-8 h-8 rounded-full bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-90 transition-all border border-[#DBEAFE] text-slate-700 flex items-center justify-center text-[14px] shadow-2xs cursor-pointer shrink-0"
+          >
+            <span id="soundToggleIcon">🔊</span>
+          </button>
+
+          <button
+            id="openWageSheetBtn"
+            type="button"
+            class="bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 transition-all border border-[#DBEAFE] rounded-full px-3 py-1.5 flex items-center gap-1 text-[12px] font-semibold shadow-2xs cursor-pointer"
+          >
+            <span id="headerWageLabel" class="text-[#64748B]">시급</span>
+            <span id="headerWageText" class="text-[#3182F6] font-bold">10,000원</span>
+            <span class="text-[12px] ml-0.5">⚙️</span>
+          </button>
+        </div>
       </header>
 
       <!-- Main Content Area -->
@@ -2209,8 +2221,52 @@
       // ==========================================
       // Web Audio API 효과음 및 모바일 햅틱(진동) 시스템
       // ==========================================
+      const SOUND_MUTED_KEY = 'buy_or_bye_muted';
+      let isMuted = false;
+      try {
+        isMuted = localStorage.getItem(SOUND_MUTED_KEY) === 'true';
+      } catch (_) {}
+
+      function updateSoundToggleUI() {
+        const btn = document.getElementById('soundToggleBtn');
+        const icon = document.getElementById('soundToggleIcon');
+        if (!btn || !icon) return;
+        if (isMuted) {
+          icon.textContent = '🔇';
+          btn.title = '무음 모드 켜짐 (클릭하여 소리·진동 켜기)';
+          btn.setAttribute('aria-label', '무음 모드 켜짐 (클릭하여 소리·진동 켜기)');
+          btn.className = 'w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 transition-all border border-slate-200 text-slate-400 flex items-center justify-center text-[14px] shadow-2xs cursor-pointer shrink-0';
+        } else {
+          icon.textContent = '🔊';
+          btn.title = '소리·진동 켜짐 (클릭하여 무음 전환)';
+          btn.setAttribute('aria-label', '소리·진동 켜짐 (클릭하여 무음 전환)');
+          btn.className = 'w-8 h-8 rounded-full bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-90 transition-all border border-[#DBEAFE] text-slate-700 flex items-center justify-center text-[14px] shadow-2xs cursor-pointer shrink-0';
+        }
+      }
+
+      // 무음 모드 토글 버튼 클릭 이벤트
+      const soundToggleBtn = document.getElementById('soundToggleBtn');
+      if (soundToggleBtn) {
+        soundToggleBtn.addEventListener('click', () => {
+          isMuted = !isMuted;
+          try {
+            localStorage.setItem(SOUND_MUTED_KEY, isMuted ? 'true' : 'false');
+          } catch (_) {}
+          updateSoundToggleUI();
+          if (!isMuted) {
+            playPopSound(true);
+            triggerHaptic(20, true);
+            showToast('🔊 효과음과 진동이 켜졌어요');
+          } else {
+            showToast('🔇 무음 모드가 켜졌어요 (효과음·진동 꺼짐)');
+          }
+        });
+      }
+      updateSoundToggleUI();
+
       let audioCtx = null;
-      function getAudioContext() {
+      function getAudioContext(force = false) {
+        if (isMuted && !force) return null;
         try {
           if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
             const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -2225,7 +2281,8 @@
         }
       }
 
-      function triggerHaptic(pattern) {
+      function triggerHaptic(pattern, force = false) {
+        if (isMuted && !force) return;
         try {
           if (navigator.vibrate) {
             navigator.vibrate(pattern);
@@ -2245,6 +2302,7 @@
 
       // 1) 저축 성공 코인 획득음 (차랑~ / 띠링!)
       function playCoinSound() {
+        if (isMuted) return;
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
@@ -2288,6 +2346,7 @@
 
       // 2) 레벨업 축하 상승 팡파레 화음 (도-미-솔-도)
       function playFanfareSound() {
+        if (isMuted) return;
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
@@ -2312,8 +2371,9 @@
       }
 
       // 3) 레벨 카드 열람 부드러운 팝 사운드
-      function playPopSound() {
-        const ctx = getAudioContext();
+      function playPopSound(force = false) {
+        if (isMuted && !force) return;
+        const ctx = getAudioContext(force);
         if (!ctx) return;
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
@@ -2331,6 +2391,7 @@
 
       // 4) 찰칵! 카메라 셔터 기계음
       function playShutterSound() {
+        if (isMuted) return;
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;

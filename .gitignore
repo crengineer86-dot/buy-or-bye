@@ -28,5 +28,6 @@ desktop.ini
 tmp_*
 verify_*
 check_*.ps1
+scratch/
 *preview*.html
 수정 사항.txt
