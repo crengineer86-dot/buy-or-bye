@@ -35,6 +35,8 @@
   <!-- Firebase Compat SDK (App + Realtime Database) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <!-- Kakao JavaScript SDK v2 (카카오톡 클릭형 피드 카드 공유) -->
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
 
   <script>
     tailwind.config = {
@@ -4165,31 +4167,42 @@
       document.getElementById('closeLevelModalTopBtn').addEventListener('click', closeLevelUpModal);
       levelBackdrop.addEventListener('click', closeLevelUpModal);
 
-      // 레벨 인증 전용 공유 버튼 (모바일에서는 실제 카드 PNG 이미지 공유 지원)
+      // 레벨 인증 전용 공유 버튼 (인스스 9:16 고화질 이미지 / 카카오톡 클릭형 피드 카드)
       async function shareLevelAchievementText(channelLabel) {
         const { totalCount, totalSaved } = getHistoryStats();
         const levelInfo = getLevelInfo(totalSaved);
         const totalHours = Math.ceil(totalSaved / Math.max(1, state.hourlyWage));
         const totalSavedAllowanceDays = formatAllowanceDays(totalSaved);
         const bottomMetricLine = isAllowanceMode()
-          ? `👛 아낀 총 용돈 일수: 약 ${formatNumber(totalSavedAllowanceDays)}일치!`
-          : `⏱️ 구출한 내 노동 시간: 약 ${formatNumber(totalHours)}시간!`;
-        const text = `🏆 [짠테크 레벨 인증 카드]\n현재 등급: ${levelInfo.badgeText}\n"지름신 이겨내고 통장 방어 성공!"\n✨ 지금까지 총 ${formatNumber(totalCount)}번 참아서 누적 ${formatNumber(totalSaved)}원 절약 달성 🎉\n${bottomMetricLine}`;
+          ? `아낀 총 용돈 약 ${formatNumber(totalSavedAllowanceDays)}일치`
+          : `구출한 내 노동 시간 약 ${formatNumber(totalHours)}시간`;
+        const isKakao = channelLabel.includes('카카오톡');
 
         try {
           const canvas = await createLevelCertCanvas();
-          await saveOrShareCanvasImage(canvas, {
-            filename: `짠테크_레벨인증카드_${Date.now()}.png`,
-            shareTitle: '나의 짠테크 레벨 인증 카드',
-            shareText: text,
-            copyTextOnShare: text,
-            preferShareOnMobile: true,
-            successToast: `${channelLabel}용 레벨 인증 카드 이미지와 문구가 준비되었어요! 🏆`
-          });
+          if (isKakao) {
+            await shareKakaoFeedCard({
+              canvas,
+              title: `🏆 ${levelInfo.badgeText} · 통장 방어 성공!`,
+              description: `총 ${formatNumber(totalCount)}번 참아서 ${formatNumber(totalSaved)}원 절약 (${bottomMetricLine})`,
+              targetUrl: 'https://crengineer86-dot.github.io/buy-or-bye/',
+              buttonTitle: '나도 절약 레벨 측정하기',
+              fallbackFilename: `짠테크_레벨인증카드_${Date.now()}.png`,
+              successToast: '💬 카카오톡용 레벨 인증 카드가 준비되었어요! 🏆'
+            });
+          } else {
+            const storyCanvas = createInstaStoryCanvas(canvas);
+            await saveOrShareCanvasImage(storyCanvas, {
+              filename: `짠테크_레벨인증_스토리_${Date.now()}.png`,
+              shareTitle: '나의 짠테크 레벨 인증 카드',
+              preferShareOnMobile: true,
+              imageOnlyShare: true,
+              successToast: '📸 인스타 스토리 전용 고화질 이미지가 준비되었어요! 🏆'
+            });
+          }
         } catch (err) {
           console.error('Level card share failed:', err);
-          await copyTextToClipboard(text);
-          showToast(`${channelLabel}용 레벨 인증 문구가 복사되었어요! 🏆`);
+          showToast('⚠️ 레벨 인증 카드 이미지 준비에 실패했어요');
         }
       }
 
@@ -4497,6 +4510,7 @@
           shareText = '',
           copyTextOnShare = '',
           preferShareOnMobile = true,
+          imageOnlyShare = false,
           successToast = '📸 이미지가 준비되었어요!'
         } = options;
 
@@ -4540,8 +4554,8 @@
               path: filename
             });
             await cap.Plugins.Share.share({
-              title: shareTitle,
-              text: shareText || undefined,
+              title: imageOnlyShare ? undefined : shareTitle,
+              text: imageOnlyShare ? undefined : (shareText || undefined),
               url: uriResult.uri,
               dialogTitle: shareTitle
             });
@@ -4559,16 +4573,20 @@
         if (mobile && preferShareOnMobile && blob && typeof File !== 'undefined' && typeof navigator.share === 'function') {
           const file = new File([blob], filename, { type: 'image/png' });
           const minimalShareData = { files: [file] };
-          const fullShareData = shareText
-            ? { files: [file], title: shareTitle, text: shareText }
-            : { files: [file], title: shareTitle };
+          const fullShareData = imageOnlyShare
+            ? minimalShareData
+            : (shareText
+              ? { files: [file], title: shareTitle, text: shareText }
+              : { files: [file], title: shareTitle });
           const canShareFiles = !navigator.canShare || navigator.canShare(minimalShareData);
           if (canShareFiles) {
             try {
               if (copyTextOnShare && successToast) {
                 showToast(successToast);
               }
-              const payload = !navigator.canShare || navigator.canShare(fullShareData) ? fullShareData : minimalShareData;
+              const payload = imageOnlyShare
+                ? minimalShareData
+                : (!navigator.canShare || navigator.canShare(fullShareData) ? fullShareData : minimalShareData);
               await navigator.share(payload);
               if (!copyTextOnShare && successToast) {
                 showToast(successToast);
@@ -4605,6 +4623,128 @@
           if (successToast) showToast(successToast);
         }
         return 'download-fallback';
+      }
+
+      // 인스타그램 스토리(9:16, 1080x1920) 전용 고화질 프레임 생성기
+      // 상·하단 인스스 UI 및 [투표 스티커] 여백을 확보해 원본 카드 비율이 찌그러지지 않도록 안전하게 배치
+      function createInstaStoryCanvas(sourceCanvas) {
+        if (!sourceCanvas || !sourceCanvas.width || !sourceCanvas.height) return sourceCanvas;
+        const W = 1080;
+        const H = 1920;
+        const storyCanvas = document.createElement('canvas');
+        storyCanvas.width = W;
+        storyCanvas.height = H;
+        const ctx = storyCanvas.getContext('2d');
+
+        // 인스스 감성 파스텔 그라데이션 배경
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#EFF6FF');
+        bgGrad.addColorStop(0.5, '#F8FAFC');
+        bgGrad.addColorStop(1, '#F5F3FF');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 상단 140px / 하단 200px 안전 여백(인스스 프로필바·답장창·투표 스티커 공간) 확보 후 비율 유지 스케일링
+        const maxCardW = W - 120;
+        const maxCardH = H - 360;
+        const scale = Math.min(maxCardW / sourceCanvas.width, maxCardH / sourceCanvas.height);
+        const drawW = Math.round(sourceCanvas.width * scale);
+        const drawH = Math.round(sourceCanvas.height * scale);
+        const drawX = Math.round((W - drawW) / 2);
+        const drawY = Math.round((H - drawH) / 2) - 20;
+
+        ctx.save();
+        ctx.shadowColor = 'rgba(15, 23, 42, 0.14)';
+        ctx.shadowBlur = 44;
+        ctx.shadowOffsetY = 18;
+        ctx.drawImage(sourceCanvas, drawX, drawY, drawW, drawH);
+        ctx.restore();
+
+        return storyCanvas;
+      }
+
+      // 카카오 공유 JavaScript SDK v2 초기화 및 클릭형 피드 카드 전송기
+      const KAKAO_JS_KEY = '';
+      function initKakaoSdkIfConfigured() {
+        try {
+          if (!window.Kakao) return false;
+          if (window.Kakao.isInitialized()) return true;
+          const configuredKey = (KAKAO_JS_KEY || localStorage.getItem('buy_or_bye_kakao_js_key') || '').trim();
+          if (!configuredKey) return false;
+          window.Kakao.init(configuredKey);
+          return window.Kakao.isInitialized();
+        } catch (err) {
+          console.warn('Kakao SDK init skipped:', err);
+          return false;
+        }
+      }
+
+      async function shareKakaoFeedCard({
+        canvas,
+        title,
+        description,
+        targetUrl,
+        buttonTitle = '실시간 투표 참여하기',
+        fallbackFilename = `살까말까_카톡카드_${Date.now()}.png`,
+        successToast = '💬 카카오톡 카드가 준비되었어요!'
+      }) {
+        const cleanTargetUrl = targetUrl || 'https://crengineer86-dot.github.io/buy-or-bye/';
+        const defaultThumbUrl = 'https://crengineer86-dot.github.io/buy-or-bye/icon-512.png';
+
+        // 1) Kakao JS SDK가 초기화된 경우: 캡처 이미지를 카카오 CDN에 업로드 후 링크 텍스트 노출 없는 Feed 템플릿으로 전송
+        if (initKakaoSdkIfConfigured() && window.Kakao.Share) {
+          try {
+            let thumbnailUrl = defaultThumbUrl;
+            if (canvas) {
+              const blob = await canvasToPngBlob(canvas);
+              if (blob && typeof File !== 'undefined' && typeof window.Kakao.Share.uploadImage === 'function') {
+                const file = new File([blob], fallbackFilename, { type: 'image/png' });
+                const uploadRes = await window.Kakao.Share.uploadImage({ file: [file] });
+                if (uploadRes && uploadRes.infos && uploadRes.infos.original && uploadRes.infos.original.url) {
+                  thumbnailUrl = uploadRes.infos.original.url;
+                }
+              }
+            }
+            window.Kakao.Share.sendDefault({
+              objectType: 'feed',
+              content: {
+                title,
+                description,
+                imageUrl: thumbnailUrl,
+                link: {
+                  mobileWebUrl: cleanTargetUrl,
+                  webUrl: cleanTargetUrl
+                }
+              },
+              buttons: [
+                {
+                  title: buttonTitle,
+                  link: {
+                    mobileWebUrl: cleanTargetUrl,
+                    webUrl: cleanTargetUrl
+                  }
+                }
+              ]
+            });
+            showToast(successToast);
+            return 'kakao-sdk-feed';
+          } catch (kakaoErr) {
+            console.warn('Kakao SDK feed share fallback:', kakaoErr);
+          }
+        }
+
+        // 2) Kakao SDK 미설정 또는 PC 폴백: 하단에 URL 텍스트가 덜렁 붙지 않도록 캡처 이미지 + 깔끔한 제목/설명만 전달
+        if (canvas) {
+          return saveOrShareCanvasImage(canvas, {
+            filename: fallbackFilename,
+            shareTitle: title,
+            shareText: `${title}\n${description}`,
+            copyTextOnShare: '',
+            preferShareOnMobile: true,
+            successToast
+          });
+        }
+        return 'no-canvas';
       }
 
       // 화면 팝업에서 보이는 실제 카드 본체(DOM)를 원본 레이아웃/스타일 그대로 1:1 고화질(scale: 3) 스냅샷 캡처
@@ -5693,27 +5833,29 @@
         const roomId = ensureRoomId();
         ensureRoomCreatedInDb(roomId);
         const shareUrl = generateShareUrl();
-        const instaToastMsg = '📸 카드 이미지 준비 완료! 인스타 스토리 [🔗링크 스티커]에 붙여넣기하면 실시간 투표가 연결돼요!';
+        const instaToastMsg = '📸 인스타 스토리 전용 9:16 고화질 이미지 준비 완료! [투표/링크 스티커]를 얹어 바로 올려보세요!';
 
         const shareBtn = document.getElementById('shareInstaNativeBtn');
         const prevBtnText = shareBtn ? shareBtn.textContent : '';
         if (shareBtn) {
           shareBtn.disabled = true;
-          shareBtn.textContent = '📸 영수증 이미지 준비 중...';
+          shareBtn.textContent = '📸 스토리 고화질 이미지 생성 중...';
         }
 
         try {
-          const canvas = await createReceiptCanvas();
-          await saveOrShareCanvasImage(canvas, {
-            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
+          const receiptCanvas = await createReceiptCanvas();
+          const storyCanvas = createInstaStoryCanvas(receiptCanvas);
+          await saveOrShareCanvasImage(storyCanvas, {
+            filename: `살까말까_인스스_팩폭영수증_${Date.now()}.png`,
             shareTitle: '살까 말까 팩폭 영수증',
             copyTextOnShare: shareUrl,
             preferShareOnMobile: true,
+            imageOnlyShare: true,
             successToast: instaToastMsg
           });
         } catch (err) {
           console.error('Insta image share failed:', err);
-          showToast('⚠️ 이미지 공유 준비에 실패했어요');
+          showToast('⚠️ 인스타 스토리 이미지 준비에 실패했어요');
         } finally {
           if (shareBtn) {
             shareBtn.disabled = false;
@@ -5777,40 +5919,34 @@
         const timeSummary = isAllowanceMode()
           ? `용돈 ${formatNumber(allowanceDays)}일치 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)`
           : `내 노동 ${formatNumber(laborHours)}시간 필요 (약 ${laborDays}일치 월급)`;
-        const shareText = `💸 [살까 말까 판독기] 내 통장 살릴지 죽일지 대신 투표 좀! 👇\n📦 ${displayName} (${formatNumber(state.itemPrice)}원) / ⏰ ${timeSummary}`;
 
-        const cap = window.Capacitor;
-        const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
-        if (isCapNative && cap.Plugins && cap.Plugins.Share) {
-          try {
-            await cap.Plugins.Share.share({
-              title: '살까 말까 투표 요청',
-              text: shareText,
-              url: shareUrl,
-              dialogTitle: '카카오톡/친구에게 투표 공유'
-            });
-            return;
-          } catch (capErr) {
-            if (capErr && /cancel/i.test(String(capErr.message || capErr))) return;
-          }
+        const kakaoBtn = document.getElementById('shareKakaoTextBtn');
+        const prevKakaoText = kakaoBtn ? kakaoBtn.textContent : '';
+        if (kakaoBtn) {
+          kakaoBtn.disabled = true;
+          kakaoBtn.textContent = '💬 카톡 카드 준비 중...';
         }
 
-        if (isMobileClient() && typeof navigator.share === 'function') {
-          try {
-            await navigator.share({
-              title: '살까 말까 투표 요청',
-              text: shareText,
-              url: shareUrl
-            });
-            return;
-          } catch (err) {
-            if (err && err.name === 'AbortError') return;
+        try {
+          const receiptCanvas = await createReceiptCanvas();
+          await shareKakaoFeedCard({
+            canvas: receiptCanvas,
+            title: `💸 ${displayName} (${formatNumber(state.itemPrice)}원)`,
+            description: `⏰ ${timeSummary} · 내 통장 살릴지 죽일지 대신 투표해 주세요!`,
+            targetUrl: shareUrl,
+            buttonTitle: '실시간 투표 참여하기',
+            fallbackFilename: `살까말까_카톡영수증_${Date.now()}.png`,
+            successToast: '💬 카카오톡 공유 카드가 준비되었어요!'
+          });
+        } catch (err) {
+          console.error('Kakao feed share failed:', err);
+          showToast('⚠️ 카카오톡 카드 공유 준비에 실패했어요');
+        } finally {
+          if (kakaoBtn) {
+            kakaoBtn.disabled = false;
+            kakaoBtn.textContent = prevKakaoText;
           }
         }
-
-        const fullCopyPayload = `${shareText}\n👉 실시간 투표하기: ${shareUrl}`;
-        await copyTextToClipboard(fullCopyPayload);
-        showToast('💬 카톡 공유 문구와 실시간 투표 링크가 복사되었어요! 채팅방에 붙여넣기 해주세요.');
       });
 
       // 초기 렌더링 및 URL 파라미터(?room=...) 자동 복원 실행
