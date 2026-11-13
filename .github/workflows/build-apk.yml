@@ -79,6 +79,13 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Apply Custom Launcher Icons & Resources
+        run: |
+          if [ -d "android-assets/res" ]; then
+            cp -r android-assets/res/* android/app/src/main/res/
+            echo "Successfully applied custom calculator launcher icons to android/app/src/main/res/"
+          fi
+
       - name: Configure Android Permissions & WebView Settings
         run: |
           python3 - << 'PY'
