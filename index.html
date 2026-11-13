@@ -21,8 +21,13 @@
   <meta property="og:image" content="https://crengineer86-dot.github.io/buy-or-bye/icon-512.png" />
   <!-- Pretendard Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS (Antigravity Artifact Webview 호환 CDN 우선 + 공식 jsDelivr/CDN 폴백) -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script>
+    if (typeof tailwind === 'undefined') {
+      document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
+    }
+  </script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <!-- html2canvas (오프라인 로컬 에셋 우선 + jsDelivr CDN 폴백) -->
@@ -199,8 +204,8 @@
       <!-- ① 상단 헤더 -->
       <header class="sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-4 pt-4 pb-3 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-[#3182F6] flex items-center justify-center text-white shadow-sm shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <div class="w-8 h-8 rounded-xl bg-[#3182F6] flex items-center justify-center text-white shadow-sm shrink-0" style="width: 32px; height: 32px; min-width: 32px;">
+            <svg width="16" height="16" style="width: 16px; height: 16px; max-width: 16px; max-height: 16px;" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
           </div>
@@ -219,7 +224,7 @@
             class="w-8 h-8 flex items-center justify-center text-[#3182F6] hover:text-[#1B64DA] active:scale-90 transition-all cursor-pointer shrink-0"
           >
             <span id="soundToggleIcon" class="inline-flex items-center justify-center">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="20" height="20" style="width: 20px; height: 20px;" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                 <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
                 <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
@@ -2237,8 +2242,8 @@
         isMuted = localStorage.getItem(SOUND_MUTED_KEY) === 'true';
       } catch (_) {}
 
-      const SOUND_ICON_ON = '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
-      const SOUND_ICON_MUTED = '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="22" y1="9" x2="16" y2="15"></line><line x1="16" y1="9" x2="22" y2="15"></line></svg>';
+      const SOUND_ICON_ON = '<svg width="20" height="20" style="width:20px;height:20px;" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+      const SOUND_ICON_MUTED = '<svg width="20" height="20" style="width:20px;height:20px;" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="22" y1="9" x2="16" y2="15"></line><line x1="16" y1="9" x2="22" y2="15"></line></svg>';
 
       function updateSoundToggleUI() {
         const btn = document.getElementById('soundToggleBtn');
