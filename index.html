@@ -23,6 +23,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- html2canvas (오프라인 로컬 에셋 우선 + jsDelivr CDN 폴백) -->
+  <script src="assets/js/html2canvas.min.js"></script>
+  <script>
+    if (typeof html2canvas === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script>');
+    }
+  </script>
   <!-- Firebase Compat SDK (App + Realtime Database) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
@@ -4513,15 +4520,133 @@
         return 'download-fallback';
       }
 
-      // ④ 절약 레벨 인증 카드 (400x568 @3x 순수 HTML5 Canvas 2D 드로잉)
+      // 화면 팝업에서 보이는 실제 카드 DOM 크기(약 320px~350px) 그대로 1px도 변경 없이 scale: 3 고화질 캡처
+      async function captureElementWithHtml2canvas(targetId, modalId) {
+        if (typeof window.html2canvas !== 'function') return null;
+
+        const targetEl = document.getElementById(targetId);
+        if (!targetEl) return null;
+
+        const modalEl = modalId ? document.getElementById(modalId) : null;
+        const wasHidden = modalEl ? modalEl.classList.contains('hidden') : false;
+
+        let restoreModal = null;
+        const contentEl = modalEl ? modalEl.querySelector('.modal-pop') : null;
+        let restoreContent = null;
+
+        if (wasHidden && modalEl) {
+          restoreModal = {
+            visibility: modalEl.style.visibility,
+            pointerEvents: modalEl.style.pointerEvents,
+            opacity: modalEl.style.opacity,
+            display: modalEl.style.display
+          };
+          modalEl.style.visibility = 'hidden';
+          modalEl.style.pointerEvents = 'none';
+          modalEl.style.opacity = '0';
+          modalEl.classList.remove('hidden');
+
+          if (contentEl) {
+            restoreContent = {
+              transform: contentEl.style.transform,
+              opacity: contentEl.style.opacity
+            };
+            contentEl.style.transform = 'none';
+            contentEl.style.opacity = '1';
+          }
+        }
+
+        // DOM 렌더링 동기화
+        void targetEl.offsetWidth;
+
+        // 1. 임의의 가로 폭 확대 절대 금지: 화면 실제 DOM 크기 (약 320px~350px) 그대로 측정
+        const rect = targetEl.getBoundingClientRect();
+        const rawW = targetEl.offsetWidth || rect.width;
+        const rawH = targetEl.offsetHeight || rect.height;
+        const actualWidth = Math.round(rawW > 0 ? rawW : (targetId === 'instaReceiptCaptureBox' ? 328 : 320));
+        const actualHeight = Math.round(rawH > 0 ? rawH : (targetId === 'instaReceiptCaptureBox' ? actualWidth * 16 / 9 : 490));
+
+        try {
+          if (document.fonts && document.fonts.ready) {
+            await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 200))]);
+          }
+
+          const canvas = await window.html2canvas(targetEl, {
+            scale: 3,
+            width: actualWidth,
+            height: actualHeight,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null,
+            logging: false,
+            onclone: (clonedDoc) => {
+              const clonedModal = modalEl ? clonedDoc.getElementById(modalEl.id) : null;
+              if (clonedModal) {
+                clonedModal.style.transform = 'none';
+                clonedModal.style.transition = 'none';
+                clonedModal.style.visibility = 'visible';
+                clonedModal.style.opacity = '1';
+              }
+              const clonedContent = modalEl ? clonedDoc.querySelector(`#${modalEl.id} .modal-pop`) : null;
+              if (clonedContent) {
+                clonedContent.style.transform = 'none';
+                clonedContent.style.transition = 'none';
+                clonedContent.style.opacity = '1';
+              }
+              const clonedTarget = clonedDoc.getElementById(targetId);
+              if (clonedTarget) {
+                clonedTarget.style.transform = 'none';
+                clonedTarget.style.transition = 'none';
+                clonedTarget.style.width = `${actualWidth}px`;
+                clonedTarget.style.maxWidth = `${actualWidth}px`;
+                clonedTarget.style.height = `${actualHeight}px`;
+                clonedTarget.style.boxSizing = 'border-box';
+              }
+            }
+          });
+          return canvas;
+        } catch (captureErr) {
+          console.warn(`html2canvas failed on ${targetId}:`, captureErr);
+          return null;
+        } finally {
+          if (wasHidden && modalEl) {
+            modalEl.classList.add('hidden');
+            if (restoreModal) {
+              modalEl.style.visibility = restoreModal.visibility;
+              modalEl.style.pointerEvents = restoreModal.pointerEvents;
+              modalEl.style.opacity = restoreModal.opacity;
+              modalEl.style.display = restoreModal.display;
+            }
+            if (contentEl && restoreContent) {
+              contentEl.style.transform = restoreContent.transform;
+              contentEl.style.opacity = restoreContent.opacity;
+            }
+          }
+        }
+      }
+
+      // ④ 절약 레벨 인증 카드 (실제 DOM 1:1 캡처 우선 + 슬림 비율 폴백)
       async function createLevelCertCanvas() {
         if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
           await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
         }
 
+        // 1) 화면 팝업 실제 DOM 크기(offsetWidth, offsetHeight) 기반 html2canvas 고화질(scale: 3) 캡처 우선
+        try {
+          const domCanvas = await captureElementWithHtml2canvas('levelCertificateCaptureBox', 'levelUpModal');
+          if (domCanvas) {
+            return domCanvas;
+          }
+        } catch (domErr) {
+          console.warn('level cert DOM capture fallback:', domErr);
+        }
+
+        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 320px @3x 반영)
+        const targetEl = document.getElementById('levelCertificateCaptureBox');
+        const measuredW = targetEl ? Math.round(targetEl.offsetWidth || targetEl.getBoundingClientRect().width) : 0;
+        const W = measuredW >= 280 && measuredW <= 380 ? measuredW : 320;
+        const H = Math.round(W * 1.48);
         const pixelRatio = 3;
-        const W = 400;
-        const H = 568;
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
         canvas.height = H * pixelRatio;
@@ -4530,7 +4655,7 @@
         const ctx = canvas.getContext('2d');
         ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
-          // 모바일 세로형 비율(400x568 @3x = 1200x1704) + 최소 외곽 여백(4px)
+          // 모바일 세로형 슬림 비율 + 최소 외곽 여백(4px)
           ctx.clearRect(0, 0, W, H);
 
           const cardX = 4;
@@ -4743,15 +4868,34 @@
         }
       }
 
-      // ①②③ 팩폭 영수증 카드 Canvas 생성기 (400x672 @3x 모바일 세로형 비율 유지)
+      // ①②③ 팩폭 영수증 카드 Canvas 생성기 (실제 DOM 1:1 캡처 우선 + 슬림 9:16 비율 폴백)
       async function createReceiptCanvas() {
         if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
           await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
         }
 
+        // 1) 화면 팝업 실제 DOM 영수증 카드(offsetWidth, aspect-9/16) 기반 html2canvas 고화질(scale: 3) 캡처 우선
+        try {
+          const isKakaoModalOpen = Boolean(
+            document.getElementById('kakaoShareModal') &&
+            !document.getElementById('kakaoShareModal').classList.contains('hidden')
+          );
+          const receiptTargetId = isKakaoModalOpen ? 'kakaoCaptureBox' : 'instaReceiptCaptureBox';
+          const receiptModalId = isKakaoModalOpen ? 'kakaoShareModal' : 'instaShareModal';
+          const domCanvas = await captureElementWithHtml2canvas(receiptTargetId, receiptModalId);
+          if (domCanvas) {
+            return domCanvas;
+          }
+        } catch (domErr) {
+          console.warn('Receipt DOM capture fallback:', domErr);
+        }
+
+        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 328px @3x, 9:16 비율 반영)
+        const targetEl = document.getElementById('instaReceiptCaptureBox');
+        const measuredW = targetEl ? Math.round(targetEl.offsetWidth || targetEl.getBoundingClientRect().width) : 0;
+        const W = measuredW >= 280 && measuredW <= 380 ? measuredW : 328;
+        const H = Math.round(W * (16 / 9)); // 583px
         const pixelRatio = 3;
-        const W = 400;
-        const H = 672;
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
         canvas.height = H * pixelRatio;
@@ -4760,7 +4904,7 @@
         const ctx = canvas.getContext('2d');
         ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
-        // 모바일 세로형 비율(400x672 @3x = 1200x2016) + 최소 외곽 여백(4px)
+        // 모바일 세로형 비율(328x583 @3x) + 최소 외곽 여백(4px)
         ctx.clearRect(0, 0, W, H);
 
           const cardX = 4;
@@ -4970,6 +5114,24 @@
           fitCanvasFont(ctx, '정신 차려! 당장 참아!', 800, 12.5, 9, btnW - 10);
           ctx.fillStyle = '#E11D48';
           ctx.fillText('정신 차려! 당장 참아!', btn2X + btnW / 2, btnY + 70);
+
+          // 하단 출처 문구 (화면에 보이는 영역 빠짐없이 100% 동일 비율 렌더링)
+          const footerY = H - 20;
+          ctx.save();
+          ctx.setLineDash([4, 4]);
+          ctx.strokeStyle = '#E2E8F0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cardX + 16, footerY - 14);
+          ctx.lineTo(cardX + cardW - 16, footerY - 14);
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = `700 10px ${CANVAS_FONT_FAMILY}`;
+          ctx.fillStyle = '#64748B';
+          ctx.fillText('살까 말까 판독기 • 내 시간 가치 계산 리포트', cx, footerY);
 
         return canvas;
       }
