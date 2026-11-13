@@ -222,15 +222,15 @@
             <div class="mb-4 relative" id="itemInputWrapper">
               <div class="flex items-center justify-between mb-1.5">
                 <label for="itemNameInput" class="block text-[12px] font-bold text-[#4E5968]">사고 싶은 아이템</label>
-                <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#94A3B8]">아이콘 클릭 시 직접 변경</span>
+                <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#3182F6]">✨ 자동 매치 활성화 중</span>
               </div>
               <div class="flex items-center gap-2">
                 <div class="relative flex-1">
                   <input
                     id="itemNameInput"
                     type="text"
-                    value="노이즈 캔슬링 헤드폰"
-                    placeholder="예: 노이즈 캔슬링 헤드폰"
+                    value=""
+                    placeholder="예: 사고 싶은 물건 (예: 헤드폰, 커피)"
                     class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-semibold text-[15px] rounded-2xl px-4 py-3.5 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
                   />
                 </div>
@@ -240,7 +240,7 @@
                   title="카테고리 아이콘 직접 선택"
                   class="w-12 h-12 rounded-2xl bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 border border-[#BFDBFE] flex flex-col items-center justify-center shrink-0 transition-all cursor-pointer shadow-2xs"
                 >
-                  <span id="itemInputEmoji" class="text-[21px] leading-none flex items-center justify-center">🎧</span>
+                  <span id="itemInputEmoji" class="text-[21px] leading-none flex items-center justify-center">🛍️</span>
                   <span class="text-[8px] font-extrabold text-[#3182F6] leading-none mt-0.5">▼</span>
                 </button>
               </div>
@@ -277,7 +277,7 @@
                   id="itemPriceInput"
                   type="text"
                   inputmode="numeric"
-                  value="350,000"
+                  value=""
                   placeholder="0"
                   class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-extrabold text-[22px] tracking-tight rounded-2xl px-4 py-3 pr-10 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
                 />
@@ -307,7 +307,7 @@
               <div class="flex items-center justify-between mb-2.5">
                 <label for="useCountSlider" class="text-[12px] font-bold text-[#4E5968]">예상 사용 횟수</label>
                 <span id="useCountBadge" class="bg-[#DBEAFE] text-[#1D4ED8] font-extrabold text-[11px] px-2.5 py-0.5 rounded-full">
-                  총 85회 사용
+                  총 1회 사용
                 </span>
               </div>
 
@@ -318,7 +318,7 @@
                   <div
                     id="sliderFillBar"
                     class="h-full bg-[#3182F6] rounded-full"
-                    style="width: 45.6%"
+                    style="width: 0%"
                   ></div>
                 </div>
 
@@ -341,7 +341,7 @@
                     style="left: 33.3333%"
                     class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none group"
                   >
-                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-blue-600 transition-all group-hover:scale-125"></span>
+                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all group-hover:scale-125"></span>
                   </button>
 
                   <button
@@ -372,7 +372,7 @@
                   min="0"
                   max="1000"
                   step="1"
-                  value="456"
+                  value="0"
                   class="relative z-10 w-full"
                 />
               </div>
@@ -431,13 +431,13 @@
             </div>
 
             <div class="flex items-baseline gap-1.5 my-2">
-              <span id="costPerUseText" class="text-[30px] leading-none font-black text-[#1D4ED8] tracking-tight">4,118원</span>
+              <span id="costPerUseText" class="text-[30px] leading-none font-black text-[#1D4ED8] tracking-tight">0원</span>
               <span class="text-[14px] font-bold text-[#64748B]">/ 1회</span>
             </div>
 
             <div class="bg-white/95 rounded-2xl px-3.5 py-2.5 mt-3 shadow-2xs border border-blue-100/80">
               <p id="costMetaphorText" class="text-[13px] font-bold text-[#334155] flex items-center gap-1.5">
-                ☕ 커피 한 잔 값으로 매일 뽕 뽑기 가능!
+                사고 싶은 물건과 가격을 입력해 보세요! 💡
               </p>
             </div>
           </section>
@@ -454,13 +454,13 @@
 
             <p id="purpleCardMainSentence" class="text-[18px] leading-snug font-extrabold text-[#191F28] tracking-tight whitespace-nowrap my-2">
               이 물건을 사려면 총
-              <span id="laborHoursText" class="text-[#6D28D9] underline decoration-2 underline-offset-4">35시간</span>
+              <span id="laborHoursText" class="text-[#6D28D9] underline decoration-2 underline-offset-4">0시간</span>
               일해야 해요
             </p>
 
             <div class="bg-white/95 rounded-2xl px-3.5 py-2.5 mt-3 shadow-2xs border border-purple-100/80">
               <p id="purpleCardSubSentence" class="text-[12.5px] font-semibold text-[#475569]">
-                일 8시간 근무 기준 약 <strong id="laborDaysText" class="font-extrabold text-[#1E293B]">4.4일치 월급</strong>에 해당해요
+                일 8시간 근무 기준 약 <strong id="laborDaysText" class="font-extrabold text-[#1E293B]">0.0일치 월급</strong>에 해당해요
               </p>
             </div>
           </section>
@@ -484,7 +484,7 @@
                   안 사고 아낀 돈 저축 챌린지
                 </h3>
                 <p id="challengeSubDesc" class="text-[12px] font-semibold text-[#64748B] mt-0.5 leading-snug whitespace-nowrap overflow-hidden text-ellipsis">
-                  <span id="challengePriceText" class="text-[#3182F6] font-extrabold">350,000원</span> 통장에 넣고 뿌듯함 챙기기
+                  <span id="challengePriceText" class="text-[#3182F6] font-extrabold">0원</span> 통장에 넣고 뿌듯함 챙기기
                 </p>
               </div>
             </div>
@@ -504,10 +504,10 @@
                 </div>
                 <div class="leading-tight">
                   <p class="text-[11px] font-semibold text-[#64748B]">
-                    지금까지 <span id="savedCountText" class="text-[#3182F6] font-extrabold">3번</span> 참아서
+                    지금까지 <span id="savedCountText" class="text-[#3182F6] font-extrabold">0번</span> 참아서
                   </p>
                   <p class="text-[11px] font-extrabold text-[#191F28] mt-0.5">
-                    <span class="text-[#3182F6]">총 <span id="totalSavedAmountText">1,050,000원</span></span> 절약! 🎉
+                    <span class="text-[#3182F6]">총 <span id="totalSavedAmountText">0원</span></span> 절약! 🎉
                   </p>
                 </div>
               </div>
@@ -519,7 +519,7 @@
                   title="클릭하여 내 절약 레벨 인증 카드 보기"
                   class="text-[11px] px-2.5 py-0.5 rounded-full bg-[#DBEAFE] hover:bg-[#BFDBFE] active:scale-95 text-[#1D4ED8] font-extrabold whitespace-nowrap transition-all shrink-0 shadow-2xs cursor-pointer"
                 >
-                  🧤 지갑 수호자 Lv.3
+                  🌱 절약 입문자 Lv.1
                 </button>
                 <button
                   id="openLevelGuideBtn"
@@ -536,9 +536,9 @@
             <!-- 하단: 프로그레스 바 영역 (별도 구분) -->
             <div class="mt-3 pt-2.5 border-t border-slate-200/70">
               <div class="flex items-center justify-between text-[11px] mb-1.5">
-                <span id="nextLevelLabel" class="font-extrabold text-[#2563EB]">다음 프로 짠테크러 (Lv.4)</span>
+                <span id="nextLevelLabel" class="font-extrabold text-[#2563EB]">다음 알뜰 꿈나무 (Lv.2)</span>
                 <span id="remainingGoalLabel" class="font-semibold text-[#64748B]">
-                  남은 금액 <strong class="text-[#3182F6] font-extrabold">29,000원 (94.2%)</strong>
+                  남은 금액 <strong class="text-[#3182F6] font-extrabold">100,000원 (0%)</strong>
                 </span>
               </div>
 
@@ -547,13 +547,13 @@
                 <div
                   id="levelProgressBar"
                   class="h-full bg-gradient-to-r from-[#3182F6] to-[#4F46E5] rounded-full transition-all duration-500"
-                  style="width: 94.2%"
+                  style="width: 0%"
                 ></div>
               </div>
 
               <div class="flex items-center justify-between text-[10px] text-[#94A3B8] font-medium mt-1.5">
-                <span id="currentAchievedSubText">현재 471,000원 달성</span>
-                <span id="targetGoalSubText">목표 500,000원</span>
+                <span id="currentAchievedSubText">현재 0원 달성</span>
+                <span id="targetGoalSubText">목표 100,000원</span>
               </div>
             </div>
           </div>
@@ -566,7 +566,7 @@
               <span class="text-[16px]">📜</span>
               <h2 class="text-[15px] font-extrabold text-[#191F28]">참아낸 지출 기록부</h2>
               <span id="historyCountBadge" class="bg-[#EFF6FF] text-[#3182F6] text-[11px] font-extrabold px-2 py-0.5 rounded-full">
-                총 3건
+                총 0건
               </span>
             </div>
 
@@ -673,18 +673,18 @@
           <div class="mt-4 bg-[#F8FAFC] rounded-2xl p-4 border border-slate-100">
             <div class="flex items-center gap-3">
               <div id="pollItemEmojiBox" class="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-center text-[24px] shadow-2xs shrink-0">
-                🎧
+                🛍️
               </div>
               <div class="min-w-0 flex-1">
                 <span class="text-[11px] font-bold text-[#8B95A1]">고민 중인 아이템</span>
-                <h4 id="pollItemNameText" class="text-[15px] font-extrabold text-[#191F28] truncate">노이즈 캔슬링 헤드폰</h4>
-                <p id="pollItemPriceText" class="text-[18px] font-black text-[#3182F6] mt-0.5">350,000원</p>
+                <h4 id="pollItemNameText" class="text-[15px] font-extrabold text-[#191F28] truncate">고민 중인 아이템</h4>
+                <p id="pollItemPriceText" class="text-[18px] font-black text-[#3182F6] mt-0.5">0원</p>
               </div>
             </div>
 
             <div class="mt-3 bg-[#EFF6FF] rounded-xl px-3 py-2 border border-[#DBEAFE] flex items-center gap-1.5 text-[11.5px] font-bold text-[#1E40AF]">
               <span>⏱️</span>
-              <span id="pollLaborSummaryText">시급 10,000원 기준 35시간 근무치 (약 4.4일치 월급)</span>
+              <span id="pollLaborSummaryText">시급 10,000원 기준 0시간 근무치</span>
             </div>
           </div>
         </section>
@@ -852,12 +852,12 @@
           <div class="mt-4 bg-[#F8FAFC] rounded-2xl p-4 border border-slate-100">
             <div class="flex items-center gap-3">
               <div id="verdictItemEmoji" class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-[24px] shrink-0">
-                🎧
+                🛍️
               </div>
               <div>
                 <span id="verdictItemStatusLabel" class="text-[11px] font-bold text-[#64748B]">고민 중인 아이템</span>
-                <h4 id="verdictItemName" class="text-[14.5px] font-extrabold text-[#191F28]">노이즈 캔슬링 헤드폰</h4>
-                <p id="verdictItemPrice" class="text-[18px] font-black text-[#191F28]">350,000원</p>
+                <h4 id="verdictItemName" class="text-[14.5px] font-extrabold text-[#191F28]">고민 중인 아이템</h4>
+                <p id="verdictItemPrice" class="text-[18px] font-black text-[#191F28]">0원</p>
               </div>
             </div>
 
@@ -933,7 +933,7 @@
             id="verdictSaveToChallengeBtn"
             class="w-full bg-[#3182F6] hover:bg-[#1B64DA] active:scale-[0.99] text-white font-extrabold text-[16px] py-4 rounded-2xl shadow-[0_8px_20px_rgba(49,130,246,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <span id="verdictSaveBtnText">350,000원 저축 챌린지에 넣기 🐷</span>
+            <span id="verdictSaveBtnText">0원 저축 챌린지에 넣기 🐷</span>
           </button>
           <button
             type="button"
@@ -1164,11 +1164,11 @@
           </span>
 
           <div id="modalLevelIcon" class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-amber-300 via-yellow-100 to-amber-50 border-4 border-amber-300 flex items-center justify-center text-[34px] shadow-md my-2">
-            💰
+            🌱
           </div>
 
           <span id="modalLevelPill" class="inline-block bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[12px] font-black px-3.5 py-1 rounded-full shadow-xs mb-2">
-            💰 프로 짠테크러 Lv.4
+            🌱 절약 입문자 Lv.1
           </span>
 
           <h3 id="modalLevelTitle" class="text-[19px] font-black text-[#191F28] leading-snug">
@@ -1182,8 +1182,8 @@
           <div class="bg-white rounded-2xl p-4 my-3.5 border border-amber-200/80 shadow-2xs">
             <p class="text-[11.5px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
             <p class="text-[15px] font-black text-[#191F28] mt-1 leading-snug">
-              지금까지 총 <span id="modalSavedCount" class="text-[#3182F6]">3번</span> 참아서<br />
-              누적 <span id="modalSavedAmount" class="text-[21px] text-[#3182F6]">1,050,000원</span> 절약 달성 🎉
+              지금까지 총 <span id="modalSavedCount" class="text-[#3182F6]">0번</span> 참아서<br />
+              누적 <span id="modalSavedAmount" class="text-[21px] text-[#3182F6]">0원</span> 절약 달성 🎉
             </p>
           </div>
 
@@ -1191,11 +1191,11 @@
           <div class="grid grid-cols-2 gap-2 text-center">
             <div class="bg-[#F5F3FF] rounded-xl p-3 border border-purple-100 flex flex-col items-center justify-center text-center">
               <span id="modalMetricLeftTitle" class="w-full text-[11px] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
-              <p id="modalSavedHours" class="w-full text-[14px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 105시간</p>
+              <p id="modalSavedHours" class="w-full text-[14px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 0시간</p>
             </div>
             <div class="bg-[#EFF6FF] rounded-xl p-3 border border-blue-100 flex flex-col items-center justify-center text-center">
               <span class="w-full text-[11px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
-              <p id="modalGoalPct" class="w-full text-[14px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">52.5% 달성</p>
+              <p id="modalGoalPct" class="w-full text-[14px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">0.0% 달성</p>
             </div>
           </div>
         </div>
@@ -1254,7 +1254,7 @@
         <!-- 내 현재 누적 절약액 요약 배너 -->
         <div class="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl px-3.5 py-2.5 mb-3 flex items-center justify-between shrink-0">
           <span class="text-[11.5px] font-bold text-[#4E5968]">나의 현재 누적 절약 총액</span>
-          <span id="guideCurrentTotalText" class="text-[13.5px] font-black text-[#3182F6]">471,000원</span>
+          <span id="guideCurrentTotalText" class="text-[13.5px] font-black text-[#3182F6]">0원</span>
         </div>
 
         <!-- 10단계 레벨 리스트 (스크롤 영역) -->
@@ -1422,27 +1422,27 @@
 
           <div class="text-center my-2">
             <p class="text-[11px] font-bold text-[#64748B] mb-1">판독 대상 아이템</p>
-            <h4 id="instaItemName" class="text-[18px] font-black text-[#191F28] leading-tight">노이즈 캔슬링 헤드폰</h4>
-            <p id="instaItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">350,000원</p>
+            <h4 id="instaItemName" class="text-[18px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
+            <p id="instaItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">0원</p>
           </div>
 
           <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
             <p id="instaWarningTitle" class="text-[15.5px] font-black leading-snug text-[#E11D48]">
-              🚨 소비 경보! <span id="instaLaborHours">35시간</span> 노동 필요
+              🚨 소비 경보! <span id="instaLaborHours">0시간</span> 노동 필요
             </p>
             <p id="instaWarningSub" class="text-[11px] font-bold text-[#9F1239] mt-0.5">
-              일 8시간 근무 기준 약 <span id="instaLaborDays">4.4일치 월급</span>에 해당해요
+              일 8시간 근무 기준 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
             </p>
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
               <p class="text-[10.5px] font-bold text-[#64748B]">1회 실사용 체감</p>
-              <p id="instaCostPerUse" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 4,118원 / 회</p>
+              <p id="instaCostPerUse" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 0원 / 회</p>
             </div>
             <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
               <p id="instaRightMetricLabel" class="text-[10.5px] font-bold text-[#64748B]">노동 시간 환산</p>
-              <p id="instaWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">35시간 근무치</p>
+              <p id="instaWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">0시간 근무치</p>
             </div>
           </div>
 
@@ -1506,27 +1506,27 @@
 
           <div class="text-center my-2">
             <p class="text-[11px] font-bold text-[#64748B] mb-1">판독 대상 아이템</p>
-            <h4 id="kakaoItemName" class="text-[18px] font-black text-[#191F28] leading-tight">노이즈 캔슬링 헤드폰</h4>
-            <p id="kakaoItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">350,000원</p>
+            <h4 id="kakaoItemName" class="text-[18px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
+            <p id="kakaoItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">0원</p>
           </div>
 
           <div id="kakaoWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
             <p id="kakaoLaborWarning" class="text-[15.5px] font-black leading-snug text-[#E11D48]">
-              🚨 소비 경보! <span id="kakaoLaborHours">35시간</span> 노동 필요
+              🚨 소비 경보! <span id="kakaoLaborHours">0시간</span> 노동 필요
             </p>
             <p id="kakaoWarningSub" class="text-[11px] font-bold text-[#9F1239] mt-0.5">
-              일 8시간 근무 기준 약 <span id="kakaoLaborDays">4.4일치 월급</span>에 해당해요
+              일 8시간 근무 기준 약 <span id="kakaoLaborDays">0.0일치 월급</span>에 해당해요
             </p>
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
               <p class="text-[10.5px] font-bold text-[#64748B]">1회 실사용 체감</p>
-              <p id="kakaoPerUseInfo" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 4,118원 / 회</p>
+              <p id="kakaoPerUseInfo" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 0원 / 회</p>
             </div>
             <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
               <p id="kakaoRightMetricLabel" class="text-[10.5px] font-bold text-[#64748B]">노동 시간 환산</p>
-              <p id="kakaoWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">35시간 근무치</p>
+              <p id="kakaoWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">0시간 근무치</p>
             </div>
           </div>
 
@@ -1600,7 +1600,7 @@
   <!-- ========================================== -->
   <script>
     (function () {
-      const STORAGE_KEY = 'buy_or_bye_state_v5';
+      const STORAGE_KEY = 'buy_or_bye_state_v6';
       try {
         localStorage.removeItem('buy_or_bye_state_v1');
         localStorage.removeItem('buy_or_bye_state_v2');
@@ -1608,36 +1608,9 @@
         localStorage.removeItem('buy_or_bye_state_v4');
       } catch (e) {}
 
-      // 초기 샘플 타임라인 데이터 3건
-      const DEFAULT_HISTORY = [
-        {
-          id: 'sample-1',
-          name: '노이즈 캔슬링 헤드폰',
-          icon: '🎧',
-          iconBg: 'bg-[#EFF6FF]',
-          time: '오늘 방금',
-          price: 350000,
-          comment: '⏱️ 35시간의 노동 시간을 구출했어요!'
-        },
-        {
-          id: 'sample-2',
-          name: '야식 치킨 & 생맥주',
-          icon: '🍗',
-          iconBg: 'bg-[#FFF7ED]',
-          time: '어제 밤',
-          price: 32000,
-          comment: '💪 건강과 지갑을 모두 지켰어요!'
-        },
-        {
-          id: 'sample-3',
-          name: '충동구매 브랜드 맨투맨',
-          icon: '👕',
-          iconBg: 'bg-[#F5F3FF]',
-          time: '3일 전',
-          price: 89000,
-          comment: '🎽 비슷한 옷이 옷장에 3개나 있었어요'
-        }
-      ];
+      // 초기 샘플 타임라인 데이터 (신규 설치 시 빈 배열로 시작)
+      const DEFAULT_HISTORY = [];
+      const LEGACY_SAMPLE_HISTORY_IDS = new Set(['sample-1', 'sample-2', 'sample-3']);
 
       // 초기 팩폭 댓글은 빈 상태로 시작 (사용자가 직접 등록한 내용만 표시)
       const DEFAULT_POLL_COMMENTS = [];
@@ -1652,17 +1625,17 @@
         dailyAllowance: 10000,
         wageMode: 'hourly',
         incomeMode: 'hourly',
-        itemName: '노이즈 캔슬링 헤드폰',
+        itemName: '',
         customItemIcon: null,
-        itemPrice: 350000,
-        useCount: 85,
-        savedCount: 3,
-        totalSavedAmount: 471000,
+        itemPrice: 0,
+        useCount: 1,
+        savedCount: 0,
+        totalSavedAmount: 0,
         isChallengeLocked: false,
         lastSavedName: '',
         lastSavedPrice: 0,
         historyExpanded: true,
-        history: DEFAULT_HISTORY.map((item) => ({ ...item })),
+        history: [],
         roomId: '',
         pollBuyVotes: 0,
         pollByeVotes: 0,
@@ -1833,7 +1806,7 @@
       function generateShareUrl() {
         const roomId = ensureRoomId();
         attachRoomListener(roomId);
-        const displayName = (state.itemName || '').trim() || '노이즈 캔슬링 헤드폰';
+        const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
         const resolvedCat = state.customItemIcon || pickItemEmoji(displayName);
         const params = new URLSearchParams();
         params.set('item', displayName);
@@ -1934,27 +1907,49 @@
 
       function loadState() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
+          const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('buy_or_bye_state_v5');
           if (!raw) {
             return {
               ...defaultState,
               isInitialized: true,
-              history: DEFAULT_HISTORY.map((i) => ({ ...i })),
+              history: [],
               pollComments: []
             };
           }
           const parsed = JSON.parse(raw);
+          // 이전 더미 샘플 데이터(sample-1, sample-2, sample-3) 필터링 (사용자가 직접 저장한 기록은 안전하게 유지)
           const loadedHistory = Array.isArray(parsed.history)
-            ? parsed.history
-            : parsed.isInitialized
-              ? []
-              : DEFAULT_HISTORY.map((i) => ({ ...i }));
+            ? parsed.history.filter((i) => i && !LEGACY_SAMPLE_HISTORY_IDS.has(String(i.id || '')) && !String(i.id || '').startsWith('sample-'))
+            : [];
           const loadedComments = Array.isArray(parsed.pollComments)
             ? parsed.pollComments.filter((c) => c && !LEGACY_SAMPLE_COMMENT_IDS.has(String(c.id || '')))
             : [];
+
+          let initialItemName = typeof parsed.itemName === 'string' ? parsed.itemName : '';
+          let initialItemPrice = typeof parsed.itemPrice === 'number' ? parsed.itemPrice : 0;
+          let initialUseCount = typeof parsed.useCount === 'number' ? parsed.useCount : 1;
+
+          // 이전 버전의 하드코딩된 예시값(노이즈 캔슬링 헤드폰, 350,000/750,000원, 85회)이었을 경우 빈칸 및 1회로 초기화
+          if (initialItemName === '노이즈 캔슬링 헤드폰' && (initialItemPrice === 350000 || initialItemPrice === 750000 || initialItemPrice === 0)) {
+            initialItemName = '';
+            initialItemPrice = 0;
+          }
+          if (initialUseCount === 85) {
+            initialUseCount = 1;
+          }
+
+          // v5 키 정리
+          try {
+            localStorage.removeItem('buy_or_bye_state_v5');
+          } catch (_) {}
+
           return {
             ...defaultState,
             ...parsed,
+            itemName: initialItemName,
+            itemPrice: initialItemPrice,
+            useCount: Math.max(1, Math.min(365, initialUseCount)),
+            customItemIcon: parsed.customItemIcon || null,
             isInitialized: true,
             history: loadedHistory,
             pollComments: loadedComments
@@ -1963,7 +1958,7 @@
           return {
             ...defaultState,
             isInitialized: true,
-            history: DEFAULT_HISTORY.map((i) => ({ ...i })),
+            history: [],
             pollComments: []
           };
         }
@@ -2138,9 +2133,6 @@
 
       function resolveHistoryItemIcon(item) {
         if (!item) return '🛍️';
-        if (item.id === 'sample-1' && item.name === '노이즈 캔슬링 헤드폰') {
-          return '🎧';
-        }
         if (item.icon && CATEGORY_REPORT_MAP[item.icon]) {
           return item.icon;
         }
@@ -2312,13 +2304,15 @@
             customIconStatusEl.textContent = `✓ '${selectedLabel}' 아이콘 고정 중`;
             customIconStatusEl.className = 'text-[10.5px] font-bold text-[#3182F6]';
           } else {
-            customIconStatusEl.textContent = '아이콘 클릭 시 직접 변경';
-            customIconStatusEl.className = 'text-[10.5px] font-semibold text-[#94A3B8]';
+            customIconStatusEl.textContent = '✨ 자동 매치 활성화 중';
+            customIconStatusEl.className = 'text-[10.5px] font-semibold text-[#3182F6]';
           }
         }
         renderIconPickerGrid(activeIcon);
         const itemPriceInput = document.getElementById('itemPriceInput');
-        itemPriceInput.value = formatNumber(state.itemPrice);
+        if (document.activeElement !== itemPriceInput) {
+          itemPriceInput.value = state.itemPrice === 0 ? '' : formatNumber(state.itemPrice);
+        }
 
         const useCountSlider = document.getElementById('useCountSlider');
         updateSliderTrack(useCountSlider, state.useCount);
@@ -2363,7 +2357,9 @@
         document.getElementById('costPerUseText').textContent = `${formatNumber(costPerUse)}원`;
 
         let metaphor = '';
-        if (costPerUse <= 1500) {
+        if (state.itemPrice <= 0) {
+          metaphor = '사고 싶은 물건과 가격을 입력해 보세요! 💡';
+        } else if (costPerUse <= 1500) {
           metaphor = '껌 한 통/버스비보다 싼 완전 혜자템! 🚀';
         } else if (costPerUse <= 5000) {
           metaphor = '☕ 커피 한 잔 값으로 매일 뽕 뽑기 가능!';
@@ -2476,7 +2472,7 @@
 
       // 투표판(화면 ①) 및 최종 판정 결과(화면 ②) 렌더링
       function renderPollAndVerdict() {
-        const displayName = state.itemName.trim() || '노이즈 캔슬링 헤드폰';
+        const displayName = state.itemName.trim() || '고민 중인 아이템';
         const emoji = pickItemEmoji(displayName);
         const safeWage = Math.max(1, state.hourlyWage);
         const laborHours = Math.ceil(state.itemPrice / safeWage);
@@ -3083,7 +3079,7 @@
       }
 
       function syncShareModals(costPerUse, laborHours, laborDays) {
-        const displayName = state.itemName.trim() || '노이즈 캔슬링 헤드폰';
+        const displayName = state.itemName.trim() || '고민 중인 아이템';
         const allowanceDays = formatAllowanceDays(state.itemPrice);
         const allowanceMonthPct = getAllowanceMonthPct(state.itemPrice);
         const isDanger = checkConsumptionDanger(costPerUse, laborHours, allowanceDays, allowanceMonthPct);
@@ -4611,7 +4607,7 @@
           const innerX = cardX + 24;
           const innerW = cardW - 48;
 
-          const displayName = state.itemName.trim() || '노이즈 캔슬링 헤드폰';
+          const displayName = state.itemName.trim() || '고민 중인 아이템';
           const safeCount = Math.max(1, state.useCount);
           const costPerUse = Math.round(state.itemPrice / safeCount);
           const safeWage = Math.max(1, state.hourlyWage);
@@ -5342,7 +5338,7 @@
         ensureRoomCreatedInDb(roomId);
 
         const shareUrl = generateShareUrl();
-        const displayName = (state.itemName || '').trim() || '노이즈 캔슬링 헤드폰';
+        const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
         const laborHours = Math.ceil(state.itemPrice / Math.max(1, state.hourlyWage));
         const laborDays = (laborHours / 8).toFixed(1);
         const allowanceDays = formatAllowanceDays(state.itemPrice);
