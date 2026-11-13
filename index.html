@@ -1166,53 +1166,53 @@
     <!-- 2-A. 레벨업 축하 및 [🏆 짠테크 레벨 인증 카드] 전용 모달 (물건 투표와 완전 분리!) -->
     <div id="levelUpModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
       <div id="levelModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="levelModalContent" class="relative z-10 w-full max-w-[360px] mx-auto bg-white rounded-3xl p-5 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
+      <div id="levelModalContent" class="relative z-10 w-full max-w-[340px] mx-auto bg-white rounded-3xl p-4 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-2">
-          <span id="modalHeaderTag" class="text-[11px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
+          <span id="modalHeaderTag" class="badge-item inline-flex items-center justify-center text-[11px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full leading-none">
             🏆 짠테크 레벨 인증 카드
           </span>
           <button type="button" id="closeLevelModalTopBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <!-- 캡처 대상: 황금빛 레벨 인증서 디자인 카드 (물건 가격/투표 없음) -->
-        <div id="levelCertificateCaptureBox" class="bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl p-5 border-2 border-amber-200/90 shadow-inner text-center">
-          <span class="inline-block text-[10px] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full mb-2">
+        <!-- 캡처 대상: 황금빛 레벨 인증서 디자인 카드 (300px~315px 슬림 비율) -->
+        <div id="levelCertificateCaptureBox" class="w-full max-w-[308px] mx-auto bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl px-3.5 py-4.5 border-2 border-amber-200/90 shadow-inner text-center">
+          <span class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full mb-2 leading-none">
             OFFICIAL SAVING CERTIFICATE
           </span>
 
-          <div id="modalLevelIcon" class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-amber-300 via-yellow-100 to-amber-50 border-4 border-amber-300 flex items-center justify-center text-[34px] shadow-md my-2">
+          <div id="modalLevelIcon" class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-amber-300 via-yellow-100 to-amber-50 border-4 border-amber-300 flex items-center justify-center text-[32px] leading-none shadow-md my-2 select-none overflow-hidden" style="line-height: 1;">
             🌱
           </div>
 
-          <span id="modalLevelPill" class="inline-block bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[12px] font-black px-3.5 py-1 rounded-full shadow-xs mb-2">
+          <span id="modalLevelPill" class="badge-item inline-flex items-center justify-center bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[12px] font-black px-3.5 py-1 rounded-full shadow-xs mb-2 leading-none">
             🌱 절약 입문자 Lv.1
           </span>
 
-          <h3 id="modalLevelTitle" class="text-[19px] font-black text-[#191F28] leading-snug">
+          <h3 id="modalLevelTitle" class="text-[18px] font-black text-[#191F28] leading-snug">
             지름신 이겨내고 통장 방어 성공!
           </h3>
-          <p class="text-[12px] text-[#64748B] font-semibold mt-1">
+          <p class="text-[11.5px] text-[#64748B] font-semibold mt-1">
             충동구매 유혹을 뿌리치고 소중한 자산을 지켰어요
           </p>
 
           <!-- 핵심 성과 하이라이트 박스 -->
-          <div class="bg-white rounded-2xl p-4 my-3.5 border border-amber-200/80 shadow-2xs">
-            <p class="text-[11.5px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
-            <p class="text-[15px] font-black text-[#191F28] mt-1 leading-snug">
+          <div class="bg-white rounded-2xl p-3.5 my-3 border border-amber-200/80 shadow-2xs">
+            <p class="text-[11px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
+            <p class="text-[14.5px] font-black text-[#191F28] mt-1 leading-snug">
               지금까지 총 <span id="modalSavedCount" class="text-[#3182F6]">0번</span> 참아서<br />
-              누적 <span id="modalSavedAmount" class="text-[21px] text-[#3182F6]">0원</span> 절약 달성 🎉
+              누적 <span id="modalSavedAmount" class="text-[20px] text-[#3182F6]">0원</span> 절약 달성 🎉
             </p>
           </div>
 
-          <!-- 구출한 노동 시간(또는 아낀 총 용돈 일수) 및 다음 레벨 요약 (각 네모 박스 기준 정중앙 정렬) -->
+          <!-- 구출한 노동 시간(또는 아낀 총 용돈 일수) 및 다음 레벨 요약 -->
           <div class="grid grid-cols-2 gap-2 text-center">
-            <div class="bg-[#F5F3FF] rounded-xl p-3 border border-purple-100 flex flex-col items-center justify-center text-center">
-              <span id="modalMetricLeftTitle" class="w-full text-[11px] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
-              <p id="modalSavedHours" class="w-full text-[14px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 0시간</p>
+            <div class="bg-[#F5F3FF] rounded-xl p-2.5 border border-purple-100 flex flex-col items-center justify-center text-center">
+              <span id="modalMetricLeftTitle" class="w-full text-[10.5px] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
+              <p id="modalSavedHours" class="w-full text-[13.5px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 0시간</p>
             </div>
-            <div class="bg-[#EFF6FF] rounded-xl p-3 border border-blue-100 flex flex-col items-center justify-center text-center">
-              <span class="w-full text-[11px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
-              <p id="modalGoalPct" class="w-full text-[14px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">0.0% 달성</p>
+            <div class="bg-[#EFF6FF] rounded-xl p-2.5 border border-blue-100 flex flex-col items-center justify-center text-center">
+              <span class="w-full text-[10.5px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
+              <p id="modalGoalPct" class="w-full text-[13.5px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">0.0% 달성</p>
             </div>
           </div>
         </div>
@@ -1428,12 +1428,12 @@
           <button type="button" id="closeInstaModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="instaReceiptCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner">
+        <div id="instaReceiptCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl px-4 pt-4 pb-[22px] border border-slate-200 flex flex-col justify-between shadow-inner">
           <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-            <span class="text-[12px] font-extrabold text-[#191F28]">🧾 살까 말까 팩폭 영수증</span>
-            <span class="inline-flex items-center gap-1">
-              <span id="instaStatusBadge" class="text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">소비위험주의</span>
-              <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0"></span>
+            <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
+            <span class="inline-flex items-center gap-1.5 leading-none">
+              <span id="instaStatusBadge" class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-1 rounded-full leading-none">소비위험주의</span>
+              <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
             </span>
           </div>
 
@@ -1464,7 +1464,7 @@
           </div>
 
           <div class="bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
-            <span class="inline-block bg-[#1E293B] text-white text-[9.5px] font-extrabold px-2 py-0.5 rounded mb-1.5">
+            <span class="badge-item inline-flex items-center justify-center bg-[#1E293B] text-white text-[9.5px] font-extrabold px-2 py-1 rounded mb-1.5 leading-none">
               INSTA POLL STICKER
             </span>
             <p class="text-[12px] font-extrabold text-[#191F28] mb-2">
@@ -1482,8 +1482,8 @@
             </div>
           </div>
 
-          <div class="text-center pt-2 border-t border-dashed border-slate-200">
-            <p class="text-[10px] font-bold text-[#64748B]">
+          <div class="text-center pt-2.5 border-t border-dashed border-slate-200">
+            <p class="text-[10px] font-bold text-[#64748B] leading-none">
               살까 말까 판독기 • 내 시간 가치 계산 리포트
             </p>
           </div>
@@ -1512,12 +1512,12 @@
           <button type="button" id="closeKakaoModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="kakaoCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner">
+        <div id="kakaoCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl px-4 pt-4 pb-[22px] border border-slate-200 flex flex-col justify-between shadow-inner">
           <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-            <span class="text-[12px] font-extrabold text-[#191F28]">🧾 살까 말까 팩폭 영수증</span>
-            <span class="inline-flex items-center gap-1">
-              <span id="kakaoStatusBadge" class="text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">소비위험주의</span>
-              <span id="kakaoSirenIcon" class="inline-flex items-center justify-center shrink-0"></span>
+            <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
+            <span class="inline-flex items-center gap-1.5 leading-none">
+              <span id="kakaoStatusBadge" class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-1 rounded-full leading-none">소비위험주의</span>
+              <span id="kakaoSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
             </span>
           </div>
 
@@ -1548,7 +1548,7 @@
           </div>
 
           <div class="bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
-            <span class="inline-block bg-[#FEE500] text-[#191F28] text-[9.5px] font-extrabold px-2 py-0.5 rounded mb-1.5">
+            <span class="badge-item inline-flex items-center justify-center bg-[#FEE500] text-[#191F28] text-[9.5px] font-extrabold px-2 py-1 rounded mb-1.5 leading-none">
               KAKAO POLL STICKER
             </span>
             <p class="text-[12px] font-extrabold text-[#191F28] mb-2">
@@ -1566,8 +1566,8 @@
             </div>
           </div>
 
-          <div class="text-center pt-2 border-t border-dashed border-slate-200">
-            <p class="text-[10px] font-bold text-[#64748B]">
+          <div class="text-center pt-2.5 border-t border-dashed border-slate-200">
+            <p class="text-[10px] font-bold text-[#64748B] leading-none">
               살까 말까 판독기 • 내 시간 가치 계산 리포트
             </p>
           </div>
@@ -3227,11 +3227,11 @@
         if (badgeEl) {
           badgeEl.textContent = isDanger ? '소비위험주의' : '소비안심양호';
           badgeEl.className = isDanger
-            ? `${badgeFontClass} font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full`
-            : `${badgeFontClass} font-extrabold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full`;
+            ? `${badgeFontClass} badge-item font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full inline-flex items-center justify-center leading-none`
+            : `${badgeFontClass} badge-item font-extrabold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full inline-flex items-center justify-center leading-none`;
         }
         if (sirenEl) {
-          sirenEl.innerHTML = renderSirenIconSvg(isDanger);
+          sirenEl.innerHTML = `<span class="inline-flex items-center justify-center text-[13px] leading-none select-none">${isDanger ? '🚨' : '💚'}</span>`;
         }
         if (boxEl) {
           boxEl.className = isDanger
@@ -4522,58 +4522,63 @@
         return 'download-fallback';
       }
 
-      // 화면 팝업에서 보이는 실제 카드 DOM 크기(약 320px~350px) 그대로 1px도 변경 없이 scale: 3 고화질 캡처
+      // 화면 팝업에서 보이는 실제 카드 본체만 단독 분리하여 scale: 3 고화질 캡처 (바깥 액자 테두리 100% 제거)
       async function captureElementWithHtml2canvas(targetId, modalId) {
         if (typeof window.html2canvas !== 'function') return null;
 
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
-        const modalEl = modalId ? document.getElementById(modalId) : null;
-        const wasHidden = modalEl ? modalEl.classList.contains('hidden') : false;
+        const isLevelCard = targetId === 'levelCertificateCaptureBox';
+        // 1. 레벨 인증 카드 가로 폭 슬림하게 축소 (300px~315px, 팩폭 영수증 비율과 통일)
+        const actualWidth = isLevelCard ? 308 : 324;
+        const actualHeight = isLevelCard ? 482 : 576;
 
-        let restoreModal = null;
-        const contentEl = modalEl ? modalEl.querySelector('.modal-pop') : null;
-        let restoreContent = null;
+        // 2. 바깥쪽 회색/베이지색 액자 테두리 완전 제거:
+        //    모달 배경틀 없이 순수 카드 본체만 독립 샌드박스에 복제 마운트하여 캡처
+        const sandbox = document.createElement('div');
+        sandbox.id = '__capture_sandbox__';
+        sandbox.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-9999; margin:0; padding:0; background:transparent; overflow:visible; pointer-events:none;';
 
-        if (wasHidden && modalEl) {
-          restoreModal = {
-            visibility: modalEl.style.visibility,
-            pointerEvents: modalEl.style.pointerEvents,
-            opacity: modalEl.style.opacity,
-            display: modalEl.style.display
-          };
-          modalEl.style.visibility = 'hidden';
-          modalEl.style.pointerEvents = 'none';
-          modalEl.style.opacity = '0';
-          modalEl.classList.remove('hidden');
+        const clone = targetEl.cloneNode(true);
+        clone.id = `${targetId}_capture_clone`;
+        clone.style.cssText = `width:${actualWidth}px !important; max-width:${actualWidth}px !important; min-width:${actualWidth}px !important; height:${actualHeight}px !important; margin:0 !important; box-sizing:border-box !important; position:relative !important; transform:none !important; border-radius:16px !important;`;
 
-          if (contentEl) {
-            restoreContent = {
-              transform: contentEl.style.transform,
-              opacity: contentEl.style.opacity
-            };
-            contentEl.style.transform = 'none';
-            contentEl.style.opacity = '1';
-          }
+        // 3. 배지(Badge) 및 원형 아이콘의 텍스트/이모지 수직 중앙 정렬 확실히 보정
+        clone.querySelectorAll('.badge-item, [id$="Badge"], #modalLevelPill, #modalLevelIcon, [id$="SirenIcon"], #modalHeaderTag').forEach((el) => {
+          el.style.display = 'inline-flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+          el.style.lineHeight = '1';
+          el.style.verticalAlign = 'middle';
+          el.style.boxSizing = 'border-box';
+        });
+
+        const iconEl = clone.querySelector('#modalLevelIcon');
+        if (iconEl) {
+          iconEl.style.display = 'flex';
+          iconEl.style.alignItems = 'center';
+          iconEl.style.justifyContent = 'center';
+          iconEl.style.lineHeight = '1';
+          iconEl.style.textAlign = 'center';
+          iconEl.style.fontSize = '30px';
+          iconEl.style.overflow = 'hidden';
         }
 
-        // DOM 렌더링 동기화
-        void targetEl.offsetWidth;
+        // 4. 영수증 하단 22px 패딩 여백 확보
+        if (!isLevelCard) {
+          clone.style.paddingBottom = '22px';
+        }
 
-        // 1. 임의의 가로 폭 확대 절대 금지: 화면 실제 DOM 크기 (약 320px~350px) 그대로 측정
-        const rect = targetEl.getBoundingClientRect();
-        const rawW = targetEl.offsetWidth || rect.width;
-        const rawH = targetEl.offsetHeight || rect.height;
-        const actualWidth = Math.round(rawW > 0 ? rawW : (targetId === 'instaReceiptCaptureBox' ? 328 : 320));
-        const actualHeight = Math.round(rawH > 0 ? rawH : (targetId === 'instaReceiptCaptureBox' ? actualWidth * 16 / 9 : 490));
+        sandbox.appendChild(clone);
+        document.body.appendChild(sandbox);
 
         try {
           if (document.fonts && document.fonts.ready) {
             await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 200))]);
           }
 
-          const canvas = await window.html2canvas(targetEl, {
+          const canvas = await window.html2canvas(clone, {
             scale: 3,
             width: actualWidth,
             height: actualHeight,
@@ -4581,49 +4586,17 @@
             allowTaint: true,
             backgroundColor: null,
             logging: false,
-            onclone: (clonedDoc) => {
-              const clonedModal = modalEl ? clonedDoc.getElementById(modalEl.id) : null;
-              if (clonedModal) {
-                clonedModal.style.transform = 'none';
-                clonedModal.style.transition = 'none';
-                clonedModal.style.visibility = 'visible';
-                clonedModal.style.opacity = '1';
-              }
-              const clonedContent = modalEl ? clonedDoc.querySelector(`#${modalEl.id} .modal-pop`) : null;
-              if (clonedContent) {
-                clonedContent.style.transform = 'none';
-                clonedContent.style.transition = 'none';
-                clonedContent.style.opacity = '1';
-              }
-              const clonedTarget = clonedDoc.getElementById(targetId);
-              if (clonedTarget) {
-                clonedTarget.style.transform = 'none';
-                clonedTarget.style.transition = 'none';
-                clonedTarget.style.width = `${actualWidth}px`;
-                clonedTarget.style.maxWidth = `${actualWidth}px`;
-                clonedTarget.style.height = `${actualHeight}px`;
-                clonedTarget.style.boxSizing = 'border-box';
-              }
-            }
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0
           });
           return canvas;
         } catch (captureErr) {
           console.warn(`html2canvas failed on ${targetId}:`, captureErr);
           return null;
         } finally {
-          if (wasHidden && modalEl) {
-            modalEl.classList.add('hidden');
-            if (restoreModal) {
-              modalEl.style.visibility = restoreModal.visibility;
-              modalEl.style.pointerEvents = restoreModal.pointerEvents;
-              modalEl.style.opacity = restoreModal.opacity;
-              modalEl.style.display = restoreModal.display;
-            }
-            if (contentEl && restoreContent) {
-              contentEl.style.transform = restoreContent.transform;
-              contentEl.style.opacity = restoreContent.opacity;
-            }
-          }
+          sandbox.remove();
         }
       }
 
@@ -4643,11 +4616,9 @@
           console.warn('level cert DOM capture fallback:', domErr);
         }
 
-        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 320px @3x 반영)
-        const targetEl = document.getElementById('levelCertificateCaptureBox');
-        const measuredW = targetEl ? Math.round(targetEl.offsetWidth || targetEl.getBoundingClientRect().width) : 0;
-        const W = measuredW >= 280 && measuredW <= 380 ? measuredW : 320;
-        const H = Math.round(W * 1.48);
+        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 308px @3x 반영)
+        const W = 308;
+        const H = 482;
         const pixelRatio = 3;
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
@@ -4892,11 +4863,9 @@
           console.warn('Receipt DOM capture fallback:', domErr);
         }
 
-        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 328px @3x, 9:16 비율 반영)
-        const targetEl = document.getElementById('instaReceiptCaptureBox');
-        const measuredW = targetEl ? Math.round(targetEl.offsetWidth || targetEl.getBoundingClientRect().width) : 0;
-        const W = measuredW >= 280 && measuredW <= 380 ? measuredW : 328;
-        const H = Math.round(W * (16 / 9)); // 583px
+        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 324px @3x, 9:16 비율 반영)
+        const W = 324;
+        const H = 576;
         const pixelRatio = 3;
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
@@ -5117,8 +5086,8 @@
           ctx.fillStyle = '#E11D48';
           ctx.fillText('정신 차려! 당장 참아!', btn2X + btnW / 2, btnY + 70);
 
-          // 하단 출처 문구 (화면에 보이는 영역 빠짐없이 100% 동일 비율 렌더링)
-          const footerY = H - 20;
+          // 하단 출처 문구 (하단 패딩 22px 여백 확보)
+          const footerY = H - 22;
           ctx.save();
           ctx.setLineDash([4, 4]);
           ctx.strokeStyle = '#E2E8F0';
