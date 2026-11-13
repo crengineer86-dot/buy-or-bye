@@ -2197,6 +2197,161 @@
         }, 2500);
       }
 
+      // ==========================================
+      // Web Audio API 효과음 및 모바일 햅틱(진동) 시스템
+      // ==========================================
+      let audioCtx = null;
+      function getAudioContext() {
+        try {
+          if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new Ctx();
+          }
+          if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+          }
+          return audioCtx;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function triggerHaptic(pattern) {
+        try {
+          if (navigator.vibrate) {
+            navigator.vibrate(pattern);
+          }
+          const capHaptics = window.Capacitor?.Plugins?.Haptics;
+          if (capHaptics) {
+            if (Array.isArray(pattern)) {
+              capHaptics.vibrate({ duration: pattern[0] || 100 }).catch(() => {});
+            } else if (typeof pattern === 'number' && pattern <= 20) {
+              capHaptics.impact({ style: 'LIGHT' }).catch(() => {});
+            } else {
+              capHaptics.vibrate({ duration: pattern || 50 }).catch(() => {});
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 1) 저축 성공 코인 획득음 (차랑~ / 띠링!)
+      function playCoinSound() {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        // 음 1: B5 (987.77 Hz)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(987.77, now);
+        gain1.gain.setValueAtTime(0.22, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.12);
+
+        // 음 2: E6 (1318.51 Hz) - 메인 맑은 벨
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1318.51, now + 0.07);
+        gain2.gain.setValueAtTime(0.26, now + 0.07);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.07);
+        osc2.stop(now + 0.38);
+
+        // 음 3: B6 (1975.53 Hz) - 반짝임 배음
+        const osc3 = ctx.createOscillator();
+        const gain3 = ctx.createGain();
+        osc3.type = 'triangle';
+        osc3.frequency.setValueAtTime(1975.53, now + 0.07);
+        gain3.gain.setValueAtTime(0.08, now + 0.07);
+        gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc3.connect(gain3);
+        gain3.connect(ctx.destination);
+        osc3.start(now + 0.07);
+        osc3.stop(now + 0.28);
+      }
+
+      // 2) 레벨업 축하 상승 팡파레 화음 (도-미-솔-도)
+      function playFanfareSound() {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const notes = [
+          { f: 523.25, t: 0.00, d: 0.10, vol: 0.22 }, // C5 도
+          { f: 659.25, t: 0.09, d: 0.10, vol: 0.24 }, // E5 미
+          { f: 783.99, t: 0.18, d: 0.12, vol: 0.26 }, // G5 솔
+          { f: 1046.50, t: 0.28, d: 0.50, vol: 0.30 }  // C6 도 (지속 화음)
+        ];
+        notes.forEach((n) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(n.f, now + n.t);
+          gain.gain.setValueAtTime(n.vol, now + n.t);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + n.t);
+          osc.stop(now + n.t + n.d);
+        });
+      }
+
+      // 3) 레벨 카드 열람 부드러운 팝 사운드
+      function playPopSound() {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.07);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      }
+
+      // 4) 찰칵! 카메라 셔터 기계음
+      function playShutterSound() {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        // Click 1: 기계적 셔터 시작 (찰)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'square';
+        osc1.frequency.setValueAtTime(1900, now);
+        osc1.frequency.exponentialRampToValueAtTime(300, now + 0.025);
+        gain1.gain.setValueAtTime(0.16, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.025);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.025);
+
+        // Click 2: 조리개 닫힘/셔터 릴리즈 (칵!)
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(2600, now + 0.045);
+        osc2.frequency.exponentialRampToValueAtTime(380, now + 0.095);
+        gain2.gain.setValueAtTime(0.22, now + 0.045);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.095);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.045);
+        osc2.stop(now + 0.095);
+      }
+
       // 4개 기준점(1회, 30회, 180회, 365회) <-> 슬라이더 게이지 위치(0% ~ 100%) 구간 비례 변환
       const PRESET_USE_COUNTS = [1, 30, 180, 365];
       const PRESET_SLIDER_MARKS = [
@@ -3259,6 +3414,7 @@
 
       document.querySelectorAll('.quick-price-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
+          triggerHaptic(12);
           const addAmount = parseInt(btn.getAttribute('data-add-price'), 10) || 0;
           rotateRoomForNewCalculation();
           state.itemPrice += addAmount;
@@ -3269,6 +3425,7 @@
       });
 
       document.getElementById('resetPriceBtn').addEventListener('click', () => {
+        triggerHaptic(15);
         rotateRoomForNewCalculation();
         state.itemPrice = 0;
         state.isChallengeLocked = false;
@@ -3321,6 +3478,7 @@
       window.addEventListener('pointercancel', endSliderPointerSession);
 
       useCountSliderEl.addEventListener('input', (e) => {
+        triggerHaptic(10);
         const rawSliderVal = Number(e.target.value) || 0;
         if (!isDraggingSlider) {
           // 드래그가 아닌 단일 트랙 클릭 시 4개 노드 근처(±3.5%)를 눌렀다면 해당 고정 프리셋 값(1, 30, 180, 365)으로 즉시 스냅
@@ -3343,6 +3501,7 @@
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
+          triggerHaptic(12);
           setExactUseCount(btn.getAttribute('data-set-count'));
         });
       });
@@ -3382,9 +3541,9 @@
         const prevStats = getHistoryStats();
         const prevLevel = getLevelInfo(prevStats.totalSaved).level;
 
-        if (navigator.vibrate) {
-          navigator.vibrate([40, 60, 40]);
-        }
+        // 경쾌한 코인 획득 효과음 (차랑~ / 띠링!) 및 50ms 손맛 진동
+        playCoinSound();
+        triggerHaptic(50);
 
         if (fromVerdictScreen) {
           switchScreen('main');
@@ -3835,6 +3994,14 @@
       const levelContent = document.getElementById('levelModalContent');
 
       function openLevelUpModal(isLevelUp = false) {
+        if (isLevelUp) {
+          playFanfareSound();
+          triggerHaptic([100, 50, 100, 50, 200]);
+        } else {
+          playPopSound();
+          triggerHaptic(20);
+        }
+
         const { totalCount, totalSaved } = getHistoryStats();
         const levelInfo = getLevelInfo(totalSaved);
         const totalHours = Math.ceil(totalSaved / Math.max(1, state.hourlyWage));
@@ -4107,6 +4274,8 @@
       }
 
       function triggerBlobDownload(blob, filename, successMsg) {
+        playShutterSound();
+        triggerHaptic(40);
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = filename;
@@ -4120,6 +4289,8 @@
       }
 
       function triggerCanvasPngDownload(canvas, filename, successMsg) {
+        playShutterSound();
+        triggerHaptic(40);
         const downloadFromUrl = (url, revokeAfter) => {
           const link = document.createElement('a');
           link.download = filename;
@@ -4248,6 +4419,8 @@
           try {
             const bridgeResult = window.AndroidGalleryBridge.saveImageToGallery(dataUrl, filename);
             if (bridgeResult === 'OK') {
+              playShutterSound();
+              triggerHaptic(40);
               showToast('📸 찰칵! 앨범에 예쁘게 저장됐어요!');
               return 'android-gallery-bridge';
             }
@@ -4327,6 +4500,8 @@
         if (blob) {
           triggerBlobDownload(blob, filename, successToast);
         } else {
+          playShutterSound();
+          triggerHaptic(40);
           const link = document.createElement('a');
           link.download = filename;
           link.href = dataUrl;
@@ -4816,6 +4991,7 @@
       }
 
       document.getElementById('downloadLevelCertBtn').addEventListener('click', async () => {
+        getAudioContext();
         const btn = document.getElementById('downloadLevelCertBtn');
         const prevText = btn ? btn.textContent : '';
         if (btn) {
@@ -5217,6 +5393,7 @@
       });
 
       document.getElementById('actionDownloadImgBtn').addEventListener('click', () => {
+        getAudioContext();
         closeShareSheet();
         drawReceiptCardToPng(
           'neutral',

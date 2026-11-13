@@ -52,7 +52,7 @@ jobs:
       - name: Initialize Capacitor and Add Android Platform
         run: |
           npm init -y
-          npm install @capacitor/core@^6.2.0 @capacitor/cli@^6.2.0 @capacitor/android@^6.2.0 @capacitor/filesystem@^6.0.0 @capacitor/share@^6.0.0
+          npm install @capacitor/core@^6.2.0 @capacitor/cli@^6.2.0 @capacitor/android@^6.2.0 @capacitor/filesystem@^6.0.0 @capacitor/share@^6.0.0 @capacitor/haptics@^6.0.0
           cat << 'EOF' > capacitor.config.json
           {
             "appId": "com.buyorbye.app",
@@ -98,6 +98,7 @@ jobs:
           for perm in [
               "android.permission.INTERNET",
               "android.permission.ACCESS_NETWORK_STATE",
+              "android.permission.VIBRATE",
           ]:
               tag = f'<uses-permission android:name="{perm}" />'
               if perm not in manifest:
