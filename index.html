@@ -1358,29 +1358,29 @@
       </div>
     </div>
 
-    <!-- 3. [팩폭 영수증 공유하기] 액션 바텀시트 (상단 고화질 영수증 미리보기 + 기존 3열 공유 아이콘 & 투표판 배너) -->
+    <!-- 3. [팩폭 영수증 공유하기] 통합 액션 바텀시트 (제목 밑 고화질 영수증 이미지 + 그 밑 3열 공유 아이콘 & 투표판 배너 한판 구조) -->
     <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
-      <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/60 backdrop-fade opacity-0"></div>
-      <div class="relative z-10 h-full w-full flex flex-col justify-end items-center pointer-events-none">
-        <!-- 바텀시트 위쪽 여백 중앙: 고화질 영수증 이미지 미리보기 -->
-        <div id="shareSheetPreviewWrap" class="flex-1 w-full max-w-[540px] flex items-center justify-center px-6 pt-6 pb-3 min-h-0 pointer-events-none">
-          <div id="shareSheetPreviewBox" class="relative max-h-full flex items-center justify-center transition-all duration-200 opacity-0 scale-95">
-            <img
-              id="shareSheetReceiptPreviewImg"
-              alt="팩폭 영수증 고화질 미리보기"
-              class="max-h-full max-w-[270px] w-auto h-auto rounded-2xl shadow-2xl object-contain pointer-events-auto bg-white"
-            />
-          </div>
-        </div>
-
-        <div id="shareSheetContent" class="w-full max-w-[540px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl shrink-0">
-          <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
-          <div class="flex items-center justify-between mb-4">
+      <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
+      <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
+        <div id="shareSheetContent" class="w-full max-w-[540px] max-h-[92vh] overflow-y-auto bg-white rounded-t-3xl px-6 pt-5 pb-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+          <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-3.5"></div>
+          <div class="flex items-center justify-between mb-3">
             <div>
               <h3 class="text-[17px] font-extrabold text-[#191F28]">팩폭 영수증 공유하기 📸</h3>
               <p class="text-[11.5px] text-[#64748B] mt-0.5">친구들에게 보내서 살지 말지 투표로 정해보세요</p>
             </div>
             <button type="button" id="closeShareSheetBtn" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">✕</button>
+          </div>
+
+          <!-- 제목 바로 아래: 고화질 영수증 이미지 한판 통합 미리보기 -->
+          <div id="shareSheetPreviewWrap" class="w-full flex justify-center mb-3">
+            <div id="shareSheetPreviewBox" class="transition-all duration-200 opacity-0 scale-95 flex justify-center">
+              <img
+                id="shareSheetReceiptPreviewImg"
+                alt="팩폭 영수증 고화질 미리보기"
+                class="max-h-[40vh] max-w-[235px] w-auto h-auto rounded-2xl shadow-md border border-slate-200/80 object-contain bg-white"
+              />
+            </div>
           </div>
 
           <!-- 1. 상단: 외부 공유 수단 3종 가로 한 줄 (Grid 3열) -->
