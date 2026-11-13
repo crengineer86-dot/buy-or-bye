@@ -1184,16 +1184,16 @@
     <!-- 2-A. 레벨업 축하 및 [🏆 짠테크 레벨 인증 카드] 전용 모달 (물건 투표와 완전 분리!) -->
     <div id="levelUpModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
       <div id="levelModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="levelModalContent" class="relative z-10 w-full max-w-[340px] mx-auto bg-white rounded-3xl p-4 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-2">
+      <div id="levelModalContent" class="relative z-10 w-full max-w-[360px] mx-auto bg-white rounded-3xl p-4 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-2.5 px-1">
           <span id="modalHeaderTag" class="badge-item inline-flex items-center justify-center text-[11px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full leading-none">
             🏆 짠테크 레벨 인증 카드
           </span>
           <button type="button" id="closeLevelModalTopBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <!-- 캡처 대상: 황금빛 레벨 인증서 디자인 카드 (300px~315px 슬림 비율) -->
-        <div id="levelCertificateCaptureBox" class="w-full max-w-[308px] mx-auto bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl px-3.5 py-4.5 border-2 border-amber-200/90 shadow-inner text-center">
+        <!-- 캡처 대상: 황금빛 레벨 인증서 디자인 카드 -->
+        <div id="levelCertificateCaptureBox" class="w-full mx-auto bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl p-5 border-2 border-amber-200/90 shadow-inner text-center">
           <span class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full mb-2 leading-none">
             OFFICIAL SAVING CERTIFICATE
           </span>
@@ -1204,8 +1204,8 @@
 
           <div
             id="modalLevelPill"
-            class="badge-item mx-auto bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white text-[12.5px] font-black px-4 py-1.5 rounded-full shadow-sm mb-2 text-center"
-            style="display: flex; align-items: center; justify-content: center; line-height: 1.2;"
+            class="badge-item mx-auto bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white text-[12.5px] font-black px-4 py-1.5 rounded-full shadow-sm mb-2.5 text-center"
+            style="display: inline-flex; align-items: center; justify-content: center; line-height: 1.2;"
           >
             🌱 절약 입문자 Lv.1
           </div>
@@ -1218,7 +1218,7 @@
           </p>
 
           <!-- 핵심 성과 하이라이트 박스 -->
-          <div class="bg-white rounded-2xl p-3.5 my-3 border border-amber-200/80 shadow-2xs">
+          <div class="bg-white rounded-2xl p-3.5 my-3.5 border border-amber-200/80 shadow-2xs">
             <p class="text-[11px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
             <p class="text-[14.5px] font-black text-[#191F28] mt-1 leading-snug">
               지금까지 총 <span id="modalSavedCount" class="text-[#3182F6]">0번</span> 참아서<br />
@@ -1227,14 +1227,14 @@
           </div>
 
           <!-- 구출한 노동 시간(또는 아낀 총 용돈 일수) 및 다음 레벨 요약 -->
-          <div class="grid grid-cols-2 gap-2 text-center">
-            <div class="bg-[#F5F3FF] rounded-xl p-2.5 border border-purple-100 flex flex-col items-center justify-center text-center">
+          <div class="grid grid-cols-2 gap-2.5 text-center">
+            <div class="bg-[#F5F3FF] rounded-xl p-3 border border-purple-100 flex flex-col items-center justify-center text-center">
               <span id="modalMetricLeftTitle" class="w-full text-[10.5px] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
-              <p id="modalSavedHours" class="w-full text-[13.5px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 0시간</p>
+              <p id="modalSavedHours" class="w-full text-[15px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 0시간</p>
             </div>
-            <div class="bg-[#EFF6FF] rounded-xl p-2.5 border border-blue-100 flex flex-col items-center justify-center text-center">
+            <div class="bg-[#EFF6FF] rounded-xl p-3 border border-blue-100 flex flex-col items-center justify-center text-center">
               <span class="w-full text-[10.5px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
-              <p id="modalGoalPct" class="w-full text-[13.5px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">0.0% 달성</p>
+              <p id="modalGoalPct" class="w-full text-[15px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">0.0% 달성</p>
             </div>
           </div>
         </div>
@@ -1461,7 +1461,7 @@
           <button type="button" id="closeInstaModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="instaReceiptCaptureBox" class="w-full min-h-[580px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4.5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
+        <div id="instaReceiptCaptureBox" class="w-full min-h-[540px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
           <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
             <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
             <span class="inline-flex items-center gap-1.5 leading-none">
@@ -1545,7 +1545,7 @@
           <button type="button" id="closeKakaoModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="kakaoCaptureBox" class="w-full min-h-[580px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4.5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
+        <div id="kakaoCaptureBox" class="w-full min-h-[540px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
           <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
             <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
             <span class="inline-flex items-center gap-1.5 leading-none">
