@@ -210,15 +210,21 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1">
           <button
             id="soundToggleBtn"
             type="button"
             title="소리·진동 켜짐 (클릭하여 무음 전환)"
             aria-label="소리·진동 켜기/끄기"
-            class="w-8 h-8 rounded-full bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-90 transition-all border border-[#DBEAFE] text-slate-700 flex items-center justify-center text-[14px] shadow-2xs cursor-pointer shrink-0"
+            class="w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 active:scale-90 transition-all cursor-pointer shrink-0"
           >
-            <span id="soundToggleIcon">🔊</span>
+            <span id="soundToggleIcon" class="inline-flex items-center justify-center">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </span>
           </button>
 
           <button
@@ -2227,20 +2233,23 @@
         isMuted = localStorage.getItem(SOUND_MUTED_KEY) === 'true';
       } catch (_) {}
 
+      const SOUND_ICON_ON = '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+      const SOUND_ICON_MUTED = '<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="22" y1="9" x2="16" y2="15"></line><line x1="16" y1="9" x2="22" y2="15"></line></svg>';
+
       function updateSoundToggleUI() {
         const btn = document.getElementById('soundToggleBtn');
         const icon = document.getElementById('soundToggleIcon');
         if (!btn || !icon) return;
         if (isMuted) {
-          icon.textContent = '🔇';
+          icon.innerHTML = SOUND_ICON_MUTED;
           btn.title = '무음 모드 켜짐 (클릭하여 소리·진동 켜기)';
           btn.setAttribute('aria-label', '무음 모드 켜짐 (클릭하여 소리·진동 켜기)');
-          btn.className = 'w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-90 transition-all border border-slate-200 text-slate-400 flex items-center justify-center text-[14px] shadow-2xs cursor-pointer shrink-0';
+          btn.className = 'w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 active:scale-90 transition-all cursor-pointer shrink-0';
         } else {
-          icon.textContent = '🔊';
+          icon.innerHTML = SOUND_ICON_ON;
           btn.title = '소리·진동 켜짐 (클릭하여 무음 전환)';
           btn.setAttribute('aria-label', '소리·진동 켜짐 (클릭하여 무음 전환)');
-          btn.className = 'w-8 h-8 rounded-full bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-90 transition-all border border-[#DBEAFE] text-slate-700 flex items-center justify-center text-[14px] shadow-2xs cursor-pointer shrink-0';
+          btn.className = 'w-8 h-8 flex items-center justify-center text-slate-600 hover:text-slate-900 active:scale-90 transition-all cursor-pointer shrink-0';
         }
       }
 
@@ -2258,7 +2267,7 @@
             triggerHaptic(20, true);
             showToast('🔊 효과음과 진동이 켜졌어요');
           } else {
-            showToast('🔇 무음 모드가 켜졌어요 (효과음·진동 꺼짐)');
+            showToast('🔇 무음 모드가 켜졌어요');
           }
         });
       }
