@@ -1358,11 +1358,22 @@
       </div>
     </div>
 
-    <!-- 3. [팩폭 영수증 공유하기] 액션 바텀시트 (상단 3열 공유 아이콘 + 하단 1열 실시간 투표판 와이드 배너) -->
+    <!-- 3. [팩폭 영수증 공유하기] 액션 바텀시트 (상단 고화질 영수증 미리보기 + 기존 3열 공유 아이콘 & 투표판 배너) -->
     <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
-      <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
-      <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="shareSheetContent" class="w-full max-w-[540px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
+      <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/60 backdrop-fade opacity-0"></div>
+      <div class="relative z-10 h-full w-full flex flex-col justify-end items-center pointer-events-none">
+        <!-- 바텀시트 위쪽 여백 중앙: 고화질 영수증 이미지 미리보기 -->
+        <div id="shareSheetPreviewWrap" class="flex-1 w-full max-w-[540px] flex items-center justify-center px-6 pt-6 pb-3 min-h-0 pointer-events-none">
+          <div id="shareSheetPreviewBox" class="relative max-h-full flex items-center justify-center transition-all duration-200 opacity-0 scale-95">
+            <img
+              id="shareSheetReceiptPreviewImg"
+              alt="팩폭 영수증 고화질 미리보기"
+              class="max-h-full max-w-[270px] w-auto h-auto rounded-2xl shadow-2xl object-contain pointer-events-auto bg-white"
+            />
+          </div>
+        </div>
+
+        <div id="shareSheetContent" class="w-full max-w-[540px] bg-white rounded-t-3xl p-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl shrink-0">
           <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -1445,7 +1456,7 @@
       <div id="instaModalContent" class="relative z-10 w-full max-w-[360px] mx-auto bg-white rounded-3xl p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-2.5 px-1">
           <span class="text-[11px] font-extrabold text-[#3182F6] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
-            🧾 팩폭 영수증 카드 미리보기
+            📸 INSTA STORY SHARE CARD
           </span>
           <button type="button" id="closeInstaModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
@@ -1511,49 +1522,13 @@
           </div>
         </div>
 
-        <!-- 카드 미리보기 바로 아래: [카카오톡 공유], [인스타그램 공유], [앨범에 이미지 저장] 나란히 일체형 배치 -->
-        <div class="mt-3.5 space-y-2">
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              id="shareKakaoNativeBtn"
-              class="bg-[#FEE500] hover:bg-[#FDD835] active:scale-95 text-[#191F28] font-extrabold text-[13px] py-3.5 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <span class="text-[16px]">💬</span>
-              <span>카카오톡 공유</span>
-            </button>
-            <button
-              type="button"
-              id="shareInstaNativeBtn"
-              class="bg-[#3182F6] hover:bg-[#1B64DA] active:scale-95 text-white font-extrabold text-[13px] py-3.5 rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-            >
-              <span class="text-[16px]">📸</span>
-              <span>인스타그램 공유</span>
-            </button>
-          </div>
-
+        <div class="mt-3">
           <button
             type="button"
-            id="downloadReceiptImageBtn"
-            class="w-full bg-[#1E293B] hover:bg-[#0F172A] active:scale-95 text-white font-extrabold text-[13.5px] py-3.5 rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            id="shareInstaNativeBtn"
+            class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[14px] py-3 rounded-xl shadow-md transition-all cursor-pointer"
           >
-            <span class="text-[16px]">📥</span>
-            <span>앨범에 이미지 저장</span>
-          </button>
-
-          <button
-            type="button"
-            id="modalGoPollScreenBtn"
-            class="w-full bg-gradient-to-r from-[#EFF6FF] to-[#F5F3FF] hover:from-[#DBEAFE] hover:to-[#EDE9FE] active:scale-[0.99] p-3 rounded-xl border border-[#BFDBFE] flex items-center justify-between transition-all text-left cursor-pointer shadow-2xs mt-1"
-          >
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="w-8 h-8 rounded-lg bg-[#3182F6] text-white flex items-center justify-center text-[15px] shrink-0">🗳️</span>
-              <div class="min-w-0">
-                <p class="text-[12.5px] font-extrabold text-[#1D4ED8] leading-tight">실시간 살까 말까 투표판</p>
-                <p class="text-[10.5px] text-[#4E5968] font-medium leading-tight mt-0.5 truncate">친구들의 팩폭 참견과 실시간 투표 결과 보기</p>
-              </div>
-            </div>
-            <span class="text-[#3182F6] font-extrabold text-[15px] pl-1 shrink-0">&gt;</span>
+            🔗 스토리/피드로 공유하기
           </button>
         </div>
       </div>
@@ -5609,8 +5584,16 @@
       const shareSheet = document.getElementById('shareBottomSheet');
       const shareBackdrop = document.getElementById('shareSheetBackdrop');
       const shareContent = document.getElementById('shareSheetContent');
+      const sharePreviewBox = document.getElementById('shareSheetPreviewBox');
+      const sharePreviewImg = document.getElementById('shareSheetReceiptPreviewImg');
+      let sharePreviewToken = 0;
 
       function openShareSheet() {
+        const currentToken = ++sharePreviewToken;
+        if (sharePreviewBox) {
+          sharePreviewBox.classList.remove('opacity-100', 'scale-100');
+          sharePreviewBox.classList.add('opacity-0', 'scale-95');
+        }
         shareSheet.classList.remove('hidden');
         requestAnimationFrame(() => {
           shareBackdrop.classList.remove('opacity-0');
@@ -5618,19 +5601,40 @@
           shareContent.classList.remove('translate-y-full');
           shareContent.classList.add('translate-y-0');
         });
+
+        // 바텀시트 상단 여백에 고화질 팩폭 영수증 이미지 미리보기 렌더링
+        if (sharePreviewImg && typeof createReceiptCanvas === 'function') {
+          createReceiptCanvas()
+            .then((canvas) => {
+              if (currentToken !== sharePreviewToken || !canvas) return;
+              sharePreviewImg.src = canvas.toDataURL('image/png');
+              if (sharePreviewBox) {
+                sharePreviewBox.classList.remove('opacity-0', 'scale-95');
+                sharePreviewBox.classList.add('opacity-100', 'scale-100');
+              }
+            })
+            .catch((err) => {
+              console.warn('Share sheet receipt preview generation failed:', err);
+            });
+        }
       }
 
       function closeShareSheet() {
+        sharePreviewToken++;
         shareBackdrop.classList.remove('opacity-100');
         shareBackdrop.classList.add('opacity-0');
         shareContent.classList.remove('translate-y-0');
         shareContent.classList.add('translate-y-full');
+        if (sharePreviewBox) {
+          sharePreviewBox.classList.remove('opacity-100', 'scale-100');
+          sharePreviewBox.classList.add('opacity-0', 'scale-95');
+        }
         setTimeout(() => {
           shareSheet.classList.add('hidden');
         }, 280);
       }
 
-      document.getElementById('openShareSheetBtn').addEventListener('click', openInstaModal);
+      document.getElementById('openShareSheetBtn').addEventListener('click', openShareSheet);
       document.getElementById('closeShareSheetBtn').addEventListener('click', closeShareSheet);
       shareBackdrop.addEventListener('click', closeShareSheet);
 
@@ -5722,80 +5726,6 @@
             shareBtn.textContent = prevBtnText;
           }
         }
-      });
-
-      // 카드 미리보기 하단 [카카오톡 공유] 버튼 클릭 핸들러
-      document.getElementById('shareKakaoNativeBtn')?.addEventListener('click', async () => {
-        getAudioContext();
-        const kakaoBtn = document.getElementById('shareKakaoNativeBtn');
-        const prevBtnText = kakaoBtn ? kakaoBtn.innerHTML : '';
-        if (kakaoBtn) {
-          kakaoBtn.disabled = true;
-          kakaoBtn.innerHTML = '<span class="text-[16px]">💬</span><span>공유 준비 중...</span>';
-        }
-
-        try {
-          const roomId = ensureRoomId();
-          ensureRoomCreatedInDb(roomId);
-
-          const shareUrl = generateShareUrl();
-          const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
-          const laborHours = Math.ceil(state.itemPrice / Math.max(1, state.hourlyWage));
-          const laborDays = (laborHours / 8).toFixed(1);
-          const allowanceDays = formatAllowanceDays(state.itemPrice);
-          const allowanceMonthPct = getAllowanceMonthPct(state.itemPrice);
-          const timeSummary = isAllowanceMode()
-            ? `용돈 ${formatNumber(allowanceDays)}일치 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)`
-            : `내 노동 ${formatNumber(laborHours)}시간 필요 (약 ${laborDays}일치 월급)`;
-          const shareText = `💸 [살까 말까 판독기] 내 통장 살릴지 죽일지 대신 투표 좀! 👇\n📦 ${displayName} (${formatNumber(state.itemPrice)}원) / ⏰ ${timeSummary}`;
-
-          const canvas = await createReceiptCanvas();
-          await saveOrShareCanvasImage(canvas, {
-            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
-            shareTitle: '살까 말까 투표 요청',
-            shareText: shareText,
-            copyTextOnShare: `${shareText}\n👉 실시간 투표하기: ${shareUrl}`,
-            preferShareOnMobile: true,
-            successToast: '💬 카카오톡 공유 문구와 영수증 이미지가 준비되었어요!'
-          });
-        } catch (err) {
-          console.error('Kakao share failed:', err);
-          showToast('⚠️ 카카오톡 공유 준비에 실패했어요');
-        } finally {
-          if (kakaoBtn) {
-            kakaoBtn.disabled = false;
-            kakaoBtn.innerHTML = prevBtnText;
-          }
-        }
-      });
-
-      // 카드 미리보기 하단 [앨범에 이미지 저장] 버튼 클릭 핸들러
-      document.getElementById('downloadReceiptImageBtn')?.addEventListener('click', async () => {
-        getAudioContext();
-        const dlBtn = document.getElementById('downloadReceiptImageBtn');
-        const prevBtnText = dlBtn ? dlBtn.innerHTML : '';
-        if (dlBtn) {
-          dlBtn.disabled = true;
-          dlBtn.innerHTML = '<span class="text-[16px]">📥</span><span>이미지 저장 중...</span>';
-        }
-        try {
-          await drawReceiptCardToPng(
-            'neutral',
-            `살까말까_팩폭영수증_${Date.now()}.png`,
-            '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
-          );
-        } finally {
-          if (dlBtn) {
-            dlBtn.disabled = false;
-            dlBtn.innerHTML = prevBtnText;
-          }
-        }
-      });
-
-      // 카드 미리보기 하단 [실시간 살까 말까 투표판 바로가기] 배너 클릭 핸들러
-      document.getElementById('modalGoPollScreenBtn')?.addEventListener('click', () => {
-        closeInstaModal();
-        setTimeout(() => switchScreen('poll'), 250);
       });
 
       // 카카오톡 공유 카드 모달
