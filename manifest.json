@@ -1,6 +1,6 @@
 {
-  "name": "살까 말까 판독기",
-  "short_name": "살까말까",
+  "name": "살까말까 판독기",
+  "short_name": "살까말까 판독기",
   "description": "내 통장 살릴지 죽일지 지금 실시간 투표에 참여해 주세요!",
   "start_url": "./index.html",
   "display": "standalone",

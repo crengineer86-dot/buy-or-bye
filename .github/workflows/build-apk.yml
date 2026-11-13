@@ -56,7 +56,7 @@ jobs:
           cat << 'EOF' > capacitor.config.json
           {
             "appId": "com.buyorbye.app",
-            "appName": "살까말까판독기",
+            "appName": "살까말까 판독기",
             "webDir": "www",
             "server": {
               "androidScheme": "https",
@@ -120,6 +120,21 @@ jobs:
               )
 
           manifest_path.write_text(manifest, encoding="utf-8")
+
+          strings_path = Path("android/app/src/main/res/values/strings.xml")
+          if strings_path.exists():
+              strings = strings_path.read_text(encoding="utf-8")
+              strings = re.sub(
+                  r'<string name="app_name">.*?</string>',
+                  '<string name="app_name">살까말까 판독기</string>',
+                  strings,
+              )
+              strings = re.sub(
+                  r'<string name="title_activity_main">.*?</string>',
+                  '<string name="title_activity_main">살까말까 판독기</string>',
+                  strings,
+              )
+              strings_path.write_text(strings, encoding="utf-8")
 
           main_activity = Path("android/app/src/main/java/com/buyorbye/app/MainActivity.java")
           main_activity.write_text(
