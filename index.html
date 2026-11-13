@@ -1202,9 +1202,13 @@
             🌱
           </div>
 
-          <span id="modalLevelPill" class="badge-item inline-flex items-center justify-center bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[12px] font-black px-3.5 py-1 rounded-full shadow-xs mb-2 leading-none">
+          <div
+            id="modalLevelPill"
+            class="badge-item mx-auto bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white text-[12.5px] font-black px-4 py-1.5 rounded-full shadow-sm mb-2 text-center"
+            style="display: flex; align-items: center; justify-content: center; line-height: 1.2;"
+          >
             🌱 절약 입문자 Lv.1
-          </span>
+          </div>
 
           <h3 id="modalLevelTitle" class="text-[18px] font-black text-[#191F28] leading-snug">
             지름신 이겨내고 통장 방어 성공!
@@ -1446,7 +1450,7 @@
           <button type="button" id="closeInstaModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="instaReceiptCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl px-4 pt-4 pb-[22px] border border-slate-200 flex flex-col justify-between shadow-inner">
+        <div id="instaReceiptCaptureBox" class="w-full min-h-[580px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4.5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
           <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
             <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
             <span class="inline-flex items-center gap-1.5 leading-none">
@@ -1500,8 +1504,8 @@
             </div>
           </div>
 
-          <div class="text-center pt-2.5 border-t border-dashed border-slate-200">
-            <p class="text-[10px] font-bold text-[#64748B] leading-none">
+          <div class="text-center pt-2.5 pb-1 border-t border-dashed border-slate-200 mt-2 shrink-0">
+            <p class="text-[10.5px] font-bold text-[#64748B] leading-normal m-0 p-0">
               살까 말까 판독기 • 내 시간 가치 계산 리포트
             </p>
           </div>
@@ -1530,7 +1534,7 @@
           <button type="button" id="closeKakaoModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <div id="kakaoCaptureBox" class="w-full aspect-[9/16] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl px-4 pt-4 pb-[22px] border border-slate-200 flex flex-col justify-between shadow-inner">
+        <div id="kakaoCaptureBox" class="w-full min-h-[580px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4.5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
           <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
             <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
             <span class="inline-flex items-center gap-1.5 leading-none">
@@ -1584,8 +1588,8 @@
             </div>
           </div>
 
-          <div class="text-center pt-2.5 border-t border-dashed border-slate-200">
-            <p class="text-[10px] font-bold text-[#64748B] leading-none">
+          <div class="text-center pt-2.5 pb-1 border-t border-dashed border-slate-200 mt-2 shrink-0">
+            <p class="text-[10.5px] font-bold text-[#64748B] leading-normal m-0 p-0">
               살까 말까 판독기 • 내 시간 가치 계산 리포트
             </p>
           </div>
@@ -4599,42 +4603,78 @@
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
+        const modalEl = modalId ? document.getElementById(modalId) : null;
+        const wasHidden = modalEl ? modalEl.classList.contains('hidden') : false;
+
+        // 모달이 닫혀있는 상태에서 호출된 경우, 정확한 실측 크기 측정을 위해 임시 활성화
+        if (wasHidden && modalEl) {
+          modalEl.style.visibility = 'hidden';
+          modalEl.classList.remove('hidden');
+        }
+
         // 1. 현재 사용자 화면에 렌더링된 실제 DOM 요소의 실측 크기(offsetWidth, offsetHeight) 반영
-        const realWidth = targetEl.offsetWidth;
-        const realHeight = targetEl.offsetHeight;
-        if (!realWidth || !realHeight) return null;
+        const realWidth = targetEl.offsetWidth || 324;
+        const realHeight = targetEl.offsetHeight || (targetId === 'levelCertificateCaptureBox' ? 482 : 580);
 
         try {
           if (document.fonts && document.fonts.ready) {
             await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 200))]);
           }
 
-          // 2. 강제 폭/높이/스타일 변형 및 인위적인 CSS 주입 없이,
-          //    사용자 화면에 떠 있는 순수 카드 본체(노란 카드, 흰색 영수증)만 원본 그대로 1:1 스냅샷 캡처
+          // 2. 모달 전체나 바깥 회색 배경을 배제하고, 오직 안쪽에 있는 '실제 카드 element' 본체만 캡처
           const canvas = await window.html2canvas(targetEl, {
             scale: 3,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
             logging: false,
+            width: realWidth,
+            height: realHeight,
+            windowWidth: realWidth,
+            windowHeight: realHeight,
+            x: 0,
+            y: 0,
+            scrollX: 0,
+            scrollY: 0,
             onclone: (clonedDoc) => {
-              // 복제된 가상 DOM에서 transform 스케일 및 스크롤로 인한 캡처 좌표 왜곡만 방지
-              if (modalId) {
-                const modalEl = clonedDoc.getElementById(modalId);
-                if (modalEl) {
-                  const popContent = modalEl.querySelector('.modal-pop');
-                  if (popContent) {
-                    popContent.style.transform = 'none';
-                    popContent.scrollTop = 0;
-                  }
-                }
-              }
+              const cardEl = clonedDoc.getElementById(targetId);
+              if (!cardEl) return;
+
+              // 모달 전체나 바깥 회색 배경(백드롭, 모달 컨테이너)을 clonedDoc에서 완전히 제거하고
+              // 오직 안쪽에 있는 순수 카드 본체 DOM만 body의 (0, 0) 위치에 단독 배치
+              clonedDoc.body.innerHTML = '';
+              clonedDoc.body.style.margin = '0';
+              clonedDoc.body.style.padding = '0';
+              clonedDoc.body.style.background = 'transparent';
+              clonedDoc.body.style.width = `${realWidth}px`;
+              clonedDoc.body.style.height = `${realHeight}px`;
+              clonedDoc.body.style.overflow = 'hidden';
+
+              cardEl.style.position = 'relative';
+              cardEl.style.left = '0';
+              cardEl.style.top = '0';
+              cardEl.style.margin = '0';
+              cardEl.style.width = `${realWidth}px`;
+              cardEl.style.maxWidth = `${realWidth}px`;
+              cardEl.style.minWidth = `${realWidth}px`;
+              cardEl.style.height = `${realHeight}px`;
+              cardEl.style.maxHeight = `${realHeight}px`;
+              cardEl.style.boxSizing = 'border-box';
+              cardEl.style.transform = 'none';
+              cardEl.style.visibility = 'visible';
+
+              clonedDoc.body.appendChild(cardEl);
             }
           });
           return canvas;
         } catch (captureErr) {
           console.warn(`html2canvas failed on ${targetId}:`, captureErr);
           return null;
+        } finally {
+          if (wasHidden && modalEl) {
+            modalEl.classList.add('hidden');
+            modalEl.style.visibility = '';
+          }
         }
       }
 
@@ -4666,13 +4706,13 @@
         const ctx = canvas.getContext('2d');
         ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
-          // 모바일 세로형 슬림 비율 + 최소 외곽 여백(4px)
+          // 순수 카드 본체 전체 채우기 (여백 없이 100% 카드 본체 영역)
           ctx.clearRect(0, 0, W, H);
 
-          const cardX = 4;
-          const cardY = 4;
-          const cardW = W - 8;
-          const cardH = H - 8;
+          const cardX = 0;
+          const cardY = 0;
+          const cardW = W;
+          const cardH = H;
 
           ctx.save();
           ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
@@ -4757,8 +4797,9 @@
           const pillX = cx - pillW / 2;
           const pillY = 158;
           const pillGrad = ctx.createLinearGradient(pillX, pillY, pillX + pillW, pillY);
-          pillGrad.addColorStop(0, '#F59E0B');
-          pillGrad.addColorStop(1, '#EAB308');
+          pillGrad.addColorStop(0, '#D97706');
+          pillGrad.addColorStop(0.5, '#F59E0B');
+          pillGrad.addColorStop(1, '#D97706');
           drawRoundRectPath(ctx, pillX, pillY, pillW, 28, 14);
           ctx.fillStyle = pillGrad;
           ctx.fill();
@@ -4903,7 +4944,7 @@
 
         // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 324px @3x, 9:16 비율 반영)
         const W = 324;
-        const H = 576;
+        const H = 580;
         const pixelRatio = 3;
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
@@ -4913,13 +4954,13 @@
         const ctx = canvas.getContext('2d');
         ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
-        // 모바일 세로형 비율(328x583 @3x) + 최소 외곽 여백(4px)
+        // 순수 카드 본체 전체 채우기 (여백 없이 100% 카드 본체 영역)
         ctx.clearRect(0, 0, W, H);
 
-          const cardX = 4;
-          const cardY = 4;
-          const cardW = W - 8;
-          const cardH = H - 8;
+          const cardX = 0;
+          const cardY = 0;
+          const cardW = W;
+          const cardH = H;
 
           ctx.save();
           ctx.shadowColor = 'rgba(15, 23, 42, 0.08)';
@@ -5124,15 +5165,15 @@
           ctx.fillStyle = '#E11D48';
           ctx.fillText('정신 차려! 당장 참아!', btn2X + btnW / 2, btnY + 70);
 
-          // 하단 출처 문구 (하단 패딩 22px 여백 확보)
-          const footerY = H - 22;
+          // 하단 출처 문구 (하단 패딩 24px 여백 확보)
+          const footerY = H - 24;
           ctx.save();
           ctx.setLineDash([4, 4]);
           ctx.strokeStyle = '#E2E8F0';
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.moveTo(cardX + 16, footerY - 14);
-          ctx.lineTo(cardX + cardW - 16, footerY - 14);
+          ctx.moveTo(16, footerY - 14);
+          ctx.lineTo(W - 16, footerY - 14);
           ctx.stroke();
           ctx.restore();
 
