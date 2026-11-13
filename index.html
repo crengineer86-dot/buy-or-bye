@@ -4592,81 +4592,49 @@
         return 'download-fallback';
       }
 
-      // 화면 팝업에서 보이는 실제 카드 본체만 단독 분리하여 scale: 3 고화질 캡처 (바깥 액자 테두리 100% 제거)
+      // 화면 팝업에서 보이는 실제 카드 본체(DOM)를 원본 레이아웃/스타일 그대로 1:1 고화질(scale: 3) 스냅샷 캡처
       async function captureElementWithHtml2canvas(targetId, modalId) {
         if (typeof window.html2canvas !== 'function') return null;
 
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
-        const isLevelCard = targetId === 'levelCertificateCaptureBox';
-        // 1. 레벨 인증 카드 가로 폭 슬림하게 축소 (300px~315px, 팩폭 영수증 비율과 통일)
-        const actualWidth = isLevelCard ? 308 : 324;
-        const actualHeight = isLevelCard ? 482 : 576;
-
-        // 2. 바깥쪽 회색/베이지색 액자 테두리 완전 제거:
-        //    모달 배경틀 없이 순수 카드 본체만 독립 샌드박스에 복제 마운트하여 캡처
-        const sandbox = document.createElement('div');
-        sandbox.id = '__capture_sandbox__';
-        sandbox.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-9999; margin:0; padding:0; background:transparent; overflow:visible; pointer-events:none;';
-
-        const clone = targetEl.cloneNode(true);
-        clone.id = `${targetId}_capture_clone`;
-        clone.style.cssText = `width:${actualWidth}px !important; max-width:${actualWidth}px !important; min-width:${actualWidth}px !important; height:${actualHeight}px !important; margin:0 !important; box-sizing:border-box !important; position:relative !important; transform:none !important; border-radius:16px !important;`;
-
-        // 3. 배지(Badge) 및 원형 아이콘의 텍스트/이모지 수직 중앙 정렬 확실히 보정
-        clone.querySelectorAll('.badge-item, [id$="Badge"], #modalLevelPill, #modalLevelIcon, [id$="SirenIcon"], #modalHeaderTag').forEach((el) => {
-          el.style.display = 'inline-flex';
-          el.style.alignItems = 'center';
-          el.style.justifyContent = 'center';
-          el.style.lineHeight = '1';
-          el.style.verticalAlign = 'middle';
-          el.style.boxSizing = 'border-box';
-        });
-
-        const iconEl = clone.querySelector('#modalLevelIcon');
-        if (iconEl) {
-          iconEl.style.display = 'flex';
-          iconEl.style.alignItems = 'center';
-          iconEl.style.justifyContent = 'center';
-          iconEl.style.lineHeight = '1';
-          iconEl.style.textAlign = 'center';
-          iconEl.style.fontSize = '30px';
-          iconEl.style.overflow = 'hidden';
-        }
-
-        // 4. 영수증 하단 22px 패딩 여백 확보
-        if (!isLevelCard) {
-          clone.style.paddingBottom = '22px';
-        }
-
-        sandbox.appendChild(clone);
-        document.body.appendChild(sandbox);
+        // 1. 현재 사용자 화면에 렌더링된 실제 DOM 요소의 실측 크기(offsetWidth, offsetHeight) 반영
+        const realWidth = targetEl.offsetWidth;
+        const realHeight = targetEl.offsetHeight;
+        if (!realWidth || !realHeight) return null;
 
         try {
           if (document.fonts && document.fonts.ready) {
             await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 200))]);
           }
 
-          const canvas = await window.html2canvas(clone, {
+          // 2. 강제 폭/높이/스타일 변형 및 인위적인 CSS 주입 없이,
+          //    사용자 화면에 떠 있는 순수 카드 본체(노란 카드, 흰색 영수증)만 원본 그대로 1:1 스냅샷 캡처
+          const canvas = await window.html2canvas(targetEl, {
             scale: 3,
-            width: actualWidth,
-            height: actualHeight,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
             logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            x: 0,
-            y: 0
+            onclone: (clonedDoc) => {
+              // 복제된 가상 DOM에서 transform 스케일 및 스크롤로 인한 캡처 좌표 왜곡만 방지
+              if (modalId) {
+                const modalEl = clonedDoc.getElementById(modalId);
+                if (modalEl) {
+                  const popContent = modalEl.querySelector('.modal-pop');
+                  if (popContent) {
+                    popContent.style.transform = 'none';
+                    popContent.scrollTop = 0;
+                  }
+                }
+              }
+            }
           });
           return canvas;
         } catch (captureErr) {
           console.warn(`html2canvas failed on ${targetId}:`, captureErr);
           return null;
-        } finally {
-          sandbox.remove();
         }
       }
 
