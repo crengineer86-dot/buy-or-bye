@@ -1360,261 +1360,173 @@
       </div>
     </div>
 
-    <!-- 3. [팩폭 영수증 공유하기] 통합 액션 바텀시트 (제목 밑 고화질 영수증 이미지 + 그 밑 3열 공유 아이콘 & 투표판 배너 한판 구조) -->
-    <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden">
-      <div id="shareSheetBackdrop" class="absolute inset-0 bg-black/50 backdrop-fade opacity-0"></div>
-      <div class="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none">
-        <div id="shareSheetContent" class="w-full max-w-[540px] max-h-[92vh] overflow-y-auto bg-white rounded-t-3xl px-6 pt-5 pb-6 pointer-events-auto sheet-slide translate-y-full shadow-2xl">
-          <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-3.5"></div>
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h3 class="text-[17px] font-extrabold text-[#191F28]">팩폭 영수증 공유하기 📸</h3>
-              <p class="text-[11.5px] text-[#64748B] mt-0.5">친구들에게 보내서 살지 말지 투표로 정해보세요</p>
-            </div>
-            <button type="button" id="closeShareSheetBtn" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">✕</button>
-          </div>
+    <!-- 3. [팩폭 영수증 공유하기] 배경 블러 + 상단 플로팅 영수증 + 하단 슬림 바텀시트 구조 -->
+    <div id="shareBottomSheet" class="fixed inset-0 z-50 hidden flex flex-col justify-between overflow-hidden">
+      <!-- 반투명 다크 + 블러 배경 오버레이 -->
+      <div
+        id="shareSheetBackdrop"
+        class="absolute inset-0 backdrop-fade opacity-0"
+        style="background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"
+      ></div>
 
-          <!-- 제목 바로 아래: 고화질 영수증 이미지 한판 통합 미리보기 -->
-          <div id="shareSheetPreviewWrap" class="w-full flex justify-center mb-3">
-            <div id="shareSheetPreviewBox" class="transition-all duration-200 opacity-0 scale-95 flex justify-center">
-              <img
-                id="shareSheetReceiptPreviewImg"
-                alt="팩폭 영수증 고화질 미리보기"
-                class="max-h-[40vh] max-w-[235px] w-auto h-auto rounded-2xl shadow-md border border-slate-200/80 object-contain bg-white"
-              />
-            </div>
-          </div>
-
-          <!-- 1. 상단: 외부 공유 수단 3종 가로 한 줄 (Grid 3열) -->
-          <div class="grid grid-cols-3 gap-4 py-1">
-            <!-- 인스타 스토리 -->
-            <button
-              type="button"
-              id="actionOpenInstaModalBtn"
-              class="flex flex-col items-center justify-center gap-2 py-2.5 px-2 rounded-2xl hover:bg-pink-50/60 active:scale-95 transition-all cursor-pointer group"
-            >
-              <span class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-400 via-pink-500 to-purple-600 text-white flex items-center justify-center text-[24px] shadow-sm group-hover:scale-105 transition-transform">
-                📸
+      <!-- 상단~중앙 영역: 블러 배경 위에 단독으로 떠 있는(Floating) 팩폭 영수증 카드 미리보기 -->
+      <div
+        id="shareFloatingArea"
+        class="relative z-10 flex-1 min-h-0 w-full flex items-center justify-center px-4 pt-3 pb-2 pointer-events-none overflow-y-auto"
+      >
+        <div
+          id="shareFloatingCardWrapper"
+          class="w-full max-w-[328px] my-auto transition-all duration-300 opacity-0 scale-95 pointer-events-auto"
+          style="filter: drop-shadow(0 22px 38px rgba(0, 0, 0, 0.45));"
+        >
+          <div
+            id="instaReceiptCaptureBox"
+            class="w-full bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4 sm:p-4.5 border border-slate-200/90 flex flex-col justify-between gap-2.5 box-border overflow-hidden shadow-2xl"
+          >
+            <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-2.5">
+              <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
+              <span class="inline-flex items-center gap-1.5 leading-none">
+                <span
+                  id="instaStatusBadge"
+                  style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 4px 8px;"
+                  class="badge-item text-[10px] font-extrabold bg-rose-100 text-rose-600 rounded-full"
+                >소비위험주의</span>
+                <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
               </span>
-              <span class="text-[12.5px] font-extrabold text-[#191F28]">인스타</span>
-            </button>
+            </div>
 
-            <!-- 카카오톡 -->
+            <div class="text-center my-0.5">
+              <p class="text-[10.5px] font-bold text-[#64748B] mb-0.5">판독 대상 아이템</p>
+              <h4 id="instaItemName" class="text-[17px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
+              <p id="instaItemPrice" class="text-[24px] font-black text-[#3182F6] tracking-tight mt-0.5 leading-tight">0원</p>
+            </div>
+
+            <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-2.5 text-center">
+              <p id="instaWarningTitle" class="text-[14.5px] font-black leading-snug text-[#E11D48]">
+                🚨 소비 경보! <span id="instaLaborHours">0시간</span> 노동 필요
+              </p>
+              <p id="instaWarningSub" class="text-[10.5px] font-bold text-[#9F1239] mt-0.5">
+                일 8시간 근무 기준 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
+                <p class="text-[10px] font-bold text-[#64748B]">1회 실사용 체감</p>
+                <p id="instaCostPerUse" class="text-[13.5px] font-black text-[#1D4ED8] mt-0.5">약 0원 / 회</p>
+              </div>
+              <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
+                <p id="instaRightMetricLabel" class="text-[10px] font-bold text-[#64748B]">노동 시간 환산</p>
+                <p id="instaWorkHoursCard" class="text-[13.5px] font-black text-[#6D28D9] mt-0.5">0시간 근무치</p>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl px-2.5 py-2.5 border border-indigo-100 shadow-2xs text-center">
+              <span
+                id="instaPollStickerBadge"
+                style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 5px 10px;"
+                class="badge-item bg-[#1E293B] text-white text-[9.5px] font-extrabold tracking-wide rounded-md mb-1.5"
+              >REALTIME POLL</span>
+              <p class="text-[11.5px] font-extrabold text-[#191F28] mb-2">
+                내 통장 살릴지 죽일지 대신 투표 좀 👇
+              </p>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
+                  <span class="text-[15px] leading-none">🔥</span>
+                  <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
+                </button>
+                <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
+                  <span class="text-[15px] leading-none">🛑</span>
+                  <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="text-center pt-2 pb-0.5 border-t border-dashed border-slate-200 shrink-0">
+              <p class="text-[10px] font-bold text-[#64748B] leading-normal m-0 p-0">
+                살까 말까 판독기 • 내 시간 가치 계산 리포트
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 영역: 슬림한 흰색 바텀시트 (핸들바 + 타이틀/닫기 + 3개 원클릭 액션 버튼 + 실시간 투표판 배너) -->
+      <div class="relative z-10 w-full flex justify-center shrink-0 pointer-events-none">
+        <div
+          id="shareSheetContent"
+          class="w-full max-w-[540px] bg-white rounded-t-3xl px-5 pt-3.5 pb-5 pointer-events-auto sheet-slide translate-y-full shadow-[0_-10px_35px_rgba(0,0,0,0.28)]"
+        >
+          <div class="w-10 h-1.5 bg-slate-200 rounded-full mx-auto mb-2.5"></div>
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-[16px] font-extrabold text-[#191F28]">팩폭 영수증 공유하기 📸</h3>
+            <button type="button" id="closeShareSheetBtn" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer text-[16px] leading-none">✕</button>
+          </div>
+
+          <!-- 1. 상단: 원클릭 즉시 실행 공유 액션 버튼 3종 (Grid 3열) -->
+          <div class="grid grid-cols-3 gap-3 py-0.5">
+            <!-- 1) 카톡 투표하기 (즉시 실행) -->
             <button
               type="button"
-              id="actionOpenKakaoModalBtn"
-              class="flex flex-col items-center justify-center gap-2 py-2.5 px-2 rounded-2xl hover:bg-amber-50/70 active:scale-95 transition-all cursor-pointer group"
+              id="actionShareKakaoImmediateBtn"
+              class="flex flex-col items-center justify-center gap-1.5 py-2 px-1.5 rounded-2xl hover:bg-amber-50/70 active:scale-95 transition-all cursor-pointer group"
             >
-              <span class="w-14 h-14 rounded-2xl bg-[#FEE500] border border-amber-200/80 text-[#191F28] flex items-center justify-center text-[24px] shadow-sm group-hover:scale-105 transition-transform">
+              <span class="w-12 h-12 rounded-2xl bg-[#FEE500] border border-amber-200/80 text-[#191F28] flex items-center justify-center text-[22px] shadow-sm group-hover:scale-105 transition-transform">
                 💬
               </span>
-              <span class="text-[12.5px] font-extrabold text-[#191F28]">카카오톡</span>
+              <span id="actionShareKakaoLabel" class="text-[12px] font-extrabold text-[#191F28] whitespace-nowrap">카톡 투표하기</span>
             </button>
 
-            <!-- 이미지 저장 -->
+            <!-- 2) SNS 공유 (즉시 실행) -->
+            <button
+              type="button"
+              id="actionShareSnsImmediateBtn"
+              class="flex flex-col items-center justify-center gap-1.5 py-2 px-1.5 rounded-2xl hover:bg-pink-50/60 active:scale-95 transition-all cursor-pointer group"
+            >
+              <span class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 via-pink-500 to-purple-600 text-white flex items-center justify-center text-[22px] shadow-sm group-hover:scale-105 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              </span>
+              <span id="actionShareSnsLabel" class="text-[12px] font-extrabold text-[#191F28] whitespace-nowrap">SNS 공유</span>
+            </button>
+
+            <!-- 3) 이미지 저장 (즉시 실행) -->
             <button
               type="button"
               id="actionDownloadImgBtn"
-              class="flex flex-col items-center justify-center gap-2 py-2.5 px-2 rounded-2xl hover:bg-slate-100/80 active:scale-95 transition-all cursor-pointer group"
+              class="flex flex-col items-center justify-center gap-1.5 py-2 px-1.5 rounded-2xl hover:bg-slate-100/80 active:scale-95 transition-all cursor-pointer group"
             >
-              <span class="w-14 h-14 rounded-2xl bg-[#EFF6FF] border border-[#DBEAFE] text-[#3182F6] flex items-center justify-center text-[24px] shadow-sm group-hover:scale-105 transition-transform">
+              <span class="w-12 h-12 rounded-2xl bg-[#EFF6FF] border border-[#DBEAFE] text-[#3182F6] flex items-center justify-center text-[22px] shadow-sm group-hover:scale-105 transition-transform">
                 📥
               </span>
-              <span class="text-[12.5px] font-extrabold text-[#191F28]">이미지 저장</span>
+              <span id="actionDownloadImgLabel" class="text-[12px] font-extrabold text-[#191F28] whitespace-nowrap">이미지 저장</span>
             </button>
           </div>
 
           <!-- 구분선 -->
-          <div class="border-t border-slate-100 my-3.5"></div>
+          <div class="border-t border-slate-100 my-2.5"></div>
 
-          <!-- 2. 하단: '실시간 투표판 보기' 와이드 배너 버튼 -->
+          <!-- 2. 하단: '실시간 살까 말까 투표판' 와이드 배너 버튼 -->
           <button
             type="button"
             id="actionOpenPollScreenBtn"
-            class="w-full bg-gradient-to-r from-[#EFF6FF] to-[#F5F3FF] hover:from-[#DBEAFE] hover:to-[#EDE9FE] active:scale-[0.99] p-4 rounded-2xl border border-[#BFDBFE] flex items-center justify-between transition-all text-left cursor-pointer shadow-2xs"
+            class="w-full bg-gradient-to-r from-[#EFF6FF] to-[#F5F3FF] hover:from-[#DBEAFE] hover:to-[#EDE9FE] active:scale-[0.99] p-3.5 rounded-2xl border border-[#BFDBFE] flex items-center justify-between transition-all text-left cursor-pointer shadow-2xs"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <span class="w-11 h-11 rounded-xl bg-[#3182F6] text-white flex items-center justify-center text-[20px] shrink-0 shadow-xs">
+              <span class="w-10 h-10 rounded-xl bg-[#3182F6] text-white flex items-center justify-center text-[19px] shrink-0 shadow-xs">
                 🗳️
               </span>
               <div class="min-w-0">
-                <p class="text-[14px] font-extrabold text-[#1D4ED8] leading-snug">
+                <p class="text-[13.5px] font-extrabold text-[#1D4ED8] leading-snug">
                   실시간 살까 말까 투표판
                 </p>
-                <p class="text-[11px] text-[#4E5968] font-semibold mt-0.5 whitespace-nowrap">
+                <p class="text-[11px] text-[#4E5968] font-semibold mt-0.5 truncate">
                   질러라 vs 참아라! 친구들의 팩폭 참견과 최종 판정 보기
                 </p>
               </div>
             </div>
-            <span class="text-[#3182F6] font-extrabold text-[18px] pl-2 shrink-0">&gt;</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. 인스타 스토리 공유 카드 모달 (9:16 팩폭 영수증, 중앙 정렬) -->
-    <div id="instaShareModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-      <div id="instaModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="instaModalContent" class="relative z-10 w-full max-w-[360px] mx-auto bg-white rounded-3xl p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-2.5 px-1">
-          <span class="text-[11px] font-extrabold text-[#3182F6] bg-[#EFF6FF] px-2.5 py-1 rounded-full">
-            📸 INSTA STORY SHARE CARD
-          </span>
-          <button type="button" id="closeInstaModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
-        </div>
-
-        <div id="instaReceiptCaptureBox" class="w-full min-h-[540px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
-          <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-            <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
-            <span class="inline-flex items-center gap-1.5 leading-none">
-              <span id="instaStatusBadge" class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-1 rounded-full leading-none">소비위험주의</span>
-              <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
-            </span>
-          </div>
-
-          <div class="text-center my-2">
-            <p class="text-[11px] font-bold text-[#64748B] mb-1">판독 대상 아이템</p>
-            <h4 id="instaItemName" class="text-[18px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
-            <p id="instaItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">0원</p>
-          </div>
-
-          <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
-            <p id="instaWarningTitle" class="text-[15.5px] font-black leading-snug text-[#E11D48]">
-              🚨 소비 경보! <span id="instaLaborHours">0시간</span> 노동 필요
-            </p>
-            <p id="instaWarningSub" class="text-[11px] font-bold text-[#9F1239] mt-0.5">
-              일 8시간 근무 기준 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
-            </p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
-              <p class="text-[10.5px] font-bold text-[#64748B]">1회 실사용 체감</p>
-              <p id="instaCostPerUse" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 0원 / 회</p>
-            </div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
-              <p id="instaRightMetricLabel" class="text-[10.5px] font-bold text-[#64748B]">노동 시간 환산</p>
-              <p id="instaWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">0시간 근무치</p>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
-            <span class="badge-item inline-flex items-center justify-center bg-[#1E293B] text-white text-[9.5px] font-extrabold px-2 py-1 rounded mb-1.5 leading-none">
-              INSTA POLL STICKER
-            </span>
-            <p class="text-[12px] font-extrabold text-[#191F28] mb-2">
-              내 통장 살릴지 죽일지 대신 투표 좀 👇
-            </p>
-            <div class="grid grid-cols-2 gap-1.5">
-              <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2.5 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
-                <span class="text-[16px] leading-none">🔥</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
-              </button>
-              <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
-                <span class="text-[16px] leading-none">🛑</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="text-center pt-2.5 pb-1 border-t border-dashed border-slate-200 mt-2 shrink-0">
-            <p class="text-[10.5px] font-bold text-[#64748B] leading-normal m-0 p-0">
-              살까 말까 판독기 • 내 시간 가치 계산 리포트
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <button
-            type="button"
-            id="shareInstaNativeBtn"
-            class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[14px] py-3 rounded-xl shadow-md transition-all cursor-pointer"
-          >
-            🔗 스토리/피드로 공유하기
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. 카카오톡 투표 공유 카드 모달 (인스타 공유 카드와 동일한 구성/문구, 중앙 정렬) -->
-    <div id="kakaoShareModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-      <div id="kakaoModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
-      <div id="kakaoModalContent" class="relative z-10 w-full max-w-[360px] mx-auto bg-white rounded-3xl p-4 shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between mb-2.5 px-1">
-          <span class="text-[11px] font-extrabold text-amber-900 bg-[#FEE500] px-2.5 py-1 rounded-full">
-            💬 KAKAOTALK SHARE CARD
-          </span>
-          <button type="button" id="closeKakaoModalBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
-        </div>
-
-        <div id="kakaoCaptureBox" class="w-full min-h-[540px] bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-5 border border-slate-200 flex flex-col justify-between shadow-inner box-border overflow-hidden">
-          <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-3">
-            <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
-            <span class="inline-flex items-center gap-1.5 leading-none">
-              <span id="kakaoStatusBadge" class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold bg-rose-100 text-rose-600 px-2 py-1 rounded-full leading-none">소비위험주의</span>
-              <span id="kakaoSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
-            </span>
-          </div>
-
-          <div class="text-center my-2">
-            <p class="text-[11px] font-bold text-[#64748B] mb-1">판독 대상 아이템</p>
-            <h4 id="kakaoItemName" class="text-[18px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
-            <p id="kakaoItemPrice" class="text-[26px] font-black text-[#3182F6] tracking-tight mt-1">0원</p>
-          </div>
-
-          <div id="kakaoWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center">
-            <p id="kakaoLaborWarning" class="text-[15.5px] font-black leading-snug text-[#E11D48]">
-              🚨 소비 경보! <span id="kakaoLaborHours">0시간</span> 노동 필요
-            </p>
-            <p id="kakaoWarningSub" class="text-[11px] font-bold text-[#9F1239] mt-0.5">
-              일 8시간 근무 기준 약 <span id="kakaoLaborDays">0.0일치 월급</span>에 해당해요
-            </p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
-              <p class="text-[10.5px] font-bold text-[#64748B]">1회 실사용 체감</p>
-              <p id="kakaoPerUseInfo" class="text-[14px] font-black text-[#1D4ED8] mt-1">약 0원 / 회</p>
-            </div>
-            <div class="bg-white rounded-xl p-3 border border-slate-200/80 text-center">
-              <p id="kakaoRightMetricLabel" class="text-[10.5px] font-bold text-[#64748B]">노동 시간 환산</p>
-              <p id="kakaoWorkHoursCard" class="text-[14px] font-black text-[#6D28D9] mt-1">0시간 근무치</p>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-2xl px-2.5 py-3 border border-indigo-100 shadow-2xs text-center">
-            <span class="badge-item inline-flex items-center justify-center bg-[#FEE500] text-[#191F28] text-[9.5px] font-extrabold px-2 py-1 rounded mb-1.5 leading-none">
-              KAKAO POLL STICKER
-            </span>
-            <p class="text-[12px] font-extrabold text-[#191F28] mb-2">
-              내 통장 살릴지 죽일지 대신 투표 좀 👇
-            </p>
-            <div class="grid grid-cols-2 gap-1.5">
-              <button type="button" id="kakaoCardGoPollBtn" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2.5 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
-                <span class="text-[16px] leading-none">🔥</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
-              </button>
-              <button type="button" id="kakaoCardGoMainBtn" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2.5 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
-                <span class="text-[16px] leading-none">🛑</span>
-                <span class="text-[12px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="text-center pt-2.5 pb-1 border-t border-dashed border-slate-200 mt-2 shrink-0">
-            <p class="text-[10.5px] font-bold text-[#64748B] leading-normal m-0 p-0">
-              살까 말까 판독기 • 내 시간 가치 계산 리포트
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <button
-            type="button"
-            id="shareKakaoTextBtn"
-            class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[14px] py-3 rounded-xl shadow-md transition-all cursor-pointer"
-          >
-            💬 카카오톡으로 공유하기
+            <span class="text-[#3182F6] font-extrabold text-[17px] pl-2 shrink-0">&gt;</span>
           </button>
         </div>
       </div>
@@ -3314,26 +3226,31 @@
         if (badgeEl) {
           badgeEl.textContent = isDanger ? '소비위험주의' : '소비안심양호';
           badgeEl.className = isDanger
-            ? `${badgeFontClass} badge-item font-extrabold bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full inline-flex items-center justify-center leading-none`
-            : `${badgeFontClass} badge-item font-extrabold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full inline-flex items-center justify-center leading-none`;
+            ? `${badgeFontClass} badge-item font-extrabold bg-rose-100 text-rose-600 rounded-full`
+            : `${badgeFontClass} badge-item font-extrabold bg-emerald-100 text-emerald-700 rounded-full`;
+          badgeEl.style.display = 'inline-flex';
+          badgeEl.style.alignItems = 'center';
+          badgeEl.style.justifyContent = 'center';
+          badgeEl.style.lineHeight = '1';
+          badgeEl.style.padding = '4px 8px';
         }
         if (sirenEl) {
           sirenEl.innerHTML = `<span class="inline-flex items-center justify-center text-[13px] leading-none select-none">${isDanger ? '🚨' : '💚'}</span>`;
         }
         if (boxEl) {
           boxEl.className = isDanger
-            ? 'bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-3 text-center'
-            : 'bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center';
+            ? 'bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-2.5 text-center'
+            : 'bg-emerald-50 border border-emerald-200 rounded-2xl p-2.5 text-center';
         }
         if (titleEl) {
           titleEl.className = isDanger
-            ? 'text-[15.5px] font-black leading-snug text-[#E11D48]'
-            : 'text-[15.5px] font-black leading-snug text-emerald-700';
+            ? 'text-[14.5px] font-black leading-snug text-[#E11D48]'
+            : 'text-[14.5px] font-black leading-snug text-emerald-700';
         }
         if (subEl) {
           subEl.className = isDanger
-            ? 'text-[11px] font-bold text-[#9F1239] mt-0.5'
-            : 'text-[11px] font-bold text-emerald-800 mt-0.5';
+            ? 'text-[10.5px] font-bold text-[#9F1239] mt-0.5'
+            : 'text-[10.5px] font-bold text-emerald-800 mt-0.5';
         }
       }
 
@@ -3344,10 +3261,13 @@
         const isDanger = checkConsumptionDanger(costPerUse, laborHours, allowanceDays, allowanceMonthPct);
         const alertPrefix = isDanger ? '🚨 소비 경보!' : '💚 소비 안심!';
 
-        // 인스타 모달
-        document.getElementById('instaItemName').textContent = displayName;
-        document.getElementById('instaItemPrice').textContent = `${formatNumber(state.itemPrice)}원`;
-        document.getElementById('instaCostPerUse').textContent = `약 ${formatNumber(costPerUse)}원 / 회`;
+        // 상단 플로팅 영수증 미리보기 카드 동기화
+        const instaItemNameEl = document.getElementById('instaItemName');
+        const instaItemPriceEl = document.getElementById('instaItemPrice');
+        const instaCostPerUseEl = document.getElementById('instaCostPerUse');
+        if (instaItemNameEl) instaItemNameEl.textContent = displayName;
+        if (instaItemPriceEl) instaItemPriceEl.textContent = `${formatNumber(state.itemPrice)}원`;
+        if (instaCostPerUseEl) instaCostPerUseEl.textContent = `약 ${formatNumber(costPerUse)}원 / 회`;
 
         applyReceiptDangerStatus({
           badgeId: 'instaStatusBadge',
@@ -3382,46 +3302,6 @@
           }
           if (instaRightMetricLabelEl) instaRightMetricLabelEl.textContent = '노동 시간 환산';
           if (instaWorkHoursCardEl) instaWorkHoursCardEl.textContent = `${formatNumber(laborHours)}시간 근무치`;
-        }
-
-        // 카톡 모달 (인스타 모달과 동일한 구성으로 동기화)
-        document.getElementById('kakaoItemName').textContent = displayName;
-        document.getElementById('kakaoItemPrice').textContent = `${formatNumber(state.itemPrice)}원`;
-        document.getElementById('kakaoPerUseInfo').textContent = `약 ${formatNumber(costPerUse)}원 / 회`;
-
-        applyReceiptDangerStatus({
-          badgeId: 'kakaoStatusBadge',
-          sirenId: 'kakaoSirenIcon',
-          boxId: 'kakaoWarningBox',
-          titleId: 'kakaoLaborWarning',
-          subId: 'kakaoWarningSub',
-          isDanger,
-          badgeFontClass: 'text-[10px]'
-        });
-
-        const kakaoWarningTitleEl = document.getElementById('kakaoLaborWarning');
-        const kakaoWarningSubEl = document.getElementById('kakaoWarningSub');
-        const kakaoRightMetricLabelEl = document.getElementById('kakaoRightMetricLabel');
-        const kakaoWorkHoursCardEl = document.getElementById('kakaoWorkHoursCard');
-
-        if (isAllowanceMode()) {
-          if (kakaoWarningTitleEl) {
-            kakaoWarningTitleEl.innerHTML = `${alertPrefix} <span id="kakaoLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭</span>`;
-          }
-          if (kakaoWarningSubEl) {
-            kakaoWarningSubEl.innerHTML = `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준 한 달 용돈의 <span id="kakaoLaborDays">${formatNumber(allowanceMonthPct)}%</span>예요`;
-          }
-          if (kakaoRightMetricLabelEl) kakaoRightMetricLabelEl.textContent = '용돈 일수 환산';
-          if (kakaoWorkHoursCardEl) kakaoWorkHoursCardEl.textContent = `${formatNumber(allowanceDays)}일치 용돈`;
-        } else {
-          if (kakaoWarningTitleEl) {
-            kakaoWarningTitleEl.innerHTML = `${alertPrefix} <span id="kakaoLaborHours">${formatNumber(laborHours)}시간</span> 노동 필요`;
-          }
-          if (kakaoWarningSubEl) {
-            kakaoWarningSubEl.innerHTML = `일 8시간 근무 기준 약 <span id="kakaoLaborDays">${laborDays}일치 월급</span>에 해당해요`;
-          }
-          if (kakaoRightMetricLabelEl) kakaoRightMetricLabelEl.textContent = '노동 시간 환산';
-          if (kakaoWorkHoursCardEl) kakaoWorkHoursCardEl.textContent = `${formatNumber(laborHours)}시간 근무치`;
         }
       }
 
@@ -4808,6 +4688,15 @@
               cardEl.style.transform = 'none';
               cardEl.style.visibility = 'visible';
 
+              // 캡슐 배지(.badge-item) 내 텍스트가 html2canvas baseline 오차로 아래로 쏠리지 않도록 정중앙 보정
+              const badges = cardEl.querySelectorAll('.badge-item');
+              badges.forEach((b) => {
+                b.style.display = 'inline-flex';
+                b.style.alignItems = 'center';
+                b.style.justifyContent = 'center';
+                b.style.lineHeight = '1';
+              });
+
               clonedDoc.body.appendChild(cardEl);
             }
           });
@@ -5071,15 +4960,9 @@
           await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
         }
 
-        // 1) 화면 팝업 실제 DOM 영수증 카드(offsetWidth, aspect-9/16) 기반 html2canvas 고화질(scale: 3) 캡처 우선
+        // 1) 화면 상단 플로팅 실제 DOM 영수증 카드(instaReceiptCaptureBox) 기반 html2canvas 고화질(scale: 3) 캡처 우선
         try {
-          const isKakaoModalOpen = Boolean(
-            document.getElementById('kakaoShareModal') &&
-            !document.getElementById('kakaoShareModal').classList.contains('hidden')
-          );
-          const receiptTargetId = isKakaoModalOpen ? 'kakaoCaptureBox' : 'instaReceiptCaptureBox';
-          const receiptModalId = isKakaoModalOpen ? 'kakaoShareModal' : 'instaShareModal';
-          const domCanvas = await captureElementWithHtml2canvas(receiptTargetId, receiptModalId);
+          const domCanvas = await captureElementWithHtml2canvas('instaReceiptCaptureBox', 'shareBottomSheet');
           if (domCanvas) {
             return domCanvas;
           }
@@ -5263,14 +5146,16 @@
           ctx.strokeStyle = '#E0E7FF';
           ctx.stroke();
 
-          const pollBadgeText = 'FACT VOTE · BUY OR BYE';
+          const pollBadgeText = 'REALTIME POLL';
           ctx.font = `800 10px ${CANVAS_FONT_FAMILY}`;
-          const pollPillW = Math.max(130, ctx.measureText(pollBadgeText).width + 24);
-          drawRoundRectPath(ctx, cx - pollPillW / 2, pollY + 20, pollPillW, 22, 8);
-          ctx.fillStyle = '#EFF6FF';
+          const pollPillW = Math.max(116, ctx.measureText(pollBadgeText).width + 24);
+          drawRoundRectPath(ctx, cx - pollPillW / 2, pollY + 20, pollPillW, 22, 6);
+          ctx.fillStyle = '#1E293B';
           ctx.fill();
-          ctx.fillStyle = '#1D4ED8';
-          ctx.fillText(pollBadgeText, cx, pollY + 31.5);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(pollBadgeText, cx, pollY + 31);
 
           ctx.font = `800 13.5px ${CANVAS_FONT_FAMILY}`;
           ctx.fillStyle = '#191F28';
@@ -5713,56 +5598,37 @@
       categoryReportBackdrop.addEventListener('click', closeCategoryReportModal);
 
       // ==========================================
-      // 2-B & ⑥ [살까 말까 투표 & 결과 공유] 바텀시트 및 모달 제어
+      // 2-B & ⑥ [팩폭 영수증 공유하기] 플로팅 영수증 + 슬림 바텀시트 원클릭 제어
       // ==========================================
       const shareSheet = document.getElementById('shareBottomSheet');
       const shareBackdrop = document.getElementById('shareSheetBackdrop');
       const shareContent = document.getElementById('shareSheetContent');
-      const sharePreviewBox = document.getElementById('shareSheetPreviewBox');
-      const sharePreviewImg = document.getElementById('shareSheetReceiptPreviewImg');
-      let sharePreviewToken = 0;
+      const shareFloatingCardWrapper = document.getElementById('shareFloatingCardWrapper');
 
       function openShareSheet() {
-        const currentToken = ++sharePreviewToken;
-        if (sharePreviewBox) {
-          sharePreviewBox.classList.remove('opacity-100', 'scale-100');
-          sharePreviewBox.classList.add('opacity-0', 'scale-95');
-        }
+        renderAll();
         shareSheet.classList.remove('hidden');
         requestAnimationFrame(() => {
           shareBackdrop.classList.remove('opacity-0');
           shareBackdrop.classList.add('opacity-100');
+          if (shareFloatingCardWrapper) {
+            shareFloatingCardWrapper.classList.remove('opacity-0', 'scale-95');
+            shareFloatingCardWrapper.classList.add('opacity-100', 'scale-100');
+          }
           shareContent.classList.remove('translate-y-full');
           shareContent.classList.add('translate-y-0');
         });
-
-        // 바텀시트 상단 여백에 고화질 팩폭 영수증 이미지 미리보기 렌더링
-        if (sharePreviewImg && typeof createReceiptCanvas === 'function') {
-          createReceiptCanvas()
-            .then((canvas) => {
-              if (currentToken !== sharePreviewToken || !canvas) return;
-              sharePreviewImg.src = canvas.toDataURL('image/png');
-              if (sharePreviewBox) {
-                sharePreviewBox.classList.remove('opacity-0', 'scale-95');
-                sharePreviewBox.classList.add('opacity-100', 'scale-100');
-              }
-            })
-            .catch((err) => {
-              console.warn('Share sheet receipt preview generation failed:', err);
-            });
-        }
       }
 
       function closeShareSheet() {
-        sharePreviewToken++;
         shareBackdrop.classList.remove('opacity-100');
         shareBackdrop.classList.add('opacity-0');
+        if (shareFloatingCardWrapper) {
+          shareFloatingCardWrapper.classList.remove('opacity-100', 'scale-100');
+          shareFloatingCardWrapper.classList.add('opacity-0', 'scale-95');
+        }
         shareContent.classList.remove('translate-y-0');
         shareContent.classList.add('translate-y-full');
-        if (sharePreviewBox) {
-          sharePreviewBox.classList.remove('opacity-100', 'scale-100');
-          sharePreviewBox.classList.add('opacity-0', 'scale-95');
-        }
         setTimeout(() => {
           shareSheet.classList.add('hidden');
         }, 280);
@@ -5772,141 +5638,23 @@
       document.getElementById('closeShareSheetBtn').addEventListener('click', closeShareSheet);
       shareBackdrop.addEventListener('click', closeShareSheet);
 
-      // 바텀시트에서 [🗳️ 실시간 투표판 보기] 바로 열기
+      // 상단 플로팅 영수증 내의 투표 버튼 또는 하단 [🗳️ 실시간 살까 말까 투표판] 배너 클릭 시 투표 화면으로 이동
       document.getElementById('actionOpenPollScreenBtn').addEventListener('click', () => {
         closeShareSheet();
         setTimeout(() => switchScreen('poll'), 260);
       });
-
-      document.getElementById('actionDownloadImgBtn').addEventListener('click', () => {
-        getAudioContext();
-        closeShareSheet();
-        drawReceiptCardToPng(
-          'neutral',
-          `살까말까_팩폭영수증_${Date.now()}.png`,
-          '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
-        );
-      });
-
-      // 인스타 스토리 공유 카드 모달
-      const instaModal = document.getElementById('instaShareModal');
-      const instaBackdrop = document.getElementById('instaModalBackdrop');
-      const instaContent = document.getElementById('instaModalContent');
-
-      function openInstaModal() {
-        instaModal.classList.remove('hidden');
-        requestAnimationFrame(() => {
-          instaBackdrop.classList.remove('opacity-0');
-          instaBackdrop.classList.add('opacity-100');
-          instaContent.classList.remove('scale-95', 'opacity-0');
-          instaContent.classList.add('scale-100', 'opacity-100');
-        });
-      }
-
-      function closeInstaModal() {
-        instaBackdrop.classList.remove('opacity-100');
-        instaBackdrop.classList.add('opacity-0');
-        instaContent.classList.remove('scale-100', 'opacity-100');
-        instaContent.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-          instaModal.classList.add('hidden');
-        }, 240);
-      }
-
-      document.getElementById('actionOpenInstaModalBtn').addEventListener('click', () => {
-        closeShareSheet();
-        setTimeout(openInstaModal, 280);
-      });
-      document.getElementById('closeInstaModalBtn').addEventListener('click', closeInstaModal);
-      instaBackdrop.addEventListener('click', closeInstaModal);
-
       document.getElementById('instaGoPollBtnA').addEventListener('click', () => {
-        closeInstaModal();
+        closeShareSheet();
         setTimeout(() => switchScreen('poll'), 250);
       });
       document.getElementById('instaGoPollBtnB').addEventListener('click', () => {
-        closeInstaModal();
-        setTimeout(() => switchScreen('poll'), 250);
-      });
-
-      document.getElementById('shareInstaNativeBtn').addEventListener('click', async () => {
-        const roomId = ensureRoomId();
-        ensureRoomCreatedInDb(roomId);
-        const shareUrl = generateShareUrl();
-        const instaToastMsg = '📸 인스타 스토리 전용 9:16 고화질 이미지 준비 완료! [투표/링크 스티커]를 얹어 바로 올려보세요!';
-
-        const shareBtn = document.getElementById('shareInstaNativeBtn');
-        const prevBtnText = shareBtn ? shareBtn.textContent : '';
-        if (shareBtn) {
-          shareBtn.disabled = true;
-          shareBtn.textContent = '📸 스토리 고화질 이미지 생성 중...';
-        }
-
-        try {
-          const receiptCanvas = await createReceiptCanvas();
-          const storyCanvas = createInstaStoryCanvas(receiptCanvas);
-          await saveOrShareCanvasImage(storyCanvas, {
-            filename: `살까말까_인스스_팩폭영수증_${Date.now()}.png`,
-            shareTitle: '살까 말까 팩폭 영수증',
-            copyTextOnShare: shareUrl,
-            preferShareOnMobile: true,
-            imageOnlyShare: true,
-            successToast: instaToastMsg
-          });
-        } catch (err) {
-          console.error('Insta image share failed:', err);
-          showToast('⚠️ 인스타 스토리 이미지 준비에 실패했어요');
-        } finally {
-          if (shareBtn) {
-            shareBtn.disabled = false;
-            shareBtn.textContent = prevBtnText;
-          }
-        }
-      });
-
-      // 카카오톡 공유 카드 모달
-      const kakaoModal = document.getElementById('kakaoShareModal');
-      const kakaoBackdrop = document.getElementById('kakaoModalBackdrop');
-      const kakaoContent = document.getElementById('kakaoModalContent');
-
-      function openKakaoModal() {
-        kakaoModal.classList.remove('hidden');
-        requestAnimationFrame(() => {
-          kakaoBackdrop.classList.remove('opacity-0');
-          kakaoBackdrop.classList.add('opacity-100');
-          kakaoContent.classList.remove('scale-95', 'opacity-0');
-          kakaoContent.classList.add('scale-100', 'opacity-100');
-        });
-      }
-
-      function closeKakaoModal() {
-        kakaoBackdrop.classList.remove('opacity-100');
-        kakaoBackdrop.classList.add('opacity-0');
-        kakaoContent.classList.remove('scale-100', 'opacity-100');
-        kakaoContent.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-          kakaoModal.classList.add('hidden');
-        }, 240);
-      }
-
-      document.getElementById('actionOpenKakaoModalBtn').addEventListener('click', () => {
         closeShareSheet();
-        setTimeout(openKakaoModal, 280);
-      });
-      document.getElementById('closeKakaoModalBtn').addEventListener('click', closeKakaoModal);
-      kakaoBackdrop.addEventListener('click', closeKakaoModal);
-
-      // 카카오톡 공유 카드 안의 투표 버튼 클릭 시 실시간 투표판으로 전환!
-      document.getElementById('kakaoCardGoPollBtn').addEventListener('click', () => {
-        closeKakaoModal();
-        setTimeout(() => switchScreen('poll'), 250);
-      });
-      document.getElementById('kakaoCardGoMainBtn').addEventListener('click', () => {
-        closeKakaoModal();
         setTimeout(() => switchScreen('poll'), 250);
       });
 
-      document.getElementById('shareKakaoTextBtn').addEventListener('click', async () => {
+      // 1) [카톡 투표하기]: 추가 팝업 없이 즉시 고화질 영수증 캡처 후 카카오톡 클릭형 링크 카드 공유 실행
+      document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', async () => {
+        getAudioContext();
         const roomId = ensureRoomId();
         ensureRoomCreatedInDb(roomId);
 
@@ -5920,12 +5668,11 @@
           ? `용돈 ${formatNumber(allowanceDays)}일치 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)`
           : `내 노동 ${formatNumber(laborHours)}시간 필요 (약 ${laborDays}일치 월급)`;
 
-        const kakaoBtn = document.getElementById('shareKakaoTextBtn');
-        const prevKakaoText = kakaoBtn ? kakaoBtn.textContent : '';
-        if (kakaoBtn) {
-          kakaoBtn.disabled = true;
-          kakaoBtn.textContent = '💬 카톡 카드 준비 중...';
-        }
+        const kakaoBtn = document.getElementById('actionShareKakaoImmediateBtn');
+        const kakaoLabel = document.getElementById('actionShareKakaoLabel');
+        const prevLabel = kakaoLabel ? kakaoLabel.textContent : '카톡 투표하기';
+        if (kakaoBtn) kakaoBtn.disabled = true;
+        if (kakaoLabel) kakaoLabel.textContent = '카드 준비 중...';
 
         try {
           const receiptCanvas = await createReceiptCanvas();
@@ -5942,10 +5689,61 @@
           console.error('Kakao feed share failed:', err);
           showToast('⚠️ 카카오톡 카드 공유 준비에 실패했어요');
         } finally {
-          if (kakaoBtn) {
-            kakaoBtn.disabled = false;
-            kakaoBtn.textContent = prevKakaoText;
-          }
+          if (kakaoBtn) kakaoBtn.disabled = false;
+          if (kakaoLabel) kakaoLabel.textContent = prevLabel;
+        }
+      });
+
+      // 2) [SNS 공유]: 추가 팝업 없이 상단 영수증 카드를 고화질 이미지 파일(Blob)로 캡처해 모바일 시스템 공유 시트(navigator.share) 즉시 실행
+      document.getElementById('actionShareSnsImmediateBtn').addEventListener('click', async () => {
+        getAudioContext();
+        const roomId = ensureRoomId();
+        ensureRoomCreatedInDb(roomId);
+        const shareUrl = generateShareUrl();
+
+        const snsBtn = document.getElementById('actionShareSnsImmediateBtn');
+        const snsLabel = document.getElementById('actionShareSnsLabel');
+        const prevLabel = snsLabel ? snsLabel.textContent : 'SNS 공유';
+        if (snsBtn) snsBtn.disabled = true;
+        if (snsLabel) snsLabel.textContent = '공유 준비 중...';
+
+        try {
+          const receiptCanvas = await createReceiptCanvas();
+          await saveOrShareCanvasImage(receiptCanvas, {
+            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
+            shareTitle: '살까 말까 팩폭 영수증',
+            copyTextOnShare: shareUrl,
+            preferShareOnMobile: true,
+            imageOnlyShare: true,
+            successToast: '📤 영수증 이미지와 투표 링크가 준비되었어요!'
+          });
+        } catch (err) {
+          console.error('SNS image share failed:', err);
+          showToast('⚠️ SNS 공유 이미지 준비에 실패했어요');
+        } finally {
+          if (snsBtn) snsBtn.disabled = false;
+          if (snsLabel) snsLabel.textContent = prevLabel;
+        }
+      });
+
+      // 3) [이미지 저장]: 추가 팝업 없이 기기 앨범으로 원본 비율의 순수 영수증 카드 본체 고화질 PNG 즉시 다운로드
+      document.getElementById('actionDownloadImgBtn').addEventListener('click', async () => {
+        getAudioContext();
+        const saveBtn = document.getElementById('actionDownloadImgBtn');
+        const saveLabel = document.getElementById('actionDownloadImgLabel');
+        const prevLabel = saveLabel ? saveLabel.textContent : '이미지 저장';
+        if (saveBtn) saveBtn.disabled = true;
+        if (saveLabel) saveLabel.textContent = '저장 중...';
+
+        try {
+          await drawReceiptCardToPng(
+            'neutral',
+            `살까말까_팩폭영수증_${Date.now()}.png`,
+            '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
+          );
+        } finally {
+          if (saveBtn) saveBtn.disabled = false;
+          if (saveLabel) saveLabel.textContent = prevLabel;
         }
       });
 
