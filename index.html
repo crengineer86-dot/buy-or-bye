@@ -4801,15 +4801,17 @@
             await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 250))]);
           }
 
-          // 종이 질감 배경 이미지 사전 로드 대기 (html2canvas 누락 방지)
-          await new Promise((resolve) => {
-            const bgImg = new Image();
-            bgImg.crossOrigin = 'anonymous';
-            bgImg.onload = resolve;
-            bgImg.onerror = resolve;
-            bgImg.src = './receipt-paper-bg.png';
-            setTimeout(resolve, 350);
-          });
+          // 종이 질감 배경 이미지 사전 로드 대기 (영수증 캡처 시 html2canvas 누락 방지)
+          if (targetId === 'instaReceiptCaptureBox') {
+            await new Promise((resolve) => {
+              const bgImg = new Image();
+              bgImg.crossOrigin = 'anonymous';
+              bgImg.onload = resolve;
+              bgImg.onerror = resolve;
+              bgImg.src = './receipt-paper-bg.png';
+              setTimeout(resolve, 350);
+            });
+          }
 
           // 1) 화면 모달(transform, backdrop-filter, scale, overflow)과 완전히 분리된 오프스크린 정적 컨테이너 생성
           offscreenHost = document.createElement('div');
@@ -4883,13 +4885,19 @@
             el.style.paddingBottom = '2px';
           });
 
-          // 캡슐 배지(.badge-item) 내 텍스트 수직·수평 중앙 정렬 고정
+          // 캡슐 배지(.badge-item) 내 텍스트 수직·수평 중앙 정렬 고정 (html2canvas 베이스라인 하향 보정 포함)
           clonedCard.querySelectorAll('.badge-item').forEach((b) => {
             b.style.display = 'inline-flex';
             b.style.alignItems = 'center';
             b.style.justifyContent = 'center';
             b.style.lineHeight = '1';
           });
+          const levelPillClone = clonedCard.querySelector('#modalLevelPill');
+          if (levelPillClone) {
+            levelPillClone.style.paddingTop = '6px';
+            levelPillClone.style.paddingBottom = '8px';
+            levelPillClone.style.lineHeight = '1.15';
+          }
           // html2canvas 폰트 베이스라인 하향 보정: 검은색 REALTIME POLL 배지 텍스트 상하 정중앙 정렬
           const pollBadgeClone = clonedCard.querySelector('#instaPollStickerBadge');
           if (pollBadgeClone) {
@@ -4954,10 +4962,10 @@
           console.warn('level cert DOM capture fallback:', domErr);
         }
 
-        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 308px @3x 반영)
+        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 308px @4x 고화질 반영)
         const W = 308;
         const H = 482;
-        const pixelRatio = 3;
+        const pixelRatio = Math.max(Number(window.devicePixelRatio) || 1, 4);
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
         canvas.height = H * pixelRatio;
