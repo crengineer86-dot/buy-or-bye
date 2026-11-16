@@ -1382,72 +1382,101 @@
         >
           <div
             id="instaReceiptCaptureBox"
-            class="w-full bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] rounded-2xl p-4 sm:p-4.5 border border-slate-200/90 flex flex-col justify-between gap-2.5 box-border overflow-hidden shadow-2xl"
+            class="w-full flex flex-col box-border"
           >
-            <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-2.5">
-              <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
-              <span class="inline-flex items-center gap-1.5 leading-none">
+            <!-- 상단 톱니바퀴 절단선 (Zigzag Top Edge) -->
+            <svg viewBox="0 0 320 9" preserveAspectRatio="none" class="w-full h-[9px] block shrink-0" style="display:block;width:100%;height:9px;" aria-hidden="true">
+              <polygon points="0,9 8,0 16,9 24,0 32,9 40,0 48,9 56,0 64,9 72,0 80,9 88,0 96,9 104,0 112,9 120,0 128,9 136,0 144,9 152,0 160,9 168,0 176,9 184,0 192,9 200,0 208,9 216,0 224,9 232,0 240,9 248,0 256,9 264,0 272,9 280,0 288,9 296,0 304,9 312,0 320,9" fill="#F8FAFC" />
+            </svg>
+
+            <div class="w-full bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] px-4 pt-2.5 pb-3 border-x border-slate-200/90 flex flex-col justify-between gap-2 box-border">
+              <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-2">
+                <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
+                <span class="inline-flex items-center gap-1.5 leading-none">
+                  <span
+                    id="instaStatusBadge"
+                    style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 4px 8px;"
+                    class="badge-item text-[10px] font-extrabold bg-rose-100 text-rose-600 rounded-full"
+                  >소비위험주의</span>
+                  <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
+                </span>
+              </div>
+
+              <div class="text-center py-1 border-b border-dashed border-slate-200/90">
+                <p class="text-[10.5px] font-bold text-[#64748B] mb-0.5">판독 대상 아이템</p>
+                <h4 id="instaItemName" class="text-[17px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
+                <p id="instaItemPrice" class="text-[24px] font-black text-[#3182F6] tracking-tight mt-0.5 leading-tight">0원</p>
+              </div>
+
+              <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-2.5 text-center">
+                <p id="instaWarningTitle" class="text-[14.5px] font-black leading-snug text-[#E11D48]">
+                  🚨 소비 경보! <span id="instaLaborHours">0시간</span> 노동 필요
+                </p>
+                <p id="instaWarningSub" class="text-[10.5px] font-bold text-[#9F1239] mt-0.5">
+                  일 8시간 근무 기준 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
+                </p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pb-2 border-b border-dashed border-slate-200/90">
+                <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
+                  <p class="text-[10px] font-bold text-[#64748B]">1회 실사용 체감</p>
+                  <p id="instaCostPerUse" class="text-[13.5px] font-black text-[#1D4ED8] mt-0.5">약 0원 / 회</p>
+                </div>
+                <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
+                  <p id="instaRightMetricLabel" class="text-[10px] font-bold text-[#64748B]">노동 시간 환산</p>
+                  <p id="instaWorkHoursCard" class="text-[13.5px] font-black text-[#6D28D9] mt-0.5">0시간 근무치</p>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-2xl px-2.5 py-2.5 border border-indigo-100 shadow-2xs text-center">
                 <span
-                  id="instaStatusBadge"
-                  style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 4px 8px;"
-                  class="badge-item text-[10px] font-extrabold bg-rose-100 text-rose-600 rounded-full"
-                >소비위험주의</span>
-                <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
-              </span>
-            </div>
-
-            <div class="text-center my-0.5">
-              <p class="text-[10.5px] font-bold text-[#64748B] mb-0.5">판독 대상 아이템</p>
-              <h4 id="instaItemName" class="text-[17px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
-              <p id="instaItemPrice" class="text-[24px] font-black text-[#3182F6] tracking-tight mt-0.5 leading-tight">0원</p>
-            </div>
-
-            <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-2.5 text-center">
-              <p id="instaWarningTitle" class="text-[14.5px] font-black leading-snug text-[#E11D48]">
-                🚨 소비 경보! <span id="instaLaborHours">0시간</span> 노동 필요
-              </p>
-              <p id="instaWarningSub" class="text-[10.5px] font-bold text-[#9F1239] mt-0.5">
-                일 8시간 근무 기준 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
-              </p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
-                <p class="text-[10px] font-bold text-[#64748B]">1회 실사용 체감</p>
-                <p id="instaCostPerUse" class="text-[13.5px] font-black text-[#1D4ED8] mt-0.5">약 0원 / 회</p>
+                  id="instaPollStickerBadge"
+                  style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 5px 10px;"
+                  class="badge-item bg-[#1E293B] text-white text-[9.5px] font-extrabold tracking-wide rounded-md mb-1.5"
+                >REALTIME POLL</span>
+                <p class="text-[11.5px] font-extrabold text-[#191F28] mb-2">
+                  내 통장 살릴지 죽일지 대신 투표 좀 👇
+                </p>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
+                    <span class="text-[15px] leading-none">🔥</span>
+                    <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
+                  </button>
+                  <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
+                    <span class="text-[15px] leading-none">🛑</span>
+                    <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
+                  </button>
+                </div>
               </div>
-              <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
-                <p id="instaRightMetricLabel" class="text-[10px] font-bold text-[#64748B]">노동 시간 환산</p>
-                <p id="instaWorkHoursCard" class="text-[13.5px] font-black text-[#6D28D9] mt-0.5">0시간 근무치</p>
-              </div>
-            </div>
 
-            <div class="bg-white rounded-2xl px-2.5 py-2.5 border border-indigo-100 shadow-2xs text-center">
-              <span
-                id="instaPollStickerBadge"
-                style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 5px 10px;"
-                class="badge-item bg-[#1E293B] text-white text-[9.5px] font-extrabold tracking-wide rounded-md mb-1.5"
-              >REALTIME POLL</span>
-              <p class="text-[11.5px] font-extrabold text-[#191F28] mb-2">
-                내 통장 살릴지 죽일지 대신 투표 좀 👇
-              </p>
-              <div class="grid grid-cols-2 gap-1.5">
-                <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
-                  <span class="text-[15px] leading-none">🔥</span>
-                  <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
-                </button>
-                <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
-                  <span class="text-[15px] leading-none">🛑</span>
-                  <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
-                </button>
+              <!-- 영수증 최하단: 점선 + 발행 일시 + 바코드 그래픽 + 리포트 문구 -->
+              <div class="text-center pt-2 border-t border-dashed border-slate-300 shrink-0 space-y-1.5">
+                <div class="flex items-center justify-between text-[9px] font-mono font-bold text-slate-400 px-1 leading-none">
+                  <span id="receiptIssuedAt">ISSUED 2026.11.16 09:00</span>
+                  <span id="receiptSerialNo">NO. BOB-1042</span>
+                </div>
+                <div class="flex items-stretch justify-center gap-[1.5px] h-5 px-4 opacity-80" aria-hidden="true">
+                  <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
+                  <span class="w-[1.5px] bg-transparent"></span>
+                  <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
+                  <span class="w-[2px] bg-transparent"></span>
+                  <span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
+                  <span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-transparent"></span>
+                  <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span>
+                  <span class="w-[3px] bg-slate-800"></span><span class="w-[1.5px] bg-transparent"></span>
+                  <span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span>
+                  <span class="w-[3px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span>
+                </div>
+                <p class="text-[9.5px] font-bold text-[#64748B] leading-normal m-0 p-0">
+                  살까 말까 판독기 • 내 시간 가치 계산 리포트
+                </p>
               </div>
             </div>
 
-            <div class="text-center pt-2 pb-0.5 border-t border-dashed border-slate-200 shrink-0">
-              <p class="text-[10px] font-bold text-[#64748B] leading-normal m-0 p-0">
-                살까 말까 판독기 • 내 시간 가치 계산 리포트
-              </p>
-            </div>
+            <!-- 하단 톱니바퀴 절단선 (Zigzag Bottom Edge) -->
+            <svg viewBox="0 0 320 9" preserveAspectRatio="none" class="w-full h-[9px] block shrink-0" style="display:block;width:100%;height:9px;" aria-hidden="true">
+              <polygon points="0,0 320,0 312,9 304,0 296,9 288,0 280,9 272,0 264,9 256,0 248,9 240,0 232,9 224,0 216,9 208,0 200,9 192,0 184,9 176,0 168,9 160,0 152,9 144,0 136,9 128,0 120,9 112,0 104,9 96,0 88,9 80,0 72,9 64,0 56,9 48,0 40,9 32,0 24,9 16,0 8,9" fill="#EFF6FF" />
+            </svg>
           </div>
         </div>
       </div>
@@ -4398,6 +4427,7 @@
           copyTextOnShare = '',
           preferShareOnMobile = true,
           imageOnlyShare = false,
+          noDownloadFallback = false,
           successToast = '📸 이미지가 준비되었어요!'
         } = options;
 
@@ -4416,7 +4446,7 @@
             if (bridgeResult === 'OK') {
               playShutterSound();
               triggerHaptic(40);
-              showToast('📸 찰칵! 앨범에 예쁘게 저장됐어요!');
+              showToast(successToast || '✅ 앨범에 고화질 영수증 이미지가 저장되었어요!');
               return 'android-gallery-bridge';
             }
             console.warn('AndroidGalleryBridge non-OK result:', bridgeResult);
@@ -4489,7 +4519,22 @@
         }
 
         // 3) 직접 저장 모드(preferShareOnMobile === false) 또는 Web Share 미지원 폴백:
-        //    공유창 없이 Blob URL 강제 파일 다운로드 실행 (모바일 브라우저 및 PC 공통)
+        if (noDownloadFallback) {
+          // 파일 저장 없이 OS 공유 시트 / 클립보드 이미지 복사로 폴백 (PC 브라우저 테스트 대응)
+          if (blob && typeof ClipboardItem !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.write === 'function') {
+            try {
+              await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+              if (successToast) showToast(successToast);
+              return 'clipboard-image';
+            } catch (clipErr) {
+              console.warn('Clipboard image copy fallback skipped:', clipErr);
+            }
+          }
+          openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
+          if (successToast) showToast(successToast);
+          return 'share-fallback-modal';
+        }
+
         if (mobile && preferShareOnMobile) {
           openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
           showToast('📱 [공유 / 앨범 저장] 또는 이미지를 길게 눌러 앨범에 저장해 주세요!');
@@ -4613,6 +4658,7 @@
                 }
               ]
             });
+            copyTextToClipboard(cleanTargetUrl);
             showToast(successToast);
             return 'kakao-sdk-feed';
           } catch (kakaoErr) {
@@ -4620,14 +4666,15 @@
           }
         }
 
-        // 2) Kakao SDK 미설정 또는 PC 폴백: 하단에 URL 텍스트가 덜렁 붙지 않도록 캡처 이미지 + 깔끔한 제목/설명만 전달
+        // 2) Kakao SDK 미설정 또는 PC 폴백: 하단에 URL 텍스트가 덜렁 붙지 않도록 캡처 이미지 + 깔끔한 제목/설명만 전달 (투표 링크는 클립보드 복사)
         if (canvas) {
           return saveOrShareCanvasImage(canvas, {
             filename: fallbackFilename,
             shareTitle: title,
             shareText: `${title}\n${description}`,
-            copyTextOnShare: '',
+            copyTextOnShare: cleanTargetUrl,
             preferShareOnMobile: true,
+            noDownloadFallback: true,
             successToast
           });
         }
@@ -5612,8 +5659,23 @@
       const shareContent = document.getElementById('shareSheetContent');
       const shareFloatingCardWrapper = document.getElementById('shareFloatingCardWrapper');
 
+      function updateReceiptMetaTimestamp() {
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, '0');
+        const issuedEl = document.getElementById('receiptIssuedAt');
+        if (issuedEl) {
+          issuedEl.textContent = `ISSUED ${now.getFullYear()}.${pad(now.getMonth() + 1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        }
+        const serialEl = document.getElementById('receiptSerialNo');
+        if (serialEl) {
+          const code = String((now.getHours() * 60 + now.getMinutes()) * 17 + (state.itemPrice % 97)).slice(-4).padStart(4, '0');
+          serialEl.textContent = `NO. BOB-${code}`;
+        }
+      }
+
       function openShareSheet() {
         renderAll();
+        updateReceiptMetaTimestamp();
         shareSheet.classList.remove('hidden');
         requestAnimationFrame(() => {
           shareBackdrop.classList.remove('opacity-0');
@@ -5659,7 +5721,7 @@
         setTimeout(() => switchScreen('poll'), 250);
       });
 
-      // 1) [카톡 투표하기]: 추가 팝업 없이 즉시 고화질 영수증 캡처 후 카카오톡 클릭형 링크 카드 공유 실행
+      // 1) [카카오톡 투표]: 추가 팝업 없이 즉시 고화질 영수증 캡처 후 카카오톡 클릭형 피드 투표 카드 공유 실행
       document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', async () => {
         getAudioContext();
         const roomId = ensureRoomId();
@@ -5688,9 +5750,9 @@
             title: `💸 ${displayName} (${formatNumber(state.itemPrice)}원)`,
             description: `⏰ ${timeSummary} · 내 통장 살릴지 죽일지 대신 투표해 주세요!`,
             targetUrl: shareUrl,
-            buttonTitle: '실시간 투표 참여하기',
+            buttonTitle: '투표하러 가기',
             fallbackFilename: `살까말까_카톡영수증_${Date.now()}.png`,
-            successToast: '💬 카카오톡 공유 카드가 준비되었어요!'
+            successToast: '💬 카카오톡 공유 창을 열고 있어요! (투표 링크 복사 완료)'
           });
         } catch (err) {
           console.error('Kakao feed share failed:', err);
@@ -5701,12 +5763,17 @@
         }
       });
 
-      // 2) [SNS 공유]: 추가 팝업 없이 상단 영수증 카드를 고화질 이미지 파일(Blob)로 캡처해 모바일 시스템 공유 시트(navigator.share) 즉시 실행
+      // 2) [SNS 공유]: 앨범 저장 없이 캡처된 영수증 이미지 파일(Blob/File)로 OS 기본 공유 창(navigator.share) 즉시 실행
       document.getElementById('actionShareSnsImmediateBtn').addEventListener('click', async () => {
         getAudioContext();
         const roomId = ensureRoomId();
         ensureRoomCreatedInDb(roomId);
         const shareUrl = generateShareUrl();
+        const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
+        const laborHours = Math.ceil(state.itemPrice / Math.max(1, state.hourlyWage));
+        const timeSummary = isAllowanceMode()
+          ? `용돈 ${formatNumber(formatAllowanceDays(state.itemPrice))}일치`
+          : `내 노동 ${formatNumber(laborHours)}시간 필요`;
 
         const snsBtn = document.getElementById('actionShareSnsImmediateBtn');
         const snsLabel = document.getElementById('actionShareSnsLabel');
@@ -5719,10 +5786,12 @@
           await saveOrShareCanvasImage(receiptCanvas, {
             filename: `살까말까_팩폭영수증_${Date.now()}.png`,
             shareTitle: '살까 말까 팩폭 영수증',
+            shareText: `💸 ${displayName} (${formatNumber(state.itemPrice)}원) · ${timeSummary}`,
             copyTextOnShare: shareUrl,
             preferShareOnMobile: true,
-            imageOnlyShare: true,
-            successToast: '📤 영수증 이미지와 투표 링크가 준비되었어요!'
+            imageOnlyShare: false,
+            noDownloadFallback: true,
+            successToast: '📲 공유할 SNS 앱을 선택해 주세요! (투표 링크도 복사되었어요)'
           });
         } catch (err) {
           console.error('SNS image share failed:', err);
@@ -5733,7 +5802,7 @@
         }
       });
 
-      // 3) [이미지 저장]: 추가 팝업 없이 기기 앨범으로 원본 비율의 순수 영수증 카드 본체 고화질 PNG 즉시 다운로드
+      // 3) [이미지 저장]: 공유창 없이 기기 앨범으로 고화질 영수증 PNG 파일 즉시 저장
       document.getElementById('actionDownloadImgBtn').addEventListener('click', async () => {
         getAudioContext();
         const saveBtn = document.getElementById('actionDownloadImgBtn');
@@ -5746,7 +5815,7 @@
           await drawReceiptCardToPng(
             'neutral',
             `살까말까_팩폭영수증_${Date.now()}.png`,
-            '📸 찰칵! 앨범에 예쁘게 저장됐어요!'
+            '✅ 앨범에 고화질 영수증 이미지가 저장되었어요!'
           );
         } finally {
           if (saveBtn) saveBtn.disabled = false;
