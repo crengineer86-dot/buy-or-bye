@@ -1683,6 +1683,16 @@
               <polygon points="0,0 330,0 322.5,6 315,0 307.5,6 300,0 292.5,6 285,0 277.5,6 270,0 262.5,6 255,0 247.5,6 240,0 232.5,6 225,0 217.5,6 210,0 202.5,6 195,0 187.5,6 180,0 172.5,6 165,0 157.5,6 150,0 142.5,6 135,0 127.5,6 120,0 112.5,6 105,0 97.5,6 90,0 82.5,6 75,0 67.5,6 60,0 52.5,6 45,0 37.5,6 30,0 22.5,6 15,0 7.5,6" fill="#E1E0DC" />
             </svg>
           </div>
+          <!-- 투표판에서 영수증만 단독 보기 시 노출되는 심플 닫기 버튼 -->
+          <div id="receiptOnlyCloseWrap" class="hidden mt-3.5 flex justify-center" data-capture-ignore="true">
+            <button
+              type="button"
+              id="receiptOnlyCloseBtn"
+              class="bg-white/95 hover:bg-white text-[#191F28] text-[12.5px] font-extrabold px-5 py-2 rounded-full shadow-md cursor-pointer"
+            >
+              ✕ 닫기
+            </button>
+          </div>
         </div>
       </div>
 
@@ -6152,9 +6162,17 @@
         }
       }
 
-      function openShareSheet() {
+      function openShareSheet({ receiptOnly = false } = {}) {
         renderAll();
         updateReceiptMetaTimestamp();
+        const receiptOnlyCloseWrap = document.getElementById('receiptOnlyCloseWrap');
+        if (receiptOnly) {
+          shareContent.classList.add('hidden');
+          if (receiptOnlyCloseWrap) receiptOnlyCloseWrap.classList.remove('hidden');
+        } else {
+          shareContent.classList.remove('hidden');
+          if (receiptOnlyCloseWrap) receiptOnlyCloseWrap.classList.add('hidden');
+        }
         shareSheet.classList.remove('hidden');
         invalidatePrewarmedCapture('instaReceiptCaptureBox');
         requestAnimationFrame(() => {
@@ -6164,9 +6182,11 @@
             shareFloatingCardWrapper.classList.remove('opacity-0', 'scale-95');
             shareFloatingCardWrapper.classList.add('opacity-100', 'scale-100');
           }
-          shareContent.classList.remove('translate-y-full');
-          shareContent.classList.add('translate-y-0');
-          prewarmCapture('instaReceiptCaptureBox');
+          if (!receiptOnly) {
+            shareContent.classList.remove('translate-y-full');
+            shareContent.classList.add('translate-y-0');
+            prewarmCapture('instaReceiptCaptureBox');
+          }
         });
       }
 
@@ -6182,6 +6202,9 @@
         shareContent.classList.add('translate-y-full');
         setTimeout(() => {
           shareSheet.classList.add('hidden');
+          shareContent.classList.remove('hidden');
+          const receiptOnlyCloseWrap = document.getElementById('receiptOnlyCloseWrap');
+          if (receiptOnlyCloseWrap) receiptOnlyCloseWrap.classList.add('hidden');
         }, 280);
       }
 
@@ -6193,8 +6216,12 @@
       if (pollOpenReceiptBtnEl) {
         pollOpenReceiptBtnEl.addEventListener('click', () => {
           triggerHaptic(15, true);
-          openShareSheet();
+          openShareSheet({ receiptOnly: true });
         });
+      }
+      const receiptOnlyCloseBtnEl = document.getElementById('receiptOnlyCloseBtn');
+      if (receiptOnlyCloseBtnEl) {
+        receiptOnlyCloseBtnEl.addEventListener('click', closeShareSheet);
       }
       document.getElementById('closeShareSheetBtn').addEventListener('click', closeShareSheet);
       shareBackdrop.addEventListener('click', closeShareSheet);
