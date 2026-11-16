@@ -524,7 +524,7 @@
                   ></div>
                 </div>
 
-                <!-- 트랙 선 위의 4개 지점(1일, 1개월, 6개월, 1년) 작은 눈금 점(Tick Dot) + 넉넉한 투명 터치 영역(p-2) -->
+                <!-- 트랙 선 위의 5개 지점(1일, 1개월, 6개월, 1년, 2년) 작은 눈금 점(Tick Dot) + 넉넉한 투명 터치 영역(p-2) -->
                 <div id="sliderNodesContainer" class="absolute left-[12px] right-[12px] top-1/2 -translate-y-1/2 h-0 z-20 pointer-events-none">
                   <button
                     type="button"
@@ -540,7 +540,7 @@
                     type="button"
                     data-set-count="30"
                     title="1개월(30회) 선택"
-                    style="left: 33.3333%"
+                    style="left: 25%"
                     class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
                     <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300"></span>
@@ -550,7 +550,7 @@
                     type="button"
                     data-set-count="180"
                     title="6개월(180회) 선택"
-                    style="left: 66.6667%"
+                    style="left: 50%"
                     class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
                     <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300"></span>
@@ -560,6 +560,16 @@
                     type="button"
                     data-set-count="365"
                     title="1년(365회) 선택"
+                    style="left: 75%"
+                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
+                  >
+                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                  </button>
+
+                  <button
+                    type="button"
+                    data-set-count="730"
+                    title="2년(730회) 선택"
                     style="left: 100%"
                     class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
@@ -586,7 +596,7 @@
                   data-set-count="1"
                   data-pos-class="-translate-x-1/2"
                   style="left: 0%"
-                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 transition-all cursor-pointer whitespace-nowrap text-center"
+                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 cursor-pointer whitespace-nowrap text-center"
                 >
                   1일
                 </button>
@@ -594,8 +604,8 @@
                   type="button"
                   data-set-count="30"
                   data-pos-class="-translate-x-1/2"
-                  style="left: 33.3333%"
-                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 transition-all cursor-pointer whitespace-nowrap text-center"
+                  style="left: 25%"
+                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 cursor-pointer whitespace-nowrap text-center"
                 >
                   1개월
                 </button>
@@ -603,8 +613,8 @@
                   type="button"
                   data-set-count="180"
                   data-pos-class="-translate-x-1/2"
-                  style="left: 66.6667%"
-                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 transition-all cursor-pointer whitespace-nowrap text-center"
+                  style="left: 50%"
+                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 cursor-pointer whitespace-nowrap text-center"
                 >
                   6개월
                 </button>
@@ -612,10 +622,19 @@
                   type="button"
                   data-set-count="365"
                   data-pos-class="-translate-x-1/2"
-                  style="left: 100%"
-                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 transition-all cursor-pointer whitespace-nowrap text-center"
+                  style="left: 75%"
+                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 cursor-pointer whitespace-nowrap text-center"
                 >
                   1년
+                </button>
+                <button
+                  type="button"
+                  data-set-count="730"
+                  data-pos-class="-translate-x-1/2"
+                  style="left: 100%"
+                  class="preset-count-btn preset-label-btn absolute top-0 -translate-x-1/2 text-[11.5px] font-medium text-slate-400 hover:text-blue-600 cursor-pointer whitespace-nowrap text-center"
+                >
+                  2년
                 </button>
               </div>
             </div>
@@ -2094,7 +2113,7 @@
               state.itemPrice = Math.max(0, Number(val.price));
             }
             if (val.period !== undefined && !Number.isNaN(Number(val.period))) {
-              state.useCount = Math.max(1, Math.min(365, Number(val.period)));
+              state.useCount = Math.max(1, Math.min(730, Number(val.period)));
             }
             if (val.wage !== undefined && !Number.isNaN(Number(val.wage))) {
               state.hourlyWage = Math.max(1, Number(val.wage));
@@ -2137,7 +2156,7 @@
         return {
           item: displayName,
           price: Math.max(0, Number(state.itemPrice) || 0),
-          period: Math.max(1, Math.min(365, Number(state.useCount) || 1)),
+          period: Math.max(1, Math.min(730, Number(state.useCount) || 1)),
           wage: Math.max(1, Number(state.hourlyWage) || 10000),
           cat: resolvedCat,
           photo: state.itemPhoto || '',
@@ -2222,7 +2241,7 @@
         }
         if (params.has('period')) {
           const parsedPeriod = parseInt(params.get('period'), 10);
-          if (!Number.isNaN(parsedPeriod)) state.useCount = Math.max(1, Math.min(365, parsedPeriod));
+          if (!Number.isNaN(parsedPeriod)) state.useCount = Math.max(1, Math.min(730, parsedPeriod));
         }
         if (params.has('wage')) {
           const parsedWage = parseInt(params.get('wage'), 10);
@@ -2325,7 +2344,7 @@
             ...parsed,
             itemName: initialItemName,
             itemPrice: initialItemPrice,
-            useCount: Math.max(1, Math.min(365, initialUseCount)),
+            useCount: Math.max(1, Math.min(730, initialUseCount)),
             customItemIcon: parsed.customItemIcon || null,
             isInitialized: true,
             history: loadedHistory,
@@ -2773,49 +2792,51 @@
         osc2.stop(now + 0.095);
       }
 
-      // 4개 기준점(1회, 30회, 180회, 365회) <-> 슬라이더 게이지 위치(0% ~ 100%) 구간 비례 변환
-      const PRESET_USE_COUNTS = [1, 30, 180, 365];
+      // 5개 기준점(1회, 30회, 180회, 365회, 730회) <-> 슬라이더 게이지 위치(0% ~ 100%) 구간 비례 변환
+      const PRESET_USE_COUNTS = [1, 30, 180, 365, 730];
       const PRESET_SLIDER_MARKS = [
         { count: 1, sliderVal: 0 },
-        { count: 30, sliderVal: 333 },
-        { count: 180, sliderVal: 667 },
-        { count: 365, sliderVal: 1000 }
+        { count: 30, sliderVal: 250 },
+        { count: 180, sliderVal: 500 },
+        { count: 365, sliderVal: 750 },
+        { count: 730, sliderVal: 1000 }
       ];
 
       function countToProgressPct(count) {
-        const c = Math.max(1, Math.min(365, Number(count) || 1));
-        if (c === 1) return 0;
-        if (c === 30) return 100 / 3;
-        if (c === 180) return 200 / 3;
-        if (c === 365) return 100;
-        if (c < 30) return ((c - 1) / (30 - 1)) * (100 / 3);
-        if (c < 180) return (100 / 3) + ((c - 30) / (180 - 30)) * (100 / 3);
-        return (200 / 3) + ((c - 180) / (365 - 180)) * (100 / 3);
+        const c = Math.max(1, Math.min(730, Number(count) || 1));
+        for (let i = 0; i < PRESET_SLIDER_MARKS.length; i++) {
+          const cur = PRESET_SLIDER_MARKS[i];
+          if (c === cur.count) return cur.sliderVal / 10;
+          if (i < PRESET_SLIDER_MARKS.length - 1) {
+            const next = PRESET_SLIDER_MARKS[i + 1];
+            if (c < next.count) {
+              const segPct = (cur.sliderVal / 10) + ((c - cur.count) / (next.count - cur.count)) * ((next.sliderVal - cur.sliderVal) / 10);
+              return segPct;
+            }
+          }
+        }
+        return 100;
       }
 
       function sliderValueToCount(sliderVal) {
         const numVal = Math.max(0, Math.min(1000, Math.round(Number(sliderVal) || 0)));
-        if (numVal === 0) return 1;
-        if (numVal === 333) return 30;
-        if (numVal === 667) return 180;
-        if (numVal === 1000) return 365;
-
-        const pct = numVal / 10;
-        const oneThird = 100 / 3;
-        const twoThirds = 200 / 3;
-        let raw = 1;
-        if (pct <= oneThird) {
-          raw = 1 + (pct / oneThird) * (30 - 1);
-        } else if (pct <= twoThirds) {
-          raw = 30 + ((pct - oneThird) / oneThird) * (180 - 30);
-        } else {
-          raw = 180 + ((pct - twoThirds) / oneThird) * (365 - 180);
+        for (let i = 0; i < PRESET_SLIDER_MARKS.length; i++) {
+          const cur = PRESET_SLIDER_MARKS[i];
+          if (numVal === cur.sliderVal) return cur.count;
+          if (i < PRESET_SLIDER_MARKS.length - 1) {
+            const next = PRESET_SLIDER_MARKS[i + 1];
+            if (numVal < next.sliderVal) {
+              const ratio = (numVal - cur.sliderVal) / (next.sliderVal - cur.sliderVal);
+              const raw = cur.count + ratio * (next.count - cur.count);
+              return Math.max(1, Math.min(730, Math.round(raw)));
+            }
+          }
         }
-        return Math.max(1, Math.min(365, Math.round(raw)));
+        return 730;
       }
 
       function updateSliderTrack(slider, count) {
-        const exactCount = Math.max(1, Math.min(365, Math.round(Number(count) || 1)));
+        const exactCount = Math.max(1, Math.min(730, Math.round(Number(count) || 1)));
         const pct = countToProgressPct(exactCount);
         const exactPreset = PRESET_SLIDER_MARKS.find((m) => m.count === exactCount);
         slider.value = exactPreset ? exactPreset.sliderVal : Math.round(pct * 10);
@@ -4114,7 +4135,7 @@
         const parsed = parseInt(targetCount, 10);
         const exactVal = PRESET_USE_COUNTS.includes(parsed)
           ? parsed
-          : Math.max(1, Math.min(365, parsed || 1));
+          : Math.max(1, Math.min(730, parsed || 1));
         rotateRoomForNewCalculation();
         state.useCount = exactVal;
         if (useCountSliderEl) {
@@ -4153,7 +4174,7 @@
         triggerHaptic(10);
         const rawSliderVal = Number(e.target.value) || 0;
         if (!isDraggingSlider) {
-          // 드래그가 아닌 단일 트랙 클릭 시 4개 노드 근처(±3.5%)를 눌렀다면 해당 고정 프리셋 값(1, 30, 180, 365)으로 즉시 스냅
+          // 드래그가 아닌 단일 트랙 클릭 시 5개 노드 근처(±3.5%)를 눌렀다면 해당 고정 프리셋 값(1, 30, 180, 365, 730)으로 즉시 스냅
           const nearMark = PRESET_SLIDER_MARKS.find((m) => Math.abs(rawSliderVal - m.sliderVal) <= 35);
           if (nearMark) {
             setExactUseCount(nearMark.count);
