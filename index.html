@@ -3861,6 +3861,7 @@
       if (photoCameraBtn && itemPhotoCameraInput) {
         photoCameraBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          triggerHaptic(15, true);
           if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
           itemPhotoCameraInput.value = '';
           itemPhotoCameraInput.click();
@@ -3869,6 +3870,7 @@
       if (photoGalleryBtn && itemPhotoGalleryInput) {
         photoGalleryBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          triggerHaptic(15, true);
           if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
           itemPhotoGalleryInput.value = '';
           itemPhotoGalleryInput.click();
@@ -3877,6 +3879,7 @@
       if (photoRemoveBtn) {
         photoRemoveBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          triggerHaptic(15, true);
           state.itemPhoto = null;
           if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
           saveState();
@@ -3946,6 +3949,7 @@
           `;
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
+            triggerHaptic(15, true);
             rotateRoomForNewCalculation();
             state.customItemIcon = cat.icon;
             if (iconPickerPopover) iconPickerPopover.classList.add('hidden');
@@ -3959,6 +3963,7 @@
       if (iconPickerBtn && iconPickerPopover) {
         iconPickerBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          triggerHaptic(15, true);
           iconPickerPopover.classList.toggle('hidden');
         });
       }
@@ -3966,6 +3971,7 @@
       if (resetAutoIconBtn) {
         resetAutoIconBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          triggerHaptic(15, true);
           rotateRoomForNewCalculation();
           state.customItemIcon = null;
           if (iconPickerPopover) iconPickerPopover.classList.add('hidden');
@@ -6385,12 +6391,14 @@
       if (openCategoryReportBtn) {
         openCategoryReportBtn.addEventListener('click', (e) => {
           e.stopPropagation();
+          triggerHaptic(15, true);
           openCategoryReportModal();
         });
       }
       const openSavingReportFromCategoryBtn = document.getElementById('openSavingReportFromCategoryBtn');
       if (openSavingReportFromCategoryBtn) {
         openSavingReportFromCategoryBtn.addEventListener('click', () => {
+          triggerHaptic(15, true);
           closeCategoryReportModal();
           openLevelUpModal(false, 'report');
         });
