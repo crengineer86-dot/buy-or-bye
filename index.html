@@ -2939,13 +2939,32 @@
         document.getElementById('pollCommentCountText').textContent = formatNumber(comments.length);
         const commentListEl = document.getElementById('pollCommentList');
         commentListEl.innerHTML = '';
-        if (comments.length === 0) {
-          commentListEl.innerHTML = `
-            <div class="text-center py-6 px-4 bg-[#F8FAFC] rounded-2xl border border-dashed border-slate-200">
-              <p class="text-[12.5px] font-bold text-[#64748B]">아직 등록된 팩폭 참견이 없어요</p>
-              <p class="text-[11px] font-medium text-[#94A3B8] mt-1">아래 입력창에 첫 번째 한 줄 팩폭을 남겨보세요 💬</p>
+
+        // 기본 추천 팩폭 (🤖 AI 집사 공식 팩폭 카드 최상단 고정 노출)
+        const aiPinnedItem = document.createElement('div');
+        aiPinnedItem.className = 'bg-gradient-to-r from-[#FFFBEB] to-[#FEF3C7]/45 rounded-2xl p-3.5 border border-amber-300/80 flex items-start gap-2.5 shadow-2xs';
+        aiPinnedItem.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-[15px] shrink-0">
+            🤖
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="text-[12px] font-extrabold text-[#191F28] truncate">AI 집사</span>
+                <span class="text-[10px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded-md shrink-0">공식 팩폭</span>
+              </div>
+              <span class="text-[10.5px] font-bold text-amber-700 shrink-0">기본 추천</span>
             </div>
-          `;
+            <p class="text-[12.5px] font-bold text-[#451A03] mt-1 leading-snug">이 물건을 본 AI 집사의 한마디: 당장 통장을 잠그세요 🛑</p>
+          </div>
+        `;
+        commentListEl.appendChild(aiPinnedItem);
+
+        if (comments.length === 0) {
+          const inviteHint = document.createElement('p');
+          inviteHint.className = 'text-center text-[11px] font-medium text-[#94A3B8] py-2';
+          inviteHint.textContent = '아래 입력창에 첫 번째 친구 팩폭을 남겨보세요 💬';
+          commentListEl.appendChild(inviteHint);
         } else {
           comments.forEach((c) => {
             const item = document.createElement('div');
