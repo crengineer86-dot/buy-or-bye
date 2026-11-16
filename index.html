@@ -5002,50 +5002,27 @@
         // 투표 링크 클립보드 동시 복사
         copyTextToClipboard(cleanTargetUrl);
 
-        // 1) Kakao JS SDK가 초기화된 경우: 버튼이 달린 피드형 요약 카드 전송
+        // 1) Kakao JS SDK가 초기화된 경우: 썸네일 없는 순수 텍스트 + 투표 링크 버튼 카드 전송
+        const textOnlyInviteMessage = `${fallbackText}\n\n👉 실시간 투표 참여하기:\n${cleanTargetUrl}`;
         if (initKakaoSdkIfConfigured() && window.Kakao.Share) {
           try {
-            let thumbnailUrl = defaultThumbUrl;
-            if (canvas) {
-              const blob = await canvasToPngBlob(canvas);
-              if (blob && typeof File !== 'undefined' && typeof window.Kakao.Share.uploadImage === 'function') {
-                const file = new File([blob], fallbackFilename, { type: 'image/png' });
-                const uploadRes = await window.Kakao.Share.uploadImage({ file: [file] });
-                if (uploadRes && uploadRes.infos && uploadRes.infos.original && uploadRes.infos.original.url) {
-                  thumbnailUrl = uploadRes.infos.original.url;
-                }
-              }
-            }
             window.Kakao.Share.sendDefault({
-              objectType: 'feed',
-              content: {
-                title,
-                description,
-                imageUrl: thumbnailUrl,
-                link: {
-                  mobileWebUrl: cleanTargetUrl,
-                  webUrl: cleanTargetUrl
-                }
+              objectType: 'text',
+              text: textOnlyInviteMessage,
+              link: {
+                mobileWebUrl: cleanTargetUrl,
+                webUrl: cleanTargetUrl
               },
-              buttons: [
-                {
-                  title: buttonTitle,
-                  link: {
-                    mobileWebUrl: cleanTargetUrl,
-                    webUrl: cleanTargetUrl
-                  }
-                }
-              ]
+              buttonTitle
             });
             showToast(successToast);
-            return 'kakao-sdk-feed';
+            return 'kakao-sdk-text';
           } catch (kakaoErr) {
-            console.warn('Kakao SDK feed share fallback:', kakaoErr);
+            console.warn('Kakao SDK text share fallback:', kakaoErr);
           }
         }
 
-        // 2) Kakao SDK 키가 없는 경우: 카톡 상단에 장문 노란 말풍선이 같이 뜨지 않도록
-        //    title/text/files 없이 오직 { url }만 단독으로 전송 (OG 요약 링크 카드만 깔끔하게 생성)
+        // 2) Kakao SDK 키가 없는 경우: 상단 썸네일(og:image) 박스 없이 순수 텍스트 + 클릭형 투표 링크만 깔끔하게 전송
         if (document.visibilityState === 'hidden') {
           await new Promise((resolve) => {
             const onVis = () => {
@@ -5068,8 +5045,8 @@
           try {
             showToast(successToast);
             await cap.Plugins.Share.share({
-              url: cleanTargetUrl,
-              dialogTitle: '카카오톡 투표 공유'
+              text: textOnlyInviteMessage,
+              dialogTitle: '투표 초대 링크 공유'
             });
             return 'capacitor-link-share';
           } catch (capErr) {
@@ -5082,28 +5059,30 @@
           try {
             showToast(successToast);
             await navigator.share({
-              url: cleanTargetUrl
+              text: textOnlyInviteMessage
             });
             return 'web-link-share';
           } catch (err) {
             if (err && err.name === 'AbortError') return 'cancelled';
             console.warn('Web link share fallback:', err);
             // 모바일 브라우저에서 1차 공유 후 제스처 만료(NotAllowedError) 시 원탭 이어보내기 팝업 즉시 표시
-            await copyTextToClipboard(cleanTargetUrl);
-            openInviteLinkQuickModal(cleanTargetUrl);
+            await copyTextToClipboard(textOnlyInviteMessage);
+            openInviteLinkQuickModal(cleanTargetUrl, textOnlyInviteMessage);
             return 'quick-modal-link';
           }
         }
 
-        // 3) navigator.share 미지원 PC 브라우저 폴백: 실시간 투표 링크만 깔끔하게 복사
-        await copyTextToClipboard(cleanTargetUrl);
+        // 3) navigator.share 미지원 PC 브라우저 폴백: 순수 텍스트 + 투표 링크 복사
+        await copyTextToClipboard(textOnlyInviteMessage);
         showToast(successToast);
         return 'clipboard-link';
       }
 
       let pendingQuickInviteUrl = '';
-      function openInviteLinkQuickModal(url) {
+      let pendingQuickInviteText = '';
+      function openInviteLinkQuickModal(url, textMsg) {
         pendingQuickInviteUrl = url || generateShareUrl();
+        pendingQuickInviteText = textMsg || pendingQuickInviteUrl;
         const modal = document.getElementById('inviteLinkQuickModal');
         if (modal) modal.classList.remove('hidden');
       }
@@ -5116,17 +5095,18 @@
         inviteLinkQuickSendBtnEl.addEventListener('click', async () => {
           triggerHaptic(15, true);
           const urlToSend = pendingQuickInviteUrl || generateShareUrl();
+          const textToSend = pendingQuickInviteText || urlToSend;
           closeInviteLinkQuickModal();
           if (typeof navigator.share === 'function') {
             try {
-              await navigator.share({ url: urlToSend });
+              await navigator.share({ text: textToSend });
               showToast('💬 투표 초대 링크 공유 완료!');
               return;
             } catch (e) {
               if (e && e.name === 'AbortError') return;
             }
           }
-          await copyTextToClipboard(urlToSend);
+          await copyTextToClipboard(textToSend);
           showToast('🔗 투표 초대 링크가 복사되었어요!');
         });
       }
@@ -5151,6 +5131,7 @@
         }
         return receiptPaperPreloadPromise;
       }
+      ensureReceiptPaperPreloaded();
 
       function invalidatePrewarmedCapture(targetId) {
         if (targetId) {
@@ -5163,7 +5144,7 @@
       function prewarmCapture(targetId) {
         if (!targetId || !window.htmlToImage || typeof window.htmlToImage.toBlob !== 'function') return;
         if (prewarmedCaptureMap.has(targetId)) return;
-        const promise = new Promise((resolve) => setTimeout(resolve, 320))
+        const promise = new Promise((resolve) => setTimeout(resolve, 120))
           .then(() => captureCardBlobWithHtmlToImage(targetId, { forceFresh: true }))
           .catch(() => {
             prewarmedCaptureMap.delete(targetId);
@@ -5186,7 +5167,7 @@
         if (!targetEl) return null;
 
         try {
-          if (document.fonts && document.fonts.ready) {
+          if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
             await document.fonts.ready;
           }
           if (targetId === 'instaReceiptCaptureBox') {
@@ -5194,8 +5175,8 @@
           }
 
           const blob = await window.htmlToImage.toBlob(targetEl, {
-            pixelRatio: 3,
-            cacheBust: true,
+            pixelRatio: 2.5,
+            cacheBust: false,
             style: {
               transform: 'none',
               margin: '0'
