@@ -358,9 +358,6 @@
             <div class="mb-4 relative" id="itemInputWrapper">
               <div class="flex items-center justify-between mb-1.5">
                 <label for="itemNameInput" class="block text-[12px] font-bold text-[#4E5968]">사고 싶은 아이템</label>
-                <div class="w-12 shrink-0 flex justify-center overflow-visible">
-                  <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#3182F6] whitespace-nowrap">✨ 자동 매칭</span>
-                </div>
               </div>
               <div class="flex items-center gap-1.5">
                 <div class="relative flex-1 min-w-0">
@@ -388,15 +385,21 @@
                     <span class="text-[8.5px] font-extrabold text-[#64748B] leading-none mt-1">사진</span>
                   </span>
                 </button>
-                <button
-                  type="button"
-                  id="itemIconPickerBtn"
-                  title="카테고리 아이콘 직접 선택"
-                  class="w-12 h-12 rounded-2xl bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 border border-[#BFDBFE] flex flex-col items-center justify-center shrink-0 transition-all cursor-pointer shadow-2xs"
-                >
-                  <span id="itemInputEmoji" class="text-[21px] leading-none flex items-center justify-center">🛍️</span>
-                  <span class="text-[8px] font-extrabold text-[#3182F6] leading-none mt-0.5">▼</span>
-                </button>
+                <div class="relative shrink-0">
+                  <span
+                    id="customIconStatusBadge"
+                    class="absolute -top-[21px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-[#3182F6] whitespace-nowrap pointer-events-none"
+                  >✨ 자동 매칭</span>
+                  <button
+                    type="button"
+                    id="itemIconPickerBtn"
+                    title="카테고리 아이콘 직접 선택"
+                    class="w-12 h-12 rounded-2xl bg-[#EFF6FF] hover:bg-[#DBEAFE] active:scale-95 border border-[#BFDBFE] flex flex-col items-center justify-center shrink-0 transition-all cursor-pointer shadow-2xs"
+                  >
+                    <span id="itemInputEmoji" class="text-[21px] leading-none flex items-center justify-center">🛍️</span>
+                    <span class="text-[8px] font-extrabold text-[#3182F6] leading-none mt-0.5">▼</span>
+                  </button>
+                </div>
               </div>
 
               <input type="file" id="itemPhotoCameraInput" accept="image/*" capture="environment" class="hidden" />
@@ -2964,16 +2967,10 @@
             const selectedCat = CATEGORY_DEFINITIONS.find((c) => c.icon === state.customItemIcon);
             const selectedLabel = selectedCat ? selectedCat.label : '선택 아이콘';
             customIconStatusEl.textContent = `✓ '${selectedLabel}' 아이콘 고정 중`;
-            customIconStatusEl.className = 'text-[10.5px] font-bold text-[#3182F6] whitespace-nowrap';
-            if (customIconStatusEl.parentElement) {
-              customIconStatusEl.parentElement.className = 'w-12 shrink-0 flex justify-end overflow-visible';
-            }
+            customIconStatusEl.className = 'absolute -top-[21px] right-0 text-[10px] font-bold text-[#3182F6] whitespace-nowrap pointer-events-none';
           } else {
             customIconStatusEl.textContent = '✨ 자동 매칭';
-            customIconStatusEl.className = 'text-[10.5px] font-semibold text-[#3182F6] whitespace-nowrap';
-            if (customIconStatusEl.parentElement) {
-              customIconStatusEl.parentElement.className = 'w-12 shrink-0 flex justify-center overflow-visible';
-            }
+            customIconStatusEl.className = 'absolute -top-[21px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-[#3182F6] whitespace-nowrap pointer-events-none';
           }
         }
         renderIconPickerGrid(activeIcon);
