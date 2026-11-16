@@ -358,7 +358,9 @@
             <div class="mb-4 relative" id="itemInputWrapper">
               <div class="flex items-center justify-between mb-1.5">
                 <label for="itemNameInput" class="block text-[12px] font-bold text-[#4E5968]">사고 싶은 아이템</label>
-                <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#3182F6]">✨ 자동 매치</span>
+                <div class="w-12 shrink-0 flex justify-center overflow-visible">
+                  <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#3182F6] whitespace-nowrap">✨ 자동 매칭</span>
+                </div>
               </div>
               <div class="flex items-center gap-1.5">
                 <div class="relative flex-1 min-w-0">
@@ -2962,10 +2964,16 @@
             const selectedCat = CATEGORY_DEFINITIONS.find((c) => c.icon === state.customItemIcon);
             const selectedLabel = selectedCat ? selectedCat.label : '선택 아이콘';
             customIconStatusEl.textContent = `✓ '${selectedLabel}' 아이콘 고정 중`;
-            customIconStatusEl.className = 'text-[10.5px] font-bold text-[#3182F6]';
+            customIconStatusEl.className = 'text-[10.5px] font-bold text-[#3182F6] whitespace-nowrap';
+            if (customIconStatusEl.parentElement) {
+              customIconStatusEl.parentElement.className = 'w-12 shrink-0 flex justify-end overflow-visible';
+            }
           } else {
-            customIconStatusEl.textContent = '✨ 자동 매치';
-            customIconStatusEl.className = 'text-[10.5px] font-semibold text-[#3182F6]';
+            customIconStatusEl.textContent = '✨ 자동 매칭';
+            customIconStatusEl.className = 'text-[10.5px] font-semibold text-[#3182F6] whitespace-nowrap';
+            if (customIconStatusEl.parentElement) {
+              customIconStatusEl.parentElement.className = 'w-12 shrink-0 flex justify-center overflow-visible';
+            }
           }
         }
         renderIconPickerGrid(activeIcon);
