@@ -4716,16 +4716,14 @@
           }
         }
 
-        // 2) Kakao SDK 키가 없는 경우: 카톡에서 url+text가 무시되고 사진만 가는 현상을 막기 위해
-        //    절대 files(이미지)를 넣지 않고 오직 title + text + url만 전송 (OG 요약 링크 카드 생성)
+        // 2) Kakao SDK 키가 없는 경우: 카톡 상단에 장문 노란 말풍선이 같이 뜨지 않도록
+        //    title/text/files 없이 오직 { url }만 단독으로 전송 (OG 요약 링크 카드만 깔끔하게 생성)
         const cap = window.Capacitor;
         const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
         if (isCapNative && cap.Plugins && cap.Plugins.Share) {
           try {
             showToast(successToast);
             await cap.Plugins.Share.share({
-              title,
-              text: fallbackText,
               url: cleanTargetUrl,
               dialogTitle: '카카오톡 투표 공유'
             });
@@ -4740,8 +4738,6 @@
           try {
             showToast(successToast);
             await navigator.share({
-              title,
-              text: fallbackText,
               url: cleanTargetUrl
             });
             return 'web-link-share';
@@ -4751,8 +4747,8 @@
           }
         }
 
-        // 3) navigator.share 미지원 PC 브라우저 폴백: 텍스트 + 실시간 투표 링크 복사
-        await copyTextToClipboard(`${fallbackText}\n${cleanTargetUrl}`);
+        // 3) navigator.share 미지원 PC 브라우저 폴백: 실시간 투표 링크만 깔끔하게 복사
+        await copyTextToClipboard(cleanTargetUrl);
         showToast(successToast);
         return 'clipboard-link';
       }
