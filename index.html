@@ -506,11 +506,52 @@
 
             <!-- 예상 사용 횟수 슬라이더 -->
             <div class="pt-1">
-              <div class="flex items-center justify-between mb-2.5">
-                <label for="useCountSlider" class="text-[12px] font-bold text-[#4E5968]">예상 사용 횟수</label>
-                <span id="useCountBadge" class="bg-[#DBEAFE] text-[#1D4ED8] font-extrabold text-[11px] px-2.5 py-0.5 rounded-full">
-                  총 1회 사용
-                </span>
+              <div class="flex items-center justify-between gap-2 mb-2.5 min-h-[30px]">
+                <label for="useCountSlider" class="text-[12px] font-bold text-[#4E5968] shrink-0">예상 사용 횟수</label>
+
+                <button
+                  type="button"
+                  id="useCountBadgeBtn"
+                  title="직접 사용 횟수 또는 연도 입력하기"
+                  class="inline-flex items-center gap-1 bg-[#DBEAFE] hover:bg-[#BFDBFE] text-[#1D4ED8] font-extrabold text-[11px] px-2.5 py-1 rounded-full cursor-pointer shrink-0"
+                >
+                  <span id="useCountBadge">총 1회 사용</span>
+                  <span class="text-[10px] leading-none" aria-hidden="true">✏️</span>
+                </button>
+
+                <div
+                  id="useCountInlineEditor"
+                  class="hidden items-center gap-1 bg-[#EFF6FF] border border-[#93C5FD] rounded-full pl-2.5 pr-1 py-0.5 shadow-2xs shrink-0"
+                >
+                  <input
+                    id="useCountCustomInput"
+                    type="number"
+                    inputmode="decimal"
+                    step="any"
+                    min="0.1"
+                    placeholder="숫자"
+                    aria-label="예상 사용 횟수 또는 연수 입력"
+                    class="w-[52px] bg-transparent text-[#1E3A8A] font-extrabold text-[12px] text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <div class="inline-flex items-center bg-white/80 rounded-full p-0.5 border border-[#BFDBFE]/80">
+                    <button
+                      type="button"
+                      id="useCountUnitCountBtn"
+                      class="px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#3182F6] text-white leading-none"
+                    >회</button>
+                    <button
+                      type="button"
+                      id="useCountUnitYearBtn"
+                      class="px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer text-[#64748B] hover:text-[#1D4ED8] leading-none"
+                    >년</button>
+                  </div>
+                  <button
+                    type="button"
+                    id="useCountInlineConfirmBtn"
+                    aria-label="입력 확인"
+                    class="w-6 h-6 rounded-full bg-[#3182F6] hover:bg-[#1B64DA] text-white flex items-center justify-center text-[11px] font-black transition-colors cursor-pointer shrink-0"
+                  >✓</button>
+                </div>
               </div>
 
               <!-- 슬라이더 게이지 선(Track) + 선 위에 직접 올라간 4개 원형 노드(버튼) 일체형 -->
@@ -1984,6 +2025,8 @@
         customItemIcon: null,
         itemPrice: 0,
         useCount: 1,
+        useCountUnit: 'count',
+        useCountYearValue: null,
         savedCount: 0,
         totalSavedAmount: 0,
         isChallengeLocked: false,
@@ -2113,7 +2156,9 @@
               state.itemPrice = Math.max(0, Number(val.price));
             }
             if (val.period !== undefined && !Number.isNaN(Number(val.period))) {
-              state.useCount = Math.max(1, Math.min(730, Number(val.period)));
+              state.useCount = Math.max(1, Math.min(99999, Math.round(Number(val.period))));
+              state.useCountUnit = 'count';
+              state.useCountYearValue = null;
             }
             if (val.wage !== undefined && !Number.isNaN(Number(val.wage))) {
               state.hourlyWage = Math.max(1, Number(val.wage));
@@ -2156,7 +2201,7 @@
         return {
           item: displayName,
           price: Math.max(0, Number(state.itemPrice) || 0),
-          period: Math.max(1, Math.min(730, Number(state.useCount) || 1)),
+          period: Math.max(1, Math.min(99999, Math.round(Number(state.useCount) || 1))),
           wage: Math.max(1, Number(state.hourlyWage) || 10000),
           cat: resolvedCat,
           photo: state.itemPhoto || '',
@@ -2241,7 +2286,11 @@
         }
         if (params.has('period')) {
           const parsedPeriod = parseInt(params.get('period'), 10);
-          if (!Number.isNaN(parsedPeriod)) state.useCount = Math.max(1, Math.min(730, parsedPeriod));
+          if (!Number.isNaN(parsedPeriod)) {
+            state.useCount = Math.max(1, Math.min(99999, parsedPeriod));
+            state.useCountUnit = 'count';
+            state.useCountYearValue = null;
+          }
         }
         if (params.has('wage')) {
           const parsedWage = parseInt(params.get('wage'), 10);
@@ -2344,7 +2393,7 @@
             ...parsed,
             itemName: initialItemName,
             itemPrice: initialItemPrice,
-            useCount: Math.max(1, Math.min(730, initialUseCount)),
+            useCount: Math.max(1, Math.min(99999, Math.round(initialUseCount))),
             customItemIcon: parsed.customItemIcon || null,
             isInitialized: true,
             history: loadedHistory,
@@ -2836,7 +2885,7 @@
       }
 
       function updateSliderTrack(slider, count) {
-        const exactCount = Math.max(1, Math.min(730, Math.round(Number(count) || 1)));
+        const exactCount = Math.max(1, Math.min(99999, Math.round(Number(count) || 1)));
         const pct = countToProgressPct(exactCount);
         const exactPreset = PRESET_SLIDER_MARKS.find((m) => m.count === exactCount);
         slider.value = exactPreset ? exactPreset.sliderVal : Math.round(pct * 10);
@@ -2921,7 +2970,14 @@
 
         const useCountSlider = document.getElementById('useCountSlider');
         updateSliderTrack(useCountSlider, state.useCount);
-        document.getElementById('useCountBadge').textContent = `총 ${state.useCount}회 사용`;
+        const useCountBadgeEl = document.getElementById('useCountBadge');
+        if (useCountBadgeEl) {
+          if (state.useCountUnit === 'year' && state.useCountYearValue > 0) {
+            useCountBadgeEl.textContent = `${state.useCountYearValue}년 (${formatNumber(state.useCount)}회) 사용`;
+          } else {
+            useCountBadgeEl.textContent = `총 ${formatNumber(state.useCount)}회 사용`;
+          }
+        }
 
         // 트랙 선 위의 4개 눈금 점(지나간 구간 bg-blue-600 / 미도달 구간 bg-slate-300) 및 하단 심플 라벨 Active 동기화
         document.querySelectorAll('.preset-node-btn').forEach((btn) => {
@@ -4135,9 +4191,11 @@
         const parsed = parseInt(targetCount, 10);
         const exactVal = PRESET_USE_COUNTS.includes(parsed)
           ? parsed
-          : Math.max(1, Math.min(730, parsed || 1));
+          : Math.max(1, Math.min(99999, parsed || 1));
         rotateRoomForNewCalculation();
         state.useCount = exactVal;
+        state.useCountUnit = 'count';
+        state.useCountYearValue = null;
         if (useCountSliderEl) {
           updateSliderTrack(useCountSliderEl, exactVal);
         }
@@ -4183,6 +4241,8 @@
         }
         rotateRoomForNewCalculation();
         state.useCount = sliderValueToCount(rawSliderVal);
+        state.useCountUnit = 'count';
+        state.useCountYearValue = null;
         saveState();
         renderAll();
       });
@@ -4197,6 +4257,131 @@
           triggerHaptic(12);
           setExactUseCount(btn.getAttribute('data-set-count'));
         });
+      });
+
+      // 예상 사용 횟수 배지 클릭 -> 인라인 미니 캡슐 직접 입력 (회 / 년 토글)
+      const useCountBadgeBtnEl = document.getElementById('useCountBadgeBtn');
+      const useCountInlineEditorEl = document.getElementById('useCountInlineEditor');
+      const useCountCustomInputEl = document.getElementById('useCountCustomInput');
+      const useCountUnitCountBtnEl = document.getElementById('useCountUnitCountBtn');
+      const useCountUnitYearBtnEl = document.getElementById('useCountUnitYearBtn');
+      const useCountInlineConfirmBtnEl = document.getElementById('useCountInlineConfirmBtn');
+      let editingUseCountUnit = 'count';
+
+      function syncUseCountUnitToggleUI() {
+        if (!useCountUnitCountBtnEl || !useCountUnitYearBtnEl) return;
+        if (editingUseCountUnit === 'year') {
+          useCountUnitYearBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#3182F6] text-white leading-none';
+          useCountUnitCountBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer text-[#64748B] hover:text-[#1D4ED8] leading-none';
+        } else {
+          useCountUnitCountBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#3182F6] text-white leading-none';
+          useCountUnitYearBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer text-[#64748B] hover:text-[#1D4ED8] leading-none';
+        }
+      }
+
+      function openUseCountInlineEditor() {
+        if (!useCountBadgeBtnEl || !useCountInlineEditorEl || !useCountCustomInputEl) return;
+        editingUseCountUnit = state.useCountUnit === 'year' ? 'year' : 'count';
+        syncUseCountUnitToggleUI();
+        useCountCustomInputEl.value =
+          editingUseCountUnit === 'year' && state.useCountYearValue > 0
+            ? String(state.useCountYearValue)
+            : String(state.useCount || 1);
+        useCountBadgeBtnEl.classList.add('hidden');
+        useCountInlineEditorEl.classList.remove('hidden');
+        useCountInlineEditorEl.classList.add('flex');
+        setTimeout(() => {
+          useCountCustomInputEl.focus();
+          useCountCustomInputEl.select();
+        }, 0);
+      }
+
+      function closeUseCountInlineEditor() {
+        if (!useCountBadgeBtnEl || !useCountInlineEditorEl) return;
+        useCountInlineEditorEl.classList.add('hidden');
+        useCountInlineEditorEl.classList.remove('flex');
+        useCountBadgeBtnEl.classList.remove('hidden');
+      }
+
+      function applyCustomUseCountInput() {
+        if (!useCountCustomInputEl) return;
+        const rawNum = parseFloat(useCountCustomInputEl.value);
+        if (Number.isNaN(rawNum) || rawNum <= 0) {
+          showToast('1 이상의 숫자를 입력해 주세요');
+          closeUseCountInlineEditor();
+          return;
+        }
+        rotateRoomForNewCalculation();
+        if (editingUseCountUnit === 'year') {
+          const cleanYear = Number(rawNum.toFixed(2).replace(/\.?0+$/, ''));
+          const convertedCount = Math.max(1, Math.min(99999, Math.round(rawNum * 365)));
+          state.useCount = convertedCount;
+          state.useCountUnit = 'year';
+          state.useCountYearValue = cleanYear;
+        } else {
+          const exactCount = Math.max(1, Math.min(99999, Math.round(rawNum)));
+          state.useCount = exactCount;
+          state.useCountUnit = 'count';
+          state.useCountYearValue = null;
+        }
+        saveState();
+        renderAll();
+        closeUseCountInlineEditor();
+      }
+
+      if (useCountBadgeBtnEl) {
+        useCountBadgeBtnEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          triggerHaptic(12);
+          openUseCountInlineEditor();
+        });
+      }
+      if (useCountUnitCountBtnEl) {
+        useCountUnitCountBtnEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          triggerHaptic(10);
+          editingUseCountUnit = 'count';
+          syncUseCountUnitToggleUI();
+          if (useCountCustomInputEl) useCountCustomInputEl.focus();
+        });
+      }
+      if (useCountUnitYearBtnEl) {
+        useCountUnitYearBtnEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          triggerHaptic(10);
+          editingUseCountUnit = 'year';
+          syncUseCountUnitToggleUI();
+          if (useCountCustomInputEl) useCountCustomInputEl.focus();
+        });
+      }
+      if (useCountInlineConfirmBtnEl) {
+        useCountInlineConfirmBtnEl.addEventListener('click', (e) => {
+          e.stopPropagation();
+          triggerHaptic(12);
+          applyCustomUseCountInput();
+        });
+      }
+      if (useCountCustomInputEl) {
+        useCountCustomInputEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            triggerHaptic(12);
+            applyCustomUseCountInput();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeUseCountInlineEditor();
+          }
+        });
+      }
+      document.addEventListener('click', (e) => {
+        if (
+          useCountInlineEditorEl &&
+          !useCountInlineEditorEl.classList.contains('hidden') &&
+          !useCountInlineEditorEl.contains(e.target) &&
+          e.target !== useCountBadgeBtnEl
+        ) {
+          closeUseCountInlineEditor();
+        }
       });
 
       // ==========================================
