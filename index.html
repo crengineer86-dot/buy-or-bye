@@ -865,8 +865,30 @@
               </h3>
             </div>
 
-            <!-- 우측 빈 공간 중앙: 귀여운 미니 팩폭 영수증 보기 + 실사진 보기 버튼 -->
+            <!-- 우측 빈 공간 중앙: 제품 사진 보기 + 귀여운 미니 팩폭 영수증 보기 버튼 -->
             <div class="shrink-0 flex items-center justify-center gap-1.5">
+              <!-- 좌측: 제품 사진 보기 버튼 -->
+              <button
+                type="button"
+                id="pollOpenPhotoBtn"
+                title="첨부된 제품 사진 크게 보기"
+                class="shrink-0 group flex flex-col items-center justify-center p-1 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                <div id="pollPhotoThumbFrame" class="relative w-[58px] h-[54px] rounded-xl bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center overflow-hidden shadow-2xs group-hover:-translate-y-0.5 transition-transform">
+                  <img id="pollPhotoThumbImg" alt="제품 사진 미리보기" class="hidden w-full h-full object-cover" />
+                  <span id="pollPhotoEmptyIcon" class="flex flex-col items-center justify-center text-slate-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                  </span>
+                </div>
+                <span id="pollPhotoBtnBadge" class="mt-1.5 text-[9.5px] font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                  사진 없음
+                </span>
+              </button>
+
+              <!-- 우측: 귀여운 미니 팩폭 영수증 보기 버튼 -->
               <button
                 type="button"
                 id="pollOpenReceiptBtn"
@@ -898,27 +920,6 @@
                 </div>
                 <span class="mt-1.5 text-[9.5px] font-extrabold text-[#3182F6] bg-[#EFF6FF] border border-[#BFDBFE] px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
                   영수증 보기
-                </span>
-              </button>
-
-              <!-- 우측: 실사진 보기 버튼 (영수증 보기와 동일 크기·정렬) -->
-              <button
-                type="button"
-                id="pollOpenPhotoBtn"
-                title="첨부된 실물사진 크게 보기"
-                class="shrink-0 group flex flex-col items-center justify-center p-1 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer"
-              >
-                <div id="pollPhotoThumbFrame" class="relative w-[58px] h-[54px] rounded-xl bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center overflow-hidden shadow-2xs group-hover:-translate-y-0.5 transition-transform">
-                  <img id="pollPhotoThumbImg" alt="실물사진 미리보기" class="hidden w-full h-full object-cover" />
-                  <span id="pollPhotoEmptyIcon" class="flex flex-col items-center justify-center text-slate-400">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                      <circle cx="12" cy="13" r="4"></circle>
-                    </svg>
-                  </span>
-                </div>
-                <span id="pollPhotoBtnBadge" class="mt-1.5 text-[9.5px] font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
-                  사진 없음
                 </span>
               </button>
             </div>
