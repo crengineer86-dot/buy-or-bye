@@ -953,8 +953,8 @@
 
           <div class="mt-3 bg-[#EFF6FF] rounded-2xl p-3.5 border border-[#DBEAFE]">
             <p class="text-[11.5px] font-extrabold text-[#1E40AF] mb-1">💡 AI 한줄 총평</p>
-            <p id="verdictAiSummary" class="text-[12px] font-semibold text-[#334155] leading-relaxed">
-              아직 투표 데이터가 모이지 않았어요. 실시간 투표판에서 직접 투표를 시작하거나 친구들에게 링크를 공유해 보세요!
+            <p id="verdictAiSummary" class="text-[11px] font-semibold text-[#334155] leading-snug tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
+              투표 전이에요! 친구들에게 링크를 공유해 보세요.
             </p>
           </div>
         </section>
@@ -3153,17 +3153,17 @@
         const aiSummaryEl = document.getElementById('verdictAiSummary');
         if (aiSummaryEl) {
           if (rawTotalVotes === 0) {
-            aiSummaryEl.textContent = '아직 투표 데이터가 모이지 않았어요. 실시간 투표판에서 직접 투표를 시작하거나 친구들에게 링크를 공유해 보세요!';
+            aiSummaryEl.textContent = '투표 전이에요! 친구들에게 링크를 공유해 보세요.';
           } else if (buyVotes > byeVotes) {
             aiSummaryEl.textContent = isAllowanceMode()
-              ? `친구들이 용돈 ${formatNumber(allowanceDays)}일치(${formatNumber(state.itemPrice)}원) 가치에 공감했어요! 그래도 충동구매인지 한 번만 더 생각해 보세요.`
-              : `친구들이 ${formatNumber(laborHours)}시간 노동 가치(${formatNumber(state.itemPrice)}원)에 공감했어요! 그래도 꼭 필요한 소비인지 한 번만 더 점검해 보세요.`;
+              ? `용돈 ${formatNumber(allowanceDays)}일치 가치! 충동구매인지 한 번만 더 체크!`
+              : `${formatNumber(laborHours)}시간 노동 가치! 꼭 필요한 소비인지 점검해 보세요.`;
           } else if (byeVotes > buyVotes) {
             aiSummaryEl.textContent = isAllowanceMode()
-              ? `${formatNumber(allowanceDays)}일치 용돈(월 용돈의 ${formatNumber(allowanceMonthPct)}%)이 순삭될 뻔했어요! 친구들의 팩폭 덕분에 ${formatNumber(state.itemPrice)}원을 구출할 절호의 기회입니다.`
-              : `${formatNumber(laborHours)}시간 동안 땀 흘려 번 소중한 돈! 친구들의 팩폭 덕분에 ${formatNumber(state.itemPrice)}원을 구출할 절호의 기회입니다.`;
+              ? `용돈 ${formatNumber(allowanceDays)}일치(${formatNumber(allowanceMonthPct)}%) 순삭 위기! 참으면 이득!`
+              : `${formatNumber(laborHours)}시간 땀 흘려 번 돈! 참으면 ${formatNumber(state.itemPrice)}원 방어!`;
           } else {
-            aiSummaryEl.textContent = `찬반이 50:50으로 팽팽해요! ${formatNumber(state.itemPrice)}원 지출 전 하루만 장바구니에 두고 다시 고민해 보는 건 어떨까요?`;
+            aiSummaryEl.textContent = '찬반 50:50 팽팽! 장바구니에 하루만 두고 다시 고민해 보세요.';
           }
         }
 
