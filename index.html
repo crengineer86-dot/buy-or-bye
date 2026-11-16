@@ -1245,8 +1245,8 @@
               <p id="modalSavedHours" class="w-full text-[15px] font-black text-[#5B21B6] mt-1 text-center whitespace-nowrap">약 0시간</p>
             </div>
             <div class="bg-[#EFF6FF] rounded-xl p-3 border border-blue-100 flex flex-col items-center justify-center text-center">
-              <span class="w-full text-[10.5px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">목표 달성률</span>
-              <p id="modalGoalPct" class="w-full text-[15px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">0.0% 달성</p>
+              <span id="modalMetricRightTitle" class="w-full text-[10.5px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">아낀 근무 일수</span>
+              <p id="modalGoalPct" class="w-full text-[15px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">약 0.0일 치</p>
             </div>
           </div>
         </div>
@@ -4100,6 +4100,33 @@
       const levelBackdrop = document.getElementById('levelModalBackdrop');
       const levelContent = document.getElementById('levelModalContent');
 
+      function getLevelCardSubMetrics(totalSaved) {
+        const mode = state.incomeMode || state.wageMode || 'hourly';
+        const totalHours = Math.ceil(totalSaved / Math.max(1, state.hourlyWage));
+        const savedWorkDays = Number((totalHours / 8).toFixed(1));
+        const totalSavedAllowanceDays = formatAllowanceDays(totalSaved);
+
+        if (mode === 'allowance') {
+          const monthlyAllow = Number(state.monthlyAllowance) || 0;
+          const rightValue = monthlyAllow > 0
+            ? `월 용돈의 ${Number(((totalSaved / monthlyAllow) * 100).toFixed(1))}%`
+            : `약 ${formatNumber(totalSavedAllowanceDays)}일 치 용돈`;
+          return {
+            leftTitle: '아껴낸 용돈 가치',
+            leftValue: `약 ${formatNumber(totalSavedAllowanceDays)}일 치`,
+            rightTitle: '지켜낸 용돈 비중',
+            rightValue
+          };
+        }
+
+        return {
+          leftTitle: '구출한 총 노동 시간',
+          leftValue: `약 ${formatNumber(totalHours)}시간`,
+          rightTitle: mode === 'monthly' ? '아낀 출근 일수' : '아낀 근무 일수',
+          rightValue: `약 ${savedWorkDays.toFixed(1)}일 치`
+        };
+      }
+
       function openLevelUpModal(isLevelUp = false) {
         if (isLevelUp) {
           playFanfareSound();
@@ -4111,13 +4138,7 @@
 
         const { totalCount, totalSaved } = getHistoryStats();
         const levelInfo = getLevelInfo(totalSaved);
-        const totalHours = Math.ceil(totalSaved / Math.max(1, state.hourlyWage));
-        const totalSavedAllowanceDays = formatAllowanceDays(totalSaved);
-        const rawPct = levelInfo.isMax
-          ? 100
-          : totalSaved <= 0
-            ? 0
-            : Math.min(100, Math.max(0, (totalSaved / levelInfo.goalAmount) * 100));
+        const subMetrics = getLevelCardSubMetrics(totalSaved);
 
         const headerTagEl = document.getElementById('modalHeaderTag');
         if (headerTagEl) {
@@ -4138,17 +4159,12 @@
 
         const modalMetricLeftTitleEl = document.getElementById('modalMetricLeftTitle');
         const modalSavedHoursEl = document.getElementById('modalSavedHours');
-        if (isAllowanceMode()) {
-          if (modalMetricLeftTitleEl) modalMetricLeftTitleEl.textContent = '아낀 총 용돈 일수';
-          if (modalSavedHoursEl) modalSavedHoursEl.textContent = `약 ${formatNumber(totalSavedAllowanceDays)}일치`;
-        } else {
-          if (modalMetricLeftTitleEl) modalMetricLeftTitleEl.textContent = '구출한 총 노동 시간';
-          if (modalSavedHoursEl) modalSavedHoursEl.textContent = `약 ${formatNumber(totalHours)}시간`;
-        }
-
-        document.getElementById('modalGoalPct').textContent = levelInfo.isMax
-          ? 'MAX (100%)'
-          : `${totalSaved <= 0 ? 0 : Number(rawPct.toFixed(1))}% 달성`;
+        const modalMetricRightTitleEl = document.getElementById('modalMetricRightTitle');
+        const modalGoalPctEl = document.getElementById('modalGoalPct');
+        if (modalMetricLeftTitleEl) modalMetricLeftTitleEl.textContent = subMetrics.leftTitle;
+        if (modalSavedHoursEl) modalSavedHoursEl.textContent = subMetrics.leftValue;
+        if (modalMetricRightTitleEl) modalMetricRightTitleEl.textContent = subMetrics.rightTitle;
+        if (modalGoalPctEl) modalGoalPctEl.textContent = subMetrics.rightValue;
 
         levelUpModal.classList.remove('hidden');
         requestAnimationFrame(() => {
