@@ -5737,11 +5737,11 @@
             ${formatNumber(totalSaved)}원
           </p>
           <div class="bg-white/95 rounded-xl p-3 border border-blue-100 shadow-2xs">
-            <p class="text-[12.5px] font-bold text-[#191F28] leading-relaxed">
+            <p class="text-[12.5px] font-bold text-[#191F28] leading-relaxed text-center">
               가장 많이 참아낸 유혹은
-              <span class="inline-flex items-center gap-1 font-black text-[#3182F6] bg-[#EFF6FF] px-2 py-0.5 rounded-lg border border-[#BFDBFE] align-middle mx-0.5">
-                ${renderCategoryIconHtml(topGroup.icon, 'w-3.5 h-3.5')}
-                <span>${escapeHtml(topGroup.categoryName)}</span>
+              <span class="inline-flex items-center justify-center gap-1.5 font-black text-[#3182F6] bg-[#EFF6FF] px-2.5 py-1 rounded-lg border border-[#BFDBFE] align-middle mx-1 leading-none">
+                <span class="inline-flex items-center justify-center leading-none shrink-0">${renderCategoryIconHtml(topGroup.icon, 'w-3.5 h-3.5')}</span>
+                <span class="inline-flex items-center justify-center leading-none">${escapeHtml(topGroup.categoryName)}</span>
               </span>이에요!
               <span class="block text-[11.5px] font-extrabold text-[#4E5968] mt-1">
                 (총 <strong class="text-[#3182F6]">${formatNumber(topGroup.totalAmount)}원</strong> 방어 · 전체의 ${topPct}%)
