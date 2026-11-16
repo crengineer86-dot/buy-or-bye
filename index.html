@@ -4063,8 +4063,29 @@
       });
 
       document.getElementById('itemPriceInput').addEventListener('input', (e) => {
+        const inputEl = e.target;
+        const rawValue = inputEl.value;
+        const selStart = inputEl.selectionStart;
+        const digitsBeforeCursor = selStart !== null ? rawValue.slice(0, selStart).replace(/[^\d]/g, '').length : null;
+        const cleanedDigits = rawValue.replace(/[^\d]/g, '');
+        const numericValue = cleanedDigits ? parseInt(cleanedDigits, 10) : 0;
+        const formatted = cleanedDigits === '' ? '' : formatNumber(numericValue);
+
+        if (inputEl.value !== formatted) {
+          inputEl.value = formatted;
+          if (digitsBeforeCursor !== null && document.activeElement === inputEl) {
+            let newCursor = 0;
+            let seenDigits = 0;
+            while (newCursor < formatted.length && seenDigits < digitsBeforeCursor) {
+              if (/\d/.test(formatted[newCursor])) seenDigits++;
+              newCursor++;
+            }
+            inputEl.setSelectionRange(newCursor, newCursor);
+          }
+        }
+
         rotateRoomForNewCalculation();
-        state.itemPrice = parseNumber(e.target.value);
+        state.itemPrice = numericValue;
         state.isChallengeLocked = false;
         saveState();
         renderAll();
