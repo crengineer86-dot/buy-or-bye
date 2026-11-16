@@ -94,7 +94,7 @@
 
     /* 주요 인터랙션 버튼 공통 손맛(Tactile Active Scale) */
     button {
-      transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+      transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
     }
     button:not(:disabled):active {
       transform: scale(0.97) !important;
@@ -157,7 +157,7 @@
       }
     }
     .animate-vote-pop {
-      animation: votePopBounce 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, voteCardFlash 0.55s ease-out;
+      animation: votePopBounce 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, voteCardFlash 0.3s ease-out;
     }
 
     /* Custom Range Slider (Toss Blue style, Track-Integrated Nodes) */
@@ -3979,7 +3979,7 @@
               targetBtnEl.classList.remove('animate-vote-pop');
               void targetBtnEl.offsetWidth;
               targetBtnEl.classList.add('animate-vote-pop');
-              setTimeout(() => targetBtnEl.classList.remove('animate-vote-pop'), 580);
+              setTimeout(() => targetBtnEl.classList.remove('animate-vote-pop'), 320);
             }
           }
         } catch (err) {
@@ -3991,10 +3991,12 @@
       }
 
       document.getElementById('voteBuyBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
         castRoomVote('buy');
       });
 
       document.getElementById('voteByeBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
         castRoomVote('bye');
       });
 
@@ -4046,7 +4048,10 @@
         }
       }
 
-      document.getElementById('addPollCommentBtn').addEventListener('click', addPollComment);
+      document.getElementById('addPollCommentBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
+        addPollComment();
+      });
       document.getElementById('newPollCommentInput').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -4056,13 +4061,17 @@
 
       // 투표판 ➔ 최종 판정 결과 ➔ 메인 화면 순차 전환 버튼들
       document.getElementById('backFromPollToMainBtn').addEventListener('click', () => switchScreen('main'));
-      document.getElementById('openVerdictViewBtn').addEventListener('click', () => switchScreen('verdict'));
+      document.getElementById('openVerdictViewBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
+        switchScreen('verdict');
+      });
       document.getElementById('backFromVerdictToPollBtn').addEventListener('click', () => switchScreen('poll'));
       document.getElementById('backFromVerdictToMainBtn').addEventListener('click', () => switchScreen('main'));
       document.getElementById('verdictStillWantBtn').addEventListener('click', () => switchScreen('main'));
 
       // 최종 판정 화면의 [현재가격 저축 챌린지에 넣기 🐷] 클릭 시
       document.getElementById('verdictSaveToChallengeBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
         executeSavingChallenge(true);
       });
 
@@ -5999,6 +6008,7 @@
       const goMainDetectorBtn = document.getElementById('goMainDetectorBtn');
       if (goMainDetectorBtn) {
         goMainDetectorBtn.addEventListener('click', () => {
+          triggerHaptic(15, true);
           if (window.location.search && window.history && typeof window.history.replaceState === 'function') {
             window.history.replaceState({}, '', window.location.pathname);
           }
@@ -6069,20 +6079,26 @@
         }, 280);
       }
 
-      document.getElementById('openShareSheetBtn').addEventListener('click', openShareSheet);
+      document.getElementById('openShareSheetBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
+        openShareSheet();
+      });
       document.getElementById('closeShareSheetBtn').addEventListener('click', closeShareSheet);
       shareBackdrop.addEventListener('click', closeShareSheet);
 
-      // 상단 플로팅 영수증 내의 투표 버튼 또는 하단 [🗳️ 실시간 살까 말까 투표판] 배너 클릭 시 투표 화면으로 이동
+      // 상단 플로팅 영수증 내의 투표 버튼 또는 하단 [🗳️ 실시간 투표판] 배너 클릭 시 투표 화면으로 이동
       document.getElementById('actionOpenPollScreenBtn').addEventListener('click', () => {
+        triggerHaptic(15, true);
         closeShareSheet();
         setTimeout(() => switchScreen('poll'), 260);
       });
       document.getElementById('instaGoPollBtnA').addEventListener('click', () => {
+        triggerHaptic(15, true);
         closeShareSheet();
         setTimeout(() => switchScreen('poll'), 250);
       });
       document.getElementById('instaGoPollBtnB').addEventListener('click', () => {
+        triggerHaptic(15, true);
         closeShareSheet();
         setTimeout(() => switchScreen('poll'), 250);
       });
