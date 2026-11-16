@@ -1422,7 +1422,7 @@
                 <div
                   id="instaStatusBadge"
                   class="keep-transform inline-flex items-center justify-center font-black tracking-[0.12em] select-none"
-                  style="position: absolute; right: 2px; bottom: -14px; transform: rotate(-10deg); color: #8B2626; border: 2px solid rgba(139,38,38,0.85); outline: 1px solid rgba(139,38,38,0.45); outline-offset: -4px; background: rgba(235,234,230,0.88); padding: 3.5px 9px; font-size: 12px; line-height: 1.1; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(139,38,38,0.18); z-index: 5;"
+                  style="position: absolute; right: 2px; bottom: -14px; transform: rotate(-10deg); color: #8B2626; border: 2px solid rgba(139,38,38,0.85); background: rgba(235,234,230,0.9); padding: 4px 10px; font-size: 12px; line-height: 1.1; border-radius: 3px; box-shadow: inset 0 0 0 2px rgba(235,234,230,0.92), inset 0 0 0 3px rgba(139,38,38,0.5); z-index: 5;"
                 >반려?</div>
                 <span id="instaSirenIcon" class="hidden"></span>
               </div>
@@ -4818,7 +4818,8 @@
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
-        const CAPTURE_WIDTH = 380;
+        const rect = targetEl.getBoundingClientRect();
+        const CAPTURE_WIDTH = Math.max(280, Math.round(rect.width) || 310);
         let offscreenHost = null;
 
         try {
@@ -4826,16 +4827,27 @@
             await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 250))]);
           }
 
+          // 종이 질감 배경 이미지 사전 로드 대기 (html2canvas 누락 방지)
+          await new Promise((resolve) => {
+            const bgImg = new Image();
+            bgImg.crossOrigin = 'anonymous';
+            bgImg.onload = resolve;
+            bgImg.onerror = resolve;
+            bgImg.src = './receipt-paper-bg.png';
+            setTimeout(resolve, 350);
+          });
+
           // 1) 화면 모달(transform, backdrop-filter, scale, overflow)과 완전히 분리된 오프스크린 정적 컨테이너 생성
           offscreenHost = document.createElement('div');
           offscreenHost.style.position = 'fixed';
           offscreenHost.style.left = '-99999px';
           offscreenHost.style.top = '0';
-          offscreenHost.style.width = `${CAPTURE_WIDTH}px`;
+          offscreenHost.style.width = `${CAPTURE_WIDTH + 24}px`;
           offscreenHost.style.height = 'auto';
           offscreenHost.style.margin = '0';
-          offscreenHost.style.padding = '0';
-          offscreenHost.style.background = '#ffffff';
+          offscreenHost.style.padding = '12px';
+          offscreenHost.style.background = '#F1F5F9';
+          offscreenHost.style.boxSizing = 'border-box';
           offscreenHost.style.transform = 'none';
           offscreenHost.style.backdropFilter = 'none';
           offscreenHost.style.webkitBackdropFilter = 'none';
@@ -4843,7 +4855,7 @@
           offscreenHost.style.zIndex = '-1';
           offscreenHost.style.pointerEvents = 'none';
 
-          // 2) 대상 카드 노드 복제 및 모든 내부 레이아웃을 정적 문서 흐름(static/relative, flex-col)으로 초기화
+          // 2) 대상 카드 노드 복제 및 화면과 100% 동일한 폭/비율로 정적 문서 흐름 초기화
           const clonedCard = targetEl.cloneNode(true);
           clonedCard.removeAttribute('id');
           clonedCard.style.position = 'relative';
@@ -4883,6 +4895,20 @@
             node.style.textRendering = 'geometricPrecision';
           });
 
+          // SVG 톱니바퀴 절단선 명시적 픽셀 크기 고정 (html2canvas SVG 깨짐 방지)
+          clonedCard.querySelectorAll('svg').forEach((svg) => {
+            svg.setAttribute('width', String(CAPTURE_WIDTH));
+            svg.setAttribute('height', '6');
+            svg.style.width = `${CAPTURE_WIDTH}px`;
+            svg.style.height = '6px';
+            svg.style.display = 'block';
+          });
+
+          // truncate 요소 한글 하단 잘림 방지
+          clonedCard.querySelectorAll('.truncate').forEach((el) => {
+            el.style.paddingBottom = '2px';
+          });
+
           // 캡슐 배지(.badge-item) 내 텍스트 수직·수평 중앙 정렬 고정
           clonedCard.querySelectorAll('.badge-item').forEach((b) => {
             b.style.display = 'inline-flex';
@@ -4910,17 +4936,18 @@
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
           await new Promise((resolve) => setTimeout(resolve, 100));
 
-          const measuredHeight = Math.ceil(clonedCard.getBoundingClientRect().height || clonedCard.scrollHeight || 600);
-          const captureScale = Math.max(Number(window.devicePixelRatio) || 1, 3);
+          const measuredWidth = CAPTURE_WIDTH + 24;
+          const measuredHeight = Math.ceil(offscreenHost.getBoundingClientRect().height || offscreenHost.scrollHeight || 620);
+          const captureScale = Math.max(Number(window.devicePixelRatio) || 1, 4);
 
-          const canvas = await window.html2canvas(clonedCard, {
+          const canvas = await window.html2canvas(offscreenHost, {
             scale: captureScale,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#ffffff',
-            width: CAPTURE_WIDTH,
+            backgroundColor: '#F1F5F9',
+            width: measuredWidth,
             height: measuredHeight,
-            windowWidth: CAPTURE_WIDTH,
+            windowWidth: measuredWidth,
             windowHeight: measuredHeight,
             scrollX: 0,
             scrollY: 0,
