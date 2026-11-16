@@ -362,16 +362,32 @@
                 <label for="itemNameInput" class="block text-[12px] font-bold text-[#4E5968]">사고 싶은 아이템</label>
                 <span id="customIconStatusBadge" class="text-[10.5px] font-semibold text-[#3182F6]">✨ 자동 매치 활성화 중</span>
               </div>
-              <div class="flex items-center gap-2">
-                <div class="relative flex-1">
+              <div class="flex items-center gap-1.5">
+                <div class="relative flex-1 min-w-0">
                   <input
                     id="itemNameInput"
                     type="text"
                     value=""
-                    placeholder="예: 무선 헤드폰, 운동화, 커피"
-                    class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-semibold text-[15px] rounded-2xl px-4 py-3.5 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
+                    placeholder="예: 무선 헤드폰, 운동화"
+                    class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-semibold text-[14.5px] rounded-2xl px-3.5 py-3.5 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
                   />
                 </div>
+                <!-- 실물사진 촬영 / 사진첩 업로드 버튼 (이모티콘 왼쪽) -->
+                <button
+                  type="button"
+                  id="itemPhotoPickerBtn"
+                  title="실물사진 촬영 또는 사진첩에서 첨부"
+                  class="w-12 h-12 rounded-2xl bg-[#F8FAFC] hover:bg-[#EFF6FF] active:scale-95 border border-slate-200 flex flex-col items-center justify-center shrink-0 transition-all cursor-pointer shadow-2xs relative overflow-hidden"
+                >
+                  <img id="itemPhotoThumbPreview" alt="첨부된 실물사진" class="hidden w-full h-full object-cover" />
+                  <span id="itemPhotoEmptyIcon" class="flex flex-col items-center justify-center leading-none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <span class="text-[8.5px] font-extrabold text-[#64748B] leading-none mt-1">실물</span>
+                  </span>
+                </button>
                 <button
                   type="button"
                   id="itemIconPickerBtn"
@@ -381,6 +397,44 @@
                   <span id="itemInputEmoji" class="text-[21px] leading-none flex items-center justify-center">🛍️</span>
                   <span class="text-[8px] font-extrabold text-[#3182F6] leading-none mt-0.5">▼</span>
                 </button>
+              </div>
+
+              <input type="file" id="itemPhotoCameraInput" accept="image/*" capture="environment" class="hidden" />
+              <input type="file" id="itemPhotoGalleryInput" accept="image/*" class="hidden" />
+
+              <!-- 실물사진 선택 팝오버 (촬영 / 사진첩 2개 버튼) -->
+              <div
+                id="photoSourcePopover"
+                class="hidden absolute left-0 right-0 top-full mt-2 z-40 bg-white rounded-2xl p-3.5 shadow-xl border border-slate-200/90"
+              >
+                <div class="flex items-center justify-between mb-2.5 px-0.5">
+                  <span class="text-[11.5px] font-extrabold text-[#191F28]">📷 실물사진 첨부 (친구 투표판 연동)</span>
+                  <button
+                    type="button"
+                    id="photoRemoveBtn"
+                    class="hidden text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
+                  >
+                    사진 삭제
+                  </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    id="photoCameraBtn"
+                    class="flex items-center justify-center gap-1.5 bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] font-extrabold text-[12.5px] py-3 rounded-xl border border-[#BFDBFE] cursor-pointer"
+                  >
+                    <span>📸</span>
+                    <span>실물사진 촬영</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="photoGalleryBtn"
+                    class="flex items-center justify-center gap-1.5 bg-[#F8FAFC] hover:bg-slate-100 text-[#191F28] font-extrabold text-[12.5px] py-3 rounded-xl border border-slate-200 cursor-pointer"
+                  >
+                    <span>🖼️</span>
+                    <span>사진첩</span>
+                  </button>
+                </div>
               </div>
 
               <!-- 12개 카테고리 아이콘 직접 선택 미니 팔레트 (팝오버) -->
@@ -811,40 +865,61 @@
               </h3>
             </div>
 
-            <!-- 우측 빈 공간 중앙: 귀여운 미니 팩폭 영수증 보기 버튼 -->
-            <button
-              type="button"
-              id="pollOpenReceiptBtn"
-              title="팩폭 영수증 자세히 보기"
-              class="shrink-0 group flex flex-col items-center justify-center p-1.5 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer"
-            >
-              <div class="relative w-[62px] drop-shadow-[0_4px_10px_rgba(15,23,42,0.14)] group-hover:-translate-y-0.5 transition-transform">
-                <svg viewBox="0 0 64 4" preserveAspectRatio="none" class="w-full h-[4px] block" aria-hidden="true">
-                  <polygon points="0,4 4,0 8,4 12,0 16,4 20,0 24,4 28,0 32,4 36,0 40,4 44,0 48,4 52,0 56,4 60,0 64,4" fill="#EFEFEA" />
-                </svg>
-                <div class="bg-[#EFEFEA] border-x border-black/10 px-2 py-1.5 flex flex-col items-center gap-1">
-                  <span class="text-[7px] font-black tracking-wider text-[#111111] leading-none">RECEIPT</span>
-                  <div class="w-full border-t border-dashed border-black/20"></div>
-                  <div class="w-full space-y-0.5 py-0.5">
-                    <div class="w-full h-[2.5px] bg-[#111111]/70 rounded-full"></div>
-                    <div class="w-4/5 h-[2.5px] bg-[#8B2626]/85 rounded-full mx-auto"></div>
-                    <div class="w-full h-[2px] bg-[#111111]/45 rounded-full"></div>
+            <!-- 우측 빈 공간 중앙: 귀여운 미니 팩폭 영수증 보기 + 실사진 보기 버튼 -->
+            <div class="shrink-0 flex items-center justify-center gap-1.5">
+              <button
+                type="button"
+                id="pollOpenReceiptBtn"
+                title="팩폭 영수증 자세히 보기"
+                class="shrink-0 group flex flex-col items-center justify-center p-1 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                <div class="relative w-[58px] h-[54px] flex flex-col justify-between drop-shadow-[0_4px_10px_rgba(15,23,42,0.14)] group-hover:-translate-y-0.5 transition-transform">
+                  <svg viewBox="0 0 64 4" preserveAspectRatio="none" class="w-full h-[4px] block shrink-0" aria-hidden="true">
+                    <polygon points="0,4 4,0 8,4 12,0 16,4 20,0 24,4 28,0 32,4 36,0 40,4 44,0 48,4 52,0 56,4 60,0 64,4" fill="#EFEFEA" />
+                  </svg>
+                  <div class="bg-[#EFEFEA] border-x border-black/10 px-1.5 py-1 flex-1 flex flex-col items-center justify-between">
+                    <span class="text-[6.5px] font-black tracking-wider text-[#111111] leading-none">RECEIPT</span>
+                    <div class="w-full border-t border-dashed border-black/20"></div>
+                    <div class="w-full space-y-0.5">
+                      <div class="w-full h-[2px] bg-[#111111]/70 rounded-full"></div>
+                      <div class="w-4/5 h-[2px] bg-[#8B2626]/85 rounded-full mx-auto"></div>
+                    </div>
+                    <div class="w-full flex items-stretch justify-between h-[6px] opacity-85" aria-hidden="true">
+                      <span class="w-[1.5px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
+                      <span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span>
+                      <span class="w-[1.5px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
+                    </div>
                   </div>
-                  <div class="w-full border-t border-dashed border-black/20"></div>
-                  <div class="w-full flex items-stretch justify-between h-[7px] opacity-85" aria-hidden="true">
-                    <span class="w-[1.5px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
-                    <span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span>
-                    <span class="w-[1.5px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
-                  </div>
+                  <svg viewBox="0 0 64 4" preserveAspectRatio="none" class="w-full h-[4px] block shrink-0" aria-hidden="true">
+                    <polygon points="0,0 64,0 60,4 56,0 52,4 48,0 44,4 40,0 36,4 32,0 28,4 24,0 20,4 16,0 12,4 8,0 4,4" fill="#EFEFEA" />
+                  </svg>
                 </div>
-                <svg viewBox="0 0 64 4" preserveAspectRatio="none" class="w-full h-[4px] block" aria-hidden="true">
-                  <polygon points="0,0 64,0 60,4 56,0 52,4 48,0 44,4 40,0 36,4 32,0 28,4 24,0 20,4 16,0 12,4 8,0 4,4" fill="#EFEFEA" />
-                </svg>
-              </div>
-              <span class="mt-1.5 text-[10px] font-extrabold text-[#3182F6] bg-[#EFF6FF] border border-[#BFDBFE] px-2 py-0.5 rounded-full leading-none whitespace-nowrap">
-                영수증 보기
-              </span>
-            </button>
+                <span class="mt-1.5 text-[9.5px] font-extrabold text-[#3182F6] bg-[#EFF6FF] border border-[#BFDBFE] px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                  영수증 보기
+                </span>
+              </button>
+
+              <!-- 우측: 실사진 보기 버튼 (영수증 보기와 동일 크기·정렬) -->
+              <button
+                type="button"
+                id="pollOpenPhotoBtn"
+                title="첨부된 실물사진 크게 보기"
+                class="shrink-0 group flex flex-col items-center justify-center p-1 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                <div id="pollPhotoThumbFrame" class="relative w-[58px] h-[54px] rounded-xl bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center overflow-hidden shadow-2xs group-hover:-translate-y-0.5 transition-transform">
+                  <img id="pollPhotoThumbImg" alt="실물사진 미리보기" class="hidden w-full h-full object-cover" />
+                  <span id="pollPhotoEmptyIcon" class="flex flex-col items-center justify-center text-slate-400">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                      <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                  </span>
+                </div>
+                <span id="pollPhotoBtnBadge" class="mt-1.5 text-[9.5px] font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap">
+                  사진 없음
+                </span>
+              </button>
+            </div>
           </div>
 
           <!-- 고민 중인 아이템 박스 -->
@@ -1808,6 +1883,25 @@
       </div>
     </div>
 
+    <!-- 7. 실시간 투표판 실물사진 단독 정중앙 뷰어 모달 -->
+    <div id="realPhotoLightboxModal" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+      <div class="w-full max-w-[330px] flex flex-col items-center justify-center">
+        <div class="w-full bg-white rounded-3xl p-2.5 shadow-2xl border border-slate-100">
+          <img id="realPhotoLightboxImg" alt="고민 중인 아이템 실물사진" class="w-full max-h-[68vh] object-contain rounded-2xl bg-slate-50 block mx-auto" />
+          <div class="px-2 pt-2.5 pb-1 text-center">
+            <p id="realPhotoLightboxCaption" class="text-[13px] font-extrabold text-[#191F28] truncate">고민 중인 아이템</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          id="realPhotoLightboxCloseBtn"
+          class="mt-3.5 bg-white/95 hover:bg-white text-[#191F28] text-[12.5px] font-extrabold px-5 py-2 rounded-full shadow-md cursor-pointer"
+        >
+          ✕ 닫기
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- ========================================== -->
@@ -1981,6 +2075,9 @@
             if (val.cat) {
               state.customItemIcon = String(val.cat).trim() || null;
             }
+            if (val.photo !== undefined) {
+              state.itemPhoto = val.photo ? String(val.photo) : null;
+            }
             if (val.mode === 'allowance') {
               state.incomeMode = 'allowance';
               state.wageMode = 'allowance';
@@ -2016,6 +2113,7 @@
           period: Math.max(1, Math.min(365, Number(state.useCount) || 1)),
           wage: Math.max(1, Number(state.hourlyWage) || 10000),
           cat: resolvedCat,
+          photo: state.itemPhoto || '',
           mode: isAllowanceMode() ? 'allowance' : 'hourly',
           allow: isAllowanceMode() ? Math.max(1000, Number(state.monthlyAllowance) || 300000) : 0
         };
@@ -2864,6 +2962,48 @@
           }
         }
 
+        // 실물사진 버튼 썸네일 및 투표판 실사진 보기 버튼 동기화
+        const itemThumbEl = document.getElementById('itemPhotoThumbPreview');
+        const itemEmptyEl = document.getElementById('itemPhotoEmptyIcon');
+        const photoRemoveBtnEl = document.getElementById('photoRemoveBtn');
+        const pollPhotoFrameEl = document.getElementById('pollPhotoThumbFrame');
+        const pollPhotoImgEl = document.getElementById('pollPhotoThumbImg');
+        const pollPhotoEmptyEl = document.getElementById('pollPhotoEmptyIcon');
+        const pollPhotoBadgeEl = document.getElementById('pollPhotoBtnBadge');
+        const hasPhoto = Boolean(state.itemPhoto);
+
+        if (itemThumbEl && itemEmptyEl) {
+          if (hasPhoto) {
+            itemThumbEl.src = state.itemPhoto;
+            itemThumbEl.classList.remove('hidden');
+            itemEmptyEl.classList.add('hidden');
+          } else {
+            itemThumbEl.removeAttribute('src');
+            itemThumbEl.classList.add('hidden');
+            itemEmptyEl.classList.remove('hidden');
+          }
+        }
+        if (photoRemoveBtnEl) {
+          photoRemoveBtnEl.classList.toggle('hidden', !hasPhoto);
+        }
+        if (pollPhotoFrameEl && pollPhotoImgEl && pollPhotoEmptyEl && pollPhotoBadgeEl) {
+          if (hasPhoto) {
+            pollPhotoImgEl.src = state.itemPhoto;
+            pollPhotoImgEl.classList.remove('hidden');
+            pollPhotoEmptyEl.classList.add('hidden');
+            pollPhotoFrameEl.className = 'relative w-[58px] h-[54px] rounded-xl bg-white border-2 border-[#BFDBFE] flex items-center justify-center overflow-hidden shadow-xs group-hover:-translate-y-0.5 transition-transform';
+            pollPhotoBadgeEl.textContent = '실사진 보기';
+            pollPhotoBadgeEl.className = 'mt-1.5 text-[9.5px] font-extrabold text-[#3182F6] bg-[#EFF6FF] border border-[#BFDBFE] px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap';
+          } else {
+            pollPhotoImgEl.removeAttribute('src');
+            pollPhotoImgEl.classList.add('hidden');
+            pollPhotoEmptyEl.classList.remove('hidden');
+            pollPhotoFrameEl.className = 'relative w-[58px] h-[54px] rounded-xl bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center overflow-hidden shadow-2xs group-hover:-translate-y-0.5 transition-transform';
+            pollPhotoBadgeEl.textContent = '사진 없음';
+            pollPhotoBadgeEl.className = 'mt-1.5 text-[9.5px] font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-full leading-none whitespace-nowrap';
+          }
+        }
+
         // 5. 저축 챌린지 & 레벨 UI (잠금 시 한 줄 고정: '✅ 통장 방어 완료! (새 품목 입력 시 재오픈)')
         const triggerBtn = document.getElementById('triggerSaveBtn');
         const pigIcon = document.getElementById('challengePigIcon');
@@ -3655,6 +3795,137 @@
       const iconPickerGrid = document.getElementById('iconPickerGrid');
       const resetAutoIconBtn = document.getElementById('resetAutoIconBtn');
       const itemInputWrapper = document.getElementById('itemInputWrapper');
+
+      // 실물사진 촬영 / 사진첩 선택 팝오버 & 압축 저장
+      const itemPhotoPickerBtn = document.getElementById('itemPhotoPickerBtn');
+      const photoSourcePopover = document.getElementById('photoSourcePopover');
+      const photoCameraBtn = document.getElementById('photoCameraBtn');
+      const photoGalleryBtn = document.getElementById('photoGalleryBtn');
+      const photoRemoveBtn = document.getElementById('photoRemoveBtn');
+      const itemPhotoCameraInput = document.getElementById('itemPhotoCameraInput');
+      const itemPhotoGalleryInput = document.getElementById('itemPhotoGalleryInput');
+      const realPhotoLightboxModal = document.getElementById('realPhotoLightboxModal');
+      const realPhotoLightboxImg = document.getElementById('realPhotoLightboxImg');
+      const realPhotoLightboxCaption = document.getElementById('realPhotoLightboxCaption');
+      const realPhotoLightboxCloseBtn = document.getElementById('realPhotoLightboxCloseBtn');
+      const pollOpenPhotoBtn = document.getElementById('pollOpenPhotoBtn');
+
+      function compressAndStoreItemPhoto(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX_SIDE = 800;
+            let w = img.width || 800;
+            let h = img.height || 800;
+            if (w > MAX_SIDE || h > MAX_SIDE) {
+              if (w >= h) {
+                h = Math.round((h * MAX_SIDE) / w);
+                w = MAX_SIDE;
+              } else {
+                w = Math.round((w * MAX_SIDE) / h);
+                h = MAX_SIDE;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+            state.itemPhoto = compressedDataUrl;
+            saveState();
+            renderAll();
+            if (rtdb && state.roomId && !isSharedRoomEntry) {
+              ensureRoomCreatedInDb(state.roomId);
+            }
+            showToast('📸 실물사진이 첨부되었어요! (투표판에서도 볼 수 있어요)');
+          };
+          img.src = String(ev.target.result || '');
+        };
+        reader.readAsDataURL(file);
+      }
+
+      if (itemPhotoPickerBtn && photoSourcePopover) {
+        itemPhotoPickerBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          triggerHaptic(15, true);
+          if (iconPickerPopover) iconPickerPopover.classList.add('hidden');
+          photoSourcePopover.classList.toggle('hidden');
+        });
+      }
+      if (photoCameraBtn && itemPhotoCameraInput) {
+        photoCameraBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
+          itemPhotoCameraInput.value = '';
+          itemPhotoCameraInput.click();
+        });
+      }
+      if (photoGalleryBtn && itemPhotoGalleryInput) {
+        photoGalleryBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
+          itemPhotoGalleryInput.value = '';
+          itemPhotoGalleryInput.click();
+        });
+      }
+      if (photoRemoveBtn) {
+        photoRemoveBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          state.itemPhoto = null;
+          if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
+          saveState();
+          renderAll();
+          if (rtdb && state.roomId && !isSharedRoomEntry) {
+            ensureRoomCreatedInDb(state.roomId);
+          }
+          showToast('🗑️ 첨부된 실물사진을 삭제했어요');
+        });
+      }
+      [itemPhotoCameraInput, itemPhotoGalleryInput].forEach((inputEl) => {
+        if (!inputEl) return;
+        inputEl.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) compressAndStoreItemPhoto(file);
+        });
+      });
+
+      function openRealPhotoLightbox() {
+        if (!state.itemPhoto || !realPhotoLightboxModal || !realPhotoLightboxImg) {
+          showToast('등록된 실물사진이 없어요 📷');
+          return;
+        }
+        realPhotoLightboxImg.src = state.itemPhoto;
+        if (realPhotoLightboxCaption) {
+          const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
+          realPhotoLightboxCaption.textContent = `${displayName} · ${formatNumber(state.itemPrice)}원`;
+        }
+        realPhotoLightboxModal.classList.remove('hidden');
+      }
+      function closeRealPhotoLightbox() {
+        if (realPhotoLightboxModal) realPhotoLightboxModal.classList.add('hidden');
+      }
+      if (pollOpenPhotoBtn) {
+        pollOpenPhotoBtn.addEventListener('click', () => {
+          triggerHaptic(15, true);
+          openRealPhotoLightbox();
+        });
+      }
+      if (realPhotoLightboxCloseBtn) {
+        realPhotoLightboxCloseBtn.addEventListener('click', closeRealPhotoLightbox);
+      }
+      if (realPhotoLightboxModal) {
+        realPhotoLightboxModal.addEventListener('click', (e) => {
+          if (e.target === realPhotoLightboxModal) closeRealPhotoLightbox();
+        });
+      }
+      document.addEventListener('click', (e) => {
+        if (photoSourcePopover && itemInputWrapper && !itemInputWrapper.contains(e.target)) {
+          photoSourcePopover.classList.add('hidden');
+        }
+      });
 
       function renderIconPickerGrid(activeIcon) {
         if (!iconPickerGrid) return;
@@ -6129,6 +6400,7 @@
             window.history.replaceState({}, '', window.location.pathname);
           }
           isSharedRoomEntry = false;
+          state.itemPhoto = null;
           rotateRoomForNewCalculation();
           saveState();
           renderAll();
