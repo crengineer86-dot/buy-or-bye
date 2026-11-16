@@ -1231,14 +1231,14 @@
 
           <!-- 핵심 성과 하이라이트 박스 -->
           <div class="bg-white rounded-2xl p-3.5 my-3.5 border border-amber-200/80 shadow-2xs">
-            <p class="text-[11px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
+            <p id="modalCenterBoxTitle" class="text-[11px] font-bold text-[#64748B]">나의 누적 절약 업적</p>
             <p class="text-[14.5px] font-black text-[#191F28] mt-1 leading-snug">
               지금까지 총 <span id="modalSavedCount" class="text-[#3182F6]">0번</span> 참아서<br />
               누적 <span id="modalSavedAmount" class="text-[20px] text-[#3182F6]">0원</span> 절약 달성 🎉
             </p>
           </div>
 
-          <!-- 구출한 노동 시간(또는 아낀 총 용돈 일수) 및 다음 레벨 요약 -->
+          <!-- 구출한 노동 시간(또는 아낀 총 용돈 일수) 및 소득 모드별 서브 지표 -->
           <div class="grid grid-cols-2 gap-2.5 text-center">
             <div class="bg-[#F5F3FF] rounded-xl p-3 border border-purple-100 flex flex-col items-center justify-center text-center">
               <span id="modalMetricLeftTitle" class="w-full text-[10.5px] font-bold text-[#6D28D9] leading-tight text-center whitespace-nowrap">구출한 총 노동 시간</span>
@@ -1248,6 +1248,14 @@
               <span id="modalMetricRightTitle" class="w-full text-[10.5px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">아낀 근무 일수</span>
               <p id="modalGoalPct" class="w-full text-[15px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">약 0.0일 치</p>
             </div>
+          </div>
+
+          <!-- 긴급 절약 성과 보고서 전용 최하단 선언 배너 -->
+          <div
+            id="modalReportDeclarationBanner"
+            class="hidden mt-3 bg-gradient-to-r from-[#1E293B] to-[#0F172A] text-white rounded-xl py-2.5 px-3 text-[11px] font-extrabold tracking-tight shadow-xs"
+          >
+            이제 진짜 필요한 거 딱 하나만 사겠습니다 🙏
           </div>
         </div>
 
@@ -4169,22 +4177,36 @@
           englishLabelEl.textContent = isReportMode ? 'OFFICIAL SAVING REPORT' : 'OFFICIAL SAVING CERTIFICATE';
         }
         const iconEl = document.getElementById('modalLevelIcon');
-        if (iconEl) {
-          iconEl.textContent = levelInfo.icon;
+        const levelPillEl = document.getElementById('modalLevelPill');
+        if (isReportMode) {
+          if (iconEl) iconEl.textContent = '🎁';
+          if (levelPillEl) levelPillEl.style.display = 'none';
+        } else {
+          if (iconEl) iconEl.textContent = levelInfo.icon;
+          if (levelPillEl) {
+            levelPillEl.textContent = levelInfo.badgeText;
+            levelPillEl.style.display = 'inline-flex';
+          }
         }
-        document.getElementById('modalLevelPill').textContent = levelInfo.badgeText;
 
         const titleEl = document.getElementById('modalLevelTitle');
         const subtitleEl = document.getElementById('modalLevelSubtitle');
+        const centerBoxTitleEl = document.getElementById('modalCenterBoxTitle');
+        const declarationBannerEl = document.getElementById('modalReportDeclarationBanner');
         if (isReportMode) {
           if (titleEl) {
             titleEl.textContent = '독하게 참았습니다! 칭찬과 보상이 시급함!';
             titleEl.className = 'text-[16.5px] font-black text-[#191F28] leading-snug';
           }
           if (subtitleEl) {
-            subtitleEl.textContent = '유혹을 이겨낸 대가로 진짜 필요한 아이템 구매 자격을 얻었습니다 🎉';
-            subtitleEl.className = 'text-[9.5px] text-[#64748B] font-semibold mt-1 leading-snug tracking-tight whitespace-nowrap';
+            subtitleEl.textContent = '유혹을 이겨낸 대가로 구매 자격을 얻었습니다 🎉';
+            subtitleEl.className = 'text-[10.5px] text-[#64748B] font-semibold mt-1 leading-snug whitespace-nowrap';
           }
+          if (centerBoxTitleEl) {
+            centerBoxTitleEl.textContent = '이만큼 아꼈으니 하나 살 때 됐습니다!';
+            centerBoxTitleEl.className = 'text-[11.5px] font-extrabold text-[#D97706]';
+          }
+          if (declarationBannerEl) declarationBannerEl.classList.remove('hidden');
         } else {
           if (titleEl) {
             titleEl.textContent = isLevelUp
@@ -4196,6 +4218,11 @@
             subtitleEl.textContent = '충동구매 유혹을 뿌리치고 소중한 자산을 지켰어요';
             subtitleEl.className = 'text-[11.5px] text-[#64748B] font-semibold mt-1 leading-snug';
           }
+          if (centerBoxTitleEl) {
+            centerBoxTitleEl.textContent = '나의 누적 절약 업적';
+            centerBoxTitleEl.className = 'text-[11px] font-bold text-[#64748B]';
+          }
+          if (declarationBannerEl) declarationBannerEl.classList.add('hidden');
         }
 
         const shareBtnEl = document.getElementById('shareLevelNativeBtn');
@@ -5010,7 +5037,7 @@
             b.style.paddingBottom = '7px';
           });
           const levelPillClone = clonedCard.querySelector('#modalLevelPill');
-          if (levelPillClone) {
+          if (levelPillClone && levelPillClone.style.display !== 'none' && !levelPillClone.classList.contains('hidden')) {
             levelPillClone.style.display = 'inline-block';
             levelPillClone.style.padding = '5px 16px 8px 16px';
             levelPillClone.style.lineHeight = '1.1';
