@@ -1440,7 +1440,7 @@
                   style="border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.2);"
                 >
                   <p class="text-[9px] font-bold text-[#555555] leading-tight">1회 실사용 체감 비용</p>
-                  <p id="instaCostPerUse" class="text-[13px] font-black text-[#111111] mt-0.5 leading-tight">약 0원 / 회</p>
+                  <p id="instaCostPerUse" class="text-[13px] font-black text-[#111111] mt-0.5 leading-tight">약 0원</p>
                   <p id="instaUseCountSub" class="text-[8px] font-medium text-[#666666] mt-0.5 leading-tight">(1회 사용 기준)</p>
                 </div>
                 <div
@@ -3391,7 +3391,7 @@
         const instaStatusBadgeEl = document.getElementById('instaStatusBadge');
         if (instaItemNameEl) instaItemNameEl.textContent = displayName;
         if (instaItemPriceEl) instaItemPriceEl.textContent = `${formatNumber(state.itemPrice)}원`;
-        if (instaCostPerUseEl) instaCostPerUseEl.textContent = `약 ${formatNumber(costPerUse)}원 / 회`;
+        if (instaCostPerUseEl) instaCostPerUseEl.textContent = `약 ${formatNumber(costPerUse)}원`;
         if (instaUseCountSubEl) instaUseCountSubEl.textContent = `(${formatNumber(Math.max(1, Number(state.useCount) || 1))}회 사용 기준)`;
         if (instaStatusBadgeEl) instaStatusBadgeEl.textContent = isDanger ? '반려?' : '승인?';
 
@@ -5399,9 +5399,9 @@
           ctx.font = `700 11.5px ${CANVAS_FONT_FAMILY}`;
           ctx.fillStyle = '#64748B';
           ctx.fillText('1회 실사용 체감', innerX + colW / 2, colY + 30);
-          fitCanvasFont(ctx, `약 ${formatNumber(costPerUse)}원 / 회`, 900, 15.5, 10.5, colW - 14);
+          fitCanvasFont(ctx, `약 ${formatNumber(costPerUse)}원`, 900, 15.5, 10.5, colW - 14);
           ctx.fillStyle = '#1D4ED8';
-          ctx.fillText(`약 ${formatNumber(costPerUse)}원 / 회`, innerX + colW / 2, colY + 62);
+          ctx.fillText(`약 ${formatNumber(costPerUse)}원`, innerX + colW / 2, colY + 62);
 
           const col2X = innerX + colW + colGap;
           drawRoundRectPath(ctx, col2X, colY, colW, colH, 14);
