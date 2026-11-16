@@ -92,11 +92,11 @@
       overflow-x: hidden;
     }
 
-    /* 주요 인터랙션 버튼 공통 손맛(Tactile Active Scale) */
-    button {
+    /* 주요 인터랙션 버튼 공통 손맛(Tactile Active Scale) - 슬라이더 눈금/라벨 제외 */
+    button:not(.preset-count-btn) {
       transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.14s ease, box-shadow 0.14s ease, opacity 0.14s ease;
     }
-    button:not(:disabled):active {
+    button:not(:disabled):not(.preset-count-btn):active {
       transform: scale(0.97) !important;
     }
 
@@ -183,13 +183,6 @@
       border: 4px solid #FFFFFF;
       box-shadow: 0 2px 8px rgba(49, 130, 246, 0.45);
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    input[type="range"]::-webkit-slider-thumb:hover,
-    input[type="range"]::-webkit-slider-thumb:active {
-      transform: scale(1.12);
-      box-shadow: 0 4px 12px rgba(49, 130, 246, 0.6);
     }
 
     input[type="range"]::-moz-range-thumb {
@@ -538,9 +531,9 @@
                     data-set-count="1"
                     title="1일(1회) 선택"
                     style="left: 0%"
-                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none group"
+                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
-                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-blue-600 transition-all group-hover:scale-125"></span>
+                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                   </button>
 
                   <button
@@ -548,9 +541,9 @@
                     data-set-count="30"
                     title="1개월(30회) 선택"
                     style="left: 33.3333%"
-                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none group"
+                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
-                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all group-hover:scale-125"></span>
+                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                   </button>
 
                   <button
@@ -558,9 +551,9 @@
                     data-set-count="180"
                     title="6개월(180회) 선택"
                     style="left: 66.6667%"
-                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none group"
+                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
-                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all group-hover:scale-125"></span>
+                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                   </button>
 
                   <button
@@ -568,9 +561,9 @@
                     data-set-count="365"
                     title="1년(365회) 선택"
                     style="left: 100%"
-                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none group"
+                    class="preset-count-btn preset-node-btn absolute top-0 -translate-x-1/2 -translate-y-1/2 p-2 flex items-center justify-center rounded-full cursor-pointer pointer-events-auto focus:outline-none"
                   >
-                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all group-hover:scale-125"></span>
+                    <span class="node-dot w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                   </button>
                 </div>
 
@@ -2922,9 +2915,9 @@
 
           if (dot) {
             if (isPassed) {
-              dot.className = 'node-dot w-2.5 h-2.5 rounded-full bg-blue-600 transition-all group-hover:scale-125';
+              dot.className = 'node-dot w-2.5 h-2.5 rounded-full bg-blue-600';
             } else {
-              dot.className = 'node-dot w-2.5 h-2.5 rounded-full bg-slate-300 transition-all group-hover:scale-125';
+              dot.className = 'node-dot w-2.5 h-2.5 rounded-full bg-slate-300';
             }
           }
         });
@@ -2936,9 +2929,9 @@
           btn.setAttribute('aria-pressed', isExact ? 'true' : 'false');
 
           if (isExact) {
-            btn.className = `preset-count-btn preset-label-btn absolute top-0 ${posClass} text-[11.5px] font-bold text-blue-600 transition-all cursor-pointer whitespace-nowrap text-center`;
+            btn.className = `preset-count-btn preset-label-btn absolute top-0 ${posClass} text-[11.5px] font-bold text-blue-600 cursor-pointer whitespace-nowrap text-center`;
           } else {
-            btn.className = `preset-count-btn preset-label-btn absolute top-0 ${posClass} text-[11.5px] font-medium text-slate-400 hover:text-blue-600 transition-all cursor-pointer whitespace-nowrap text-center`;
+            btn.className = `preset-count-btn preset-label-btn absolute top-0 ${posClass} text-[11.5px] font-medium text-slate-400 hover:text-blue-600 cursor-pointer whitespace-nowrap text-center`;
           }
         });
 
