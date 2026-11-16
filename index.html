@@ -1262,7 +1262,7 @@
         </div>
 
         <!-- 레벨 인증 전용 공유 액션 버튼들 -->
-        <div class="mt-4 space-y-2">
+        <div class="mt-4 space-y-2" data-html2canvas-ignore="true">
           <button
             type="button"
             id="shareLevelNativeBtn"
@@ -4471,7 +4471,7 @@
               } else {
                 resolve(null);
               }
-            }, 'image/png');
+            }, 'image/png', 1.0);
             return;
           }
           try {
@@ -4929,14 +4929,16 @@
       function prewarmCapture(targetId) {
         if (!targetId || typeof window.html2canvas !== 'function') return;
         if (prewarmedCaptureMap.has(targetId)) return;
-        const promise = captureElementWithHtml2canvas(targetId, { forceFresh: true }).catch(() => {
-          prewarmedCaptureMap.delete(targetId);
-          return null;
-        });
+        const promise = new Promise((resolve) => setTimeout(resolve, 320))
+          .then(() => captureElementWithHtml2canvas(targetId, { forceFresh: true }))
+          .catch(() => {
+            prewarmedCaptureMap.delete(targetId);
+            return null;
+          });
         prewarmedCaptureMap.set(targetId, promise);
       }
 
-      // 오프스크린 캡처 전용 정적 컨테이너를 생성해 transform/backdrop-filter/scale/스크롤 영향 없이 고화질 캡처
+      // 눈에 보이는 실제 화면 비율 그대로(scale: 3) 찍는 단일 고화질 캡처 함수
       async function captureElementWithHtml2canvas(targetId, { forceFresh = false } = {}) {
         if (typeof window.html2canvas !== 'function') return null;
 
@@ -4949,168 +4951,28 @@
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
-        const isLevelCard = targetId === 'levelCertificateCaptureBox';
-        const CAPTURE_WIDTH = isLevelCard ? 308 : 310;
-        let offscreenHost = null;
-
         try {
-          if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
-            await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 120))]);
+          if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
           }
-
-          // 종이 질감 배경 이미지 사전 로드 대기 (최초 1회만 대기)
           if (targetId === 'instaReceiptCaptureBox') {
             await ensureReceiptPaperPreloaded();
           }
 
-          // 1) 화면 모달(transform, backdrop-filter, scale, overflow)과 완전히 분리된 투명 오프스크린 컨테이너 생성
-          offscreenHost = document.createElement('div');
-          offscreenHost.style.position = 'fixed';
-          offscreenHost.style.left = '-99999px';
-          offscreenHost.style.top = '0';
-          offscreenHost.style.width = `${CAPTURE_WIDTH}px`;
-          offscreenHost.style.height = 'auto';
-          offscreenHost.style.margin = '0';
-          offscreenHost.style.padding = '0';
-          offscreenHost.style.background = 'transparent';
-          offscreenHost.style.boxSizing = 'border-box';
-          offscreenHost.style.transform = 'none';
-          offscreenHost.style.backdropFilter = 'none';
-          offscreenHost.style.webkitBackdropFilter = 'none';
-          offscreenHost.style.filter = 'none';
-          offscreenHost.style.zIndex = '-1';
-          offscreenHost.style.pointerEvents = 'none';
-
-          // 2) 대상 카드 노드 복제 및 화면과 동일한 비율·정적 문서 흐름 초기화
-          const clonedCard = targetEl.cloneNode(true);
-          clonedCard.removeAttribute('id');
-          clonedCard.style.position = 'relative';
-          clonedCard.style.left = '0';
-          clonedCard.style.top = '0';
-          clonedCard.style.margin = '0';
-          clonedCard.style.width = `${CAPTURE_WIDTH}px`;
-          clonedCard.style.minWidth = `${CAPTURE_WIDTH}px`;
-          clonedCard.style.maxWidth = `${CAPTURE_WIDTH}px`;
-          clonedCard.style.height = 'auto';
-          clonedCard.style.minHeight = '0';
-          clonedCard.style.maxHeight = 'none';
-          clonedCard.style.overflow = 'visible';
-          clonedCard.style.transform = 'none';
-          clonedCard.style.transition = 'none';
-          clonedCard.style.backdropFilter = 'none';
-          clonedCard.style.webkitBackdropFilter = 'none';
-          clonedCard.style.filter = 'none';
-          clonedCard.style.webkitFontSmoothing = 'antialiased';
-          clonedCard.style.textRendering = 'geometricPrecision';
-          clonedCard.style.boxSizing = 'border-box';
-          clonedCard.style.visibility = 'visible';
-          clonedCard.style.opacity = '1';
-
-          // 내부 모든 요소의 transition/animation/filter/backdrop-filter 초기화 & 선명한 폰트/선 렌더링 보장 (.keep-transform은 도장 기울기 유지)
-          clonedCard.querySelectorAll('*').forEach((node) => {
-            if (!node.style) return;
-            if (!node.classList || !node.classList.contains('keep-transform')) {
-              node.style.transform = 'none';
-            }
-            node.style.transition = 'none';
-            node.style.animation = 'none';
-            node.style.filter = 'none';
-            node.style.backdropFilter = 'none';
-            node.style.webkitBackdropFilter = 'none';
-            node.style.webkitFontSmoothing = 'antialiased';
-            node.style.textRendering = 'geometricPrecision';
-          });
-
-          // SVG 톱니바퀴 절단선 명시적 픽셀 크기 고정 (html2canvas SVG 깨짐 방지)
-          clonedCard.querySelectorAll('svg').forEach((svg) => {
-            svg.setAttribute('width', String(CAPTURE_WIDTH));
-            svg.setAttribute('height', '6');
-            svg.style.width = `${CAPTURE_WIDTH}px`;
-            svg.style.height = '6px';
-            svg.style.display = 'block';
-          });
-
-          // .truncate 요소의 overflow:hidden으로 인한 한글 상하 잘림 완전 방지
-          clonedCard.querySelectorAll('.truncate').forEach((el) => {
-            el.style.overflow = 'visible';
-            el.style.textOverflow = 'clip';
-            el.style.whiteSpace = 'normal';
-            el.style.lineHeight = '1.35';
-          });
-
-          // html2canvas 폰트 베이스라인 하향 보정: 캡슐 배지(.badge-item) 수직 정중앙 정렬
-          clonedCard.querySelectorAll('.badge-item').forEach((b) => {
-            b.style.display = 'inline-block';
-            b.style.textAlign = 'center';
-            b.style.lineHeight = '1';
-            b.style.paddingTop = '4px';
-            b.style.paddingBottom = '7px';
-          });
-          const levelPillClone = clonedCard.querySelector('#modalLevelPill');
-          if (levelPillClone && levelPillClone.style.display !== 'none' && !levelPillClone.classList.contains('hidden')) {
-            levelPillClone.style.display = 'inline-block';
-            levelPillClone.style.padding = '5px 16px 8px 16px';
-            levelPillClone.style.lineHeight = '1.1';
-          }
-          // html2canvas 폰트 베이스라인 하향 보정: 빨간 고무도장(#instaStatusBadge) 텍스트 정중앙 정렬
-          const stampClone = clonedCard.querySelector('#instaStatusBadge');
-          if (stampClone) {
-            stampClone.style.display = 'inline-block';
-            stampClone.style.textAlign = 'center';
-            stampClone.style.padding = '3px 10px 7px 10px';
-            stampClone.style.lineHeight = '1';
-          }
-          // html2canvas 폰트 베이스라인 하향 보정: 영수증 하단 검은색 알약 버튼 2개 텍스트 정중앙 정렬
-          ['#instaGoPollBtnA', '#instaGoPollBtnB'].forEach((sel) => {
-            const btnClone = clonedCard.querySelector(sel);
-            if (btnClone) {
-              btnClone.style.display = 'block';
-              btnClone.style.textAlign = 'center';
-              btnClone.style.padding = '5px 4px 8px 4px';
-              btnClone.style.lineHeight = '1.1';
-            }
-          });
-          // html2canvas 폰트 베이스라인 하향 보정: 검은색 REALTIME POLL 배지
-          const pollBadgeClone = clonedCard.querySelector('#instaPollStickerBadge');
-          if (pollBadgeClone) {
-            pollBadgeClone.style.paddingTop = '4px';
-            pollBadgeClone.style.paddingBottom = '8px';
-            pollBadgeClone.style.paddingLeft = '10px';
-            pollBadgeClone.style.paddingRight = '10px';
-            pollBadgeClone.style.lineHeight = '1';
-          }
-
-          offscreenHost.appendChild(clonedCard);
-          document.body.appendChild(offscreenHost);
-
-          // 브라우저가 오프스크린 레이아웃과 폰트를 완전히 안정화하도록 100ms 대기 후 고화질 캡처
-          await new Promise((resolve) => requestAnimationFrame(resolve));
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          const measuredHeight = Math.ceil(clonedCard.getBoundingClientRect().height || clonedCard.scrollHeight || 600);
-          const captureScale = Math.max(Number(window.devicePixelRatio) || 1, 3);
-
-          const canvas = await window.html2canvas(clonedCard, {
-            scale: captureScale,
+          const rect = targetEl.getBoundingClientRect();
+          const canvas = await window.html2canvas(targetEl, {
+            scale: 3,
+            width: rect.width,
+            height: rect.height,
             useCORS: true,
             allowTaint: true,
             backgroundColor: null,
-            width: CAPTURE_WIDTH,
-            height: measuredHeight,
-            windowWidth: CAPTURE_WIDTH,
-            windowHeight: measuredHeight,
-            scrollX: 0,
-            scrollY: 0,
             logging: false
           });
           return canvas;
         } catch (captureErr) {
-          console.warn(`html2canvas offscreen capture failed on ${targetId}:`, captureErr);
+          console.warn(`html2canvas capture failed on ${targetId}:`, captureErr);
           return null;
-        } finally {
-          if (offscreenHost && offscreenHost.parentNode) {
-            offscreenHost.parentNode.removeChild(offscreenHost);
-          }
         }
       }
 
