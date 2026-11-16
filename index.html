@@ -1426,7 +1426,7 @@
               >
                 <p class="text-[8px] font-bold tracking-[0.18em] text-[#555555] uppercase mb-0.5">LABOR TIME CONVERSION</p>
                 <p id="instaWarningTitle" class="text-[16px] font-black leading-snug text-[#111111]">
-                  <span id="instaLaborHours">0시간</span> 노동 필요
+                  <span id="instaLaborHours" class="text-[#8B2626]">0시간</span> 노동 필요
                 </p>
                 <p id="instaWarningSub" class="text-[9.5px] font-semibold text-[#444444] mt-0.5 leading-snug">
                   하루 8시간 근무 기준, 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
@@ -3402,7 +3402,7 @@
 
         if (isAllowanceMode()) {
           if (instaWarningTitleEl) {
-            instaWarningTitleEl.innerHTML = `<span id="instaLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭</span>`;
+            instaWarningTitleEl.innerHTML = `<span id="instaLaborHours" class="text-[#8B2626]">${formatNumber(allowanceDays)}일치</span> 용돈 순삭`;
           }
           if (instaWarningSubEl) {
             instaWarningSubEl.innerHTML = `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준, 한 달 용돈의 <span id="instaLaborDays">${formatNumber(allowanceMonthPct)}%</span>예요`;
@@ -3412,7 +3412,7 @@
           if (instaWageSubEl) instaWageSubEl.textContent = `(월 용돈 ${formatNumber(state.monthlyAllowance)}원 기준)`;
         } else {
           if (instaWarningTitleEl) {
-            instaWarningTitleEl.innerHTML = `<span id="instaLaborHours">${formatNumber(laborHours)}시간</span> 노동 필요`;
+            instaWarningTitleEl.innerHTML = `<span id="instaLaborHours" class="text-[#8B2626]">${formatNumber(laborHours)}시간</span> 노동 필요`;
           }
           if (instaWarningSubEl) {
             instaWarningSubEl.innerHTML = `하루 8시간 근무 기준, 약 <span id="instaLaborDays">${laborDays}일치 월급</span>에 해당해요`;
