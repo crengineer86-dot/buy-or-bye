@@ -1393,98 +1393,144 @@
             id="instaReceiptCaptureBox"
             class="w-full flex flex-col box-border"
           >
-            <!-- 상단 톱니바퀴 절단선 (Zigzag Top Edge) -->
-            <svg viewBox="0 0 320 9" preserveAspectRatio="none" class="w-full h-[9px] block shrink-0" style="display:block;width:100%;height:9px;" aria-hidden="true">
-              <polygon points="0,9 8,0 16,9 24,0 32,9 40,0 48,9 56,0 64,9 72,0 80,9 88,0 96,9 104,0 112,9 120,0 128,9 136,0 144,9 152,0 160,9 168,0 176,9 184,0 192,9 200,0 208,9 216,0 224,9 232,0 240,9 248,0 256,9 264,0 272,9 280,0 288,9 296,0 304,9 312,0 320,9" fill="#F8FAFC" />
+            <!-- 상단 촘촘한 톱니바퀴 절단선 (Zigzag Top Edge) -->
+            <svg viewBox="0 0 320 8" preserveAspectRatio="none" class="w-full h-[8px] block shrink-0" style="display:block;width:100%;height:8px;" aria-hidden="true">
+              <polygon points="0,8 4,0 8,8 12,0 16,8 20,0 24,8 28,0 32,8 36,0 40,8 44,0 48,8 52,0 56,8 60,0 64,8 68,0 72,8 76,0 80,8 84,0 88,8 92,0 96,8 100,0 104,8 108,0 112,8 116,0 120,8 124,0 128,8 132,0 136,8 140,0 144,8 148,0 152,8 156,0 160,8 164,0 168,8 172,0 176,8 180,0 184,8 188,0 192,8 196,0 200,8 204,0 208,8 212,0 216,8 220,0 224,8 228,0 232,8 236,0 240,8 244,0 248,8 252,0 256,8 260,0 264,8 268,0 272,8 276,0 280,8 284,0 288,8 292,0 296,8 300,0 304,8 308,0 312,8 316,0 320,8" fill="#EDEDEB" />
             </svg>
 
-            <div class="w-full bg-gradient-to-b from-[#F8FAFC] via-white to-[#EFF6FF] px-4 pt-2.5 pb-3 border-x border-slate-200/90 flex flex-col justify-between gap-2 box-border">
-              <div class="flex items-center justify-between border-b border-dashed border-slate-300 pb-2">
-                <span class="text-[12px] font-extrabold text-[#191F28] leading-none flex items-center gap-1">🧾 살까 말까 팩폭 영수증</span>
-                <span class="inline-flex items-center gap-1.5 leading-none">
-                  <span
-                    id="instaStatusBadge"
-                    style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 4px 8px;"
-                    class="badge-item text-[10px] font-extrabold bg-rose-100 text-rose-600 rounded-full"
-                  >소비위험주의</span>
-                  <span id="instaSirenIcon" class="inline-flex items-center justify-center shrink-0 text-[13px] leading-none select-none">🚨</span>
-                </span>
-              </div>
-
-              <div class="text-center py-1 border-b border-dashed border-slate-200/90">
-                <p class="text-[10.5px] font-bold text-[#64748B] mb-0.5">판독 대상 아이템</p>
-                <h4 id="instaItemName" class="text-[17px] font-black text-[#191F28] leading-tight">고민 중인 아이템</h4>
-                <p id="instaItemPrice" class="text-[24px] font-black text-[#3182F6] tracking-tight mt-0.5 leading-tight">0원</p>
-              </div>
-
-              <div id="instaWarningBox" class="bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-2.5 text-center">
-                <p id="instaWarningTitle" class="text-[14.5px] font-black leading-snug text-[#E11D48]">
-                  🚨 소비 경보! <span id="instaLaborHours">0시간</span> 노동 필요
-                </p>
-                <p id="instaWarningSub" class="text-[10.5px] font-bold text-[#9F1239] mt-0.5">
-                  일 8시간 근무 기준 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
+            <div
+              class="w-full px-4 pt-3 pb-3.5 flex flex-col justify-between gap-2.5 box-border relative"
+              style="background: linear-gradient(135deg, rgba(255,255,255,0.45) 0%, transparent 26%, rgba(0,0,0,0.04) 29%, transparent 44%), linear-gradient(222deg, transparent 48%, rgba(255,255,255,0.4) 52%, rgba(0,0,0,0.035) 55%, transparent 72%), linear-gradient(180deg, #EDEDEB 0%, #F2F2F0 46%, #E8E8E6 100%); border-left: 1px solid rgba(0,0,0,0.08); border-right: 1px solid rgba(0,0,0,0.08);"
+            >
+              <!-- 상단 아카이브 헤더 -->
+              <div class="text-center pb-2" style="border-bottom: 1px dashed rgba(0,0,0,0.18);">
+                <p class="text-[8.5px] font-bold tracking-[0.22em] text-[#555555] uppercase leading-none mb-1">BUY OR BYE ARCHIVE</p>
+                <h3 class="text-[15.5px] font-black text-[#111111] tracking-tight leading-tight">살까 말까 팩폭 영수증</h3>
+                <p class="text-[8px] font-mono font-semibold text-[#666666] tracking-[0.08em] mt-1 leading-none">
+                  ISSUE NO. <span id="receiptSerialNo">2026-BOB-8912</span> • SEOUL
+                  <span id="receiptIssuedAt" class="hidden">ISSUED 2026.11.16 09:00</span>
                 </p>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 pb-2 border-b border-dashed border-slate-200/90">
-                <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
-                  <p class="text-[10px] font-bold text-[#64748B]">1회 실사용 체감</p>
-                  <p id="instaCostPerUse" class="text-[13.5px] font-black text-[#1D4ED8] mt-0.5">약 0원 / 회</p>
+              <!-- 아이템 & 금액 + 기울어진 빈티지 다크레드 고무도장 -->
+              <div class="relative text-center py-1.5">
+                <p class="text-[8.5px] font-bold tracking-[0.18em] text-[#666666] uppercase mb-1">ITEM TO BUY</p>
+                <h4 id="instaItemName" class="text-[16px] font-black text-[#111111] leading-snug px-2">고민 중인 아이템</h4>
+                <p id="instaItemPrice" class="text-[28px] font-black text-[#111111] tracking-tight mt-0.5 leading-none">0원</p>
+
+                <!-- 빈티지 다크레드 고무도장 (#8B2626, -10deg) -->
+                <div
+                  id="instaStatusBadge"
+                  class="keep-transform inline-flex items-center justify-center font-black tracking-[0.12em] select-none"
+                  style="position: absolute; right: 4px; bottom: -16px; transform: rotate(-10deg); color: #8B2626; border: 2px solid rgba(139,38,38,0.85); outline: 1px solid rgba(139,38,38,0.45); outline-offset: -4px; background: rgba(242,242,240,0.86); padding: 4px 10px; font-size: 13px; line-height: 1.1; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(139,38,38,0.18); z-index: 5;"
+                >반려?</div>
+                <span id="instaSirenIcon" class="hidden"></span>
+              </div>
+
+              <!-- 메인 박스: LABOR TIME CONVERSION -->
+              <div
+                id="instaWarningBox"
+                class="rounded-lg px-3 py-3 text-center"
+                style="border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.22);"
+              >
+                <p class="text-[8.5px] font-bold tracking-[0.18em] text-[#555555] uppercase mb-1">LABOR TIME CONVERSION</p>
+                <p id="instaWarningTitle" class="text-[17.5px] font-black leading-snug text-[#111111]">
+                  <span id="instaLaborHours">0시간</span> 노동 필요
+                </p>
+                <p id="instaWarningSub" class="text-[10px] font-semibold text-[#444444] mt-1 leading-snug">
+                  하루 8시간 근무 기준, 약 <span id="instaLaborDays">0.0일치 월급</span>에 해당해요
+                </p>
+              </div>
+
+              <!-- 2열 서브 박스 -->
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  class="rounded-lg p-2.5 text-center"
+                  style="border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.2);"
+                >
+                  <p class="text-[9.5px] font-bold text-[#555555] leading-tight">1회 실사용 체감 비용</p>
+                  <p id="instaCostPerUse" class="text-[14px] font-black text-[#111111] mt-1 leading-tight">약 0원 / 회</p>
+                  <p id="instaUseCountSub" class="text-[8.5px] font-medium text-[#666666] mt-0.5 leading-tight">(1회 사용 기준)</p>
                 </div>
-                <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 text-center">
-                  <p id="instaRightMetricLabel" class="text-[10px] font-bold text-[#64748B]">노동 시간 환산</p>
-                  <p id="instaWorkHoursCard" class="text-[13.5px] font-black text-[#6D28D9] mt-0.5">0시간 근무치</p>
+                <div
+                  class="rounded-lg p-2.5 text-center"
+                  style="border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.2);"
+                >
+                  <p id="instaRightMetricLabel" class="text-[9.5px] font-bold text-[#555555] leading-tight">내 시급 기준 환산</p>
+                  <p id="instaWorkHoursCard" class="text-[14px] font-black text-[#111111] mt-1 leading-tight">0시간 근무치</p>
+                  <p id="instaWageSub" class="text-[8.5px] font-medium text-[#666666] mt-0.5 leading-tight">(시급 10,000원 기준)</p>
                 </div>
               </div>
 
-              <div class="bg-white rounded-2xl px-2.5 py-2.5 border border-indigo-100 shadow-2xs text-center">
-                <span
-                  id="instaPollStickerBadge"
-                  style="display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding: 5px 10px;"
-                  class="badge-item bg-[#1E293B] text-white text-[9.5px] font-extrabold tracking-wide rounded-md mb-1.5"
-                >REALTIME POLL</span>
-                <p class="text-[11.5px] font-extrabold text-[#191F28] mb-2">
-                  내 통장 살릴지 죽일지 대신 투표 좀 👇
+              <!-- 절약 배너 박스 -->
+              <div
+                class="rounded-lg px-2.5 py-2 flex items-center gap-2"
+                style="border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.2);"
+              >
+                <span class="text-[14px] leading-none shrink-0">🏆</span>
+                <div class="text-left min-w-0">
+                  <p class="text-[10px] font-extrabold text-[#111111] leading-tight truncate">
+                    지금까지 <span id="instaSaveCount">0</span>번 참아서 총 <span id="instaSaveTotal">0원</span> 절약 성공!
+                  </p>
+                  <p class="text-[8.5px] font-medium text-[#555555] mt-0.5 leading-tight truncate">
+                    현재 레벨: <span id="instaLevelText">절약 새싹 Lv.1</span> • <span id="instaNextLevelText">다음 레벨까지 화이팅</span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- 하단 투표 영역: 솔리드 블랙 알약형 버튼 2개 -->
+              <div
+                class="rounded-lg px-2.5 py-2.5 text-center"
+                style="border: 1px solid rgba(0,0,0,0.12); background: rgba(255,255,255,0.2);"
+              >
+                <p class="text-[10.5px] font-extrabold text-[#222222] mb-2 leading-none">
+                  투표 : 지를까? 참을까?
                 </p>
-                <div class="grid grid-cols-2 gap-1.5">
-                  <button type="button" id="instaGoPollBtnA" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] py-2 px-0.5 rounded-xl border border-blue-200 cursor-pointer">
-                    <span class="text-[15px] leading-none">🔥</span>
-                    <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">한 번 사는 인생 질러라!</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    id="instaGoPollBtnA"
+                    class="w-full flex items-center justify-center text-center bg-[#111111] hover:bg-[#27272A] text-white py-2 px-1.5 rounded-full cursor-pointer transition-colors"
+                  >
+                    <span class="text-[10.5px] font-extrabold leading-tight tracking-tight whitespace-nowrap">한 번 사는 인생 질러라!</span>
                   </button>
-                  <button type="button" id="instaGoPollBtnB" class="w-full flex flex-col items-center justify-center gap-1 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 py-2 px-0.5 rounded-xl border border-rose-200 cursor-pointer">
-                    <span class="text-[15px] leading-none">🛑</span>
-                    <span class="text-[11.5px] font-extrabold leading-tight tracking-tighter whitespace-nowrap">정신 차려! 당장 참아!</span>
+                  <button
+                    type="button"
+                    id="instaGoPollBtnB"
+                    class="w-full flex items-center justify-center text-center bg-[#111111] hover:bg-[#27272A] text-white py-2 px-1.5 rounded-full cursor-pointer transition-colors"
+                  >
+                    <span class="text-[10.5px] font-extrabold leading-tight tracking-tight whitespace-nowrap">정신 차려! 당장 참아!</span>
                   </button>
                 </div>
               </div>
 
-              <!-- 영수증 최하단: 점선 + 발행 일시 + 바코드 그래픽 + 리포트 문구 -->
-              <div class="text-center pt-2.5 border-t border-dashed border-slate-300 shrink-0">
-                <div class="flex items-center justify-between text-[9px] font-mono font-bold text-slate-400 px-1 leading-none" style="margin-bottom: 10px;">
-                  <span id="receiptIssuedAt">ISSUED 2026.11.16 09:00</span>
-                  <span id="receiptSerialNo">NO. BOB-1042</span>
-                </div>
-                <div class="flex items-stretch justify-center gap-[1.5px] h-5 px-4 opacity-80" style="margin-top: 10px; margin-bottom: 6px;" aria-hidden="true">
-                  <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
+              <!-- 최하단: 점선 + 세로 바코드 + 공식 아카이브 문구 -->
+              <div class="text-center pt-2.5 shrink-0" style="border-top: 1px dashed rgba(0,0,0,0.22);">
+                <div class="flex items-stretch justify-center gap-[1.5px] h-7 px-2 opacity-90" style="margin-bottom: 8px;" aria-hidden="true">
+                  <span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[3px] bg-[#111111]"></span>
                   <span class="w-[1.5px] bg-transparent"></span>
-                  <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
+                  <span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[3px] bg-[#111111]"></span>
                   <span class="w-[2px] bg-transparent"></span>
-                  <span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
-                  <span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-transparent"></span>
-                  <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span>
-                  <span class="w-[3px] bg-slate-800"></span><span class="w-[1.5px] bg-transparent"></span>
-                  <span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span>
-                  <span class="w-[3px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[2px] bg-slate-800"></span>
+                  <span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[3px] bg-[#111111]"></span>
+                  <span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-transparent"></span>
+                  <span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span>
+                  <span class="w-[3px] bg-[#111111]"></span><span class="w-[1.5px] bg-transparent"></span>
+                  <span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
+                  <span class="w-[3px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
+                  <span class="w-[2px] bg-transparent"></span>
+                  <span class="w-[1px] bg-[#111111]"></span><span class="w-[3px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span>
+                  <span class="w-[2px] bg-transparent"></span>
+                  <span class="w-[1px] bg-[#111111]"></span><span class="w-[2px] bg-[#111111]"></span><span class="w-[1px] bg-[#111111]"></span><span class="w-[3px] bg-[#111111]"></span>
                 </div>
-                <p class="text-[9.5px] font-bold text-[#64748B] leading-normal m-0 p-0">
-                  살까 말까 판독기 • 내 시간 가치 계산 리포트
+                <p class="text-[8.5px] font-bold tracking-[0.22em] text-[#555555] uppercase leading-normal m-0 p-0">
+                  BUY OR BYE OFFICIAL ARCHIVE
                 </p>
               </div>
             </div>
 
-            <!-- 하단 톱니바퀴 절단선 (Zigzag Bottom Edge) -->
-            <svg viewBox="0 0 320 9" preserveAspectRatio="none" class="w-full h-[9px] block shrink-0" style="display:block;width:100%;height:9px;" aria-hidden="true">
-              <polygon points="0,0 320,0 312,9 304,0 296,9 288,0 280,9 272,0 264,9 256,0 248,9 240,0 232,9 224,0 216,9 208,0 200,9 192,0 184,9 176,0 168,9 160,0 152,9 144,0 136,9 128,0 120,9 112,0 104,9 96,0 88,9 80,0 72,9 64,0 56,9 48,0 40,9 32,0 24,9 16,0 8,9" fill="#EFF6FF" />
+            <!-- 하단 촘촘한 톱니바퀴 절단선 (Zigzag Bottom Edge) -->
+            <svg viewBox="0 0 320 8" preserveAspectRatio="none" class="w-full h-[8px] block shrink-0" style="display:block;width:100%;height:8px;" aria-hidden="true">
+              <polygon points="0,0 320,0 316,8 312,0 308,8 304,0 300,8 296,0 292,8 288,0 284,8 280,0 276,8 272,0 268,8 264,0 260,8 256,0 252,8 248,0 244,8 240,0 236,8 232,0 228,8 224,0 220,8 216,0 212,8 208,0 204,8 200,0 196,8 192,0 188,8 184,0 180,8 176,0 172,8 168,0 164,8 160,0 156,8 152,0 148,8 144,0 140,8 136,0 132,8 128,0 124,8 120,0 116,8 112,0 108,8 104,0 100,8 96,0 92,8 88,0 84,8 80,0 76,8 72,0 68,8 64,0 60,8 56,0 52,8 48,0 44,8 40,0 36,8 32,0 28,8 24,0 20,8 16,0 12,8 8,0 4,8" fill="#E8E8E6" />
             </svg>
           </div>
         </div>
@@ -3343,23 +3389,18 @@
         const isDanger = checkConsumptionDanger(costPerUse, laborHours, allowanceDays, allowanceMonthPct);
         const alertPrefix = isDanger ? '🚨 소비 경보!' : '💚 소비 안심!';
 
-        // 상단 플로팅 영수증 미리보기 카드 동기화
+        // 상단 플로팅 영수증 미리보기 카드 동기화 (모노톤 아카이브 영수증 컨셉)
         const instaItemNameEl = document.getElementById('instaItemName');
         const instaItemPriceEl = document.getElementById('instaItemPrice');
         const instaCostPerUseEl = document.getElementById('instaCostPerUse');
+        const instaUseCountSubEl = document.getElementById('instaUseCountSub');
+        const instaWageSubEl = document.getElementById('instaWageSub');
+        const instaStatusBadgeEl = document.getElementById('instaStatusBadge');
         if (instaItemNameEl) instaItemNameEl.textContent = displayName;
         if (instaItemPriceEl) instaItemPriceEl.textContent = `${formatNumber(state.itemPrice)}원`;
         if (instaCostPerUseEl) instaCostPerUseEl.textContent = `약 ${formatNumber(costPerUse)}원 / 회`;
-
-        applyReceiptDangerStatus({
-          badgeId: 'instaStatusBadge',
-          sirenId: 'instaSirenIcon',
-          boxId: 'instaWarningBox',
-          titleId: 'instaWarningTitle',
-          subId: 'instaWarningSub',
-          isDanger,
-          badgeFontClass: 'text-[10px]'
-        });
+        if (instaUseCountSubEl) instaUseCountSubEl.textContent = `(${formatNumber(Math.max(1, Number(state.useCount) || 1))}회 사용 기준)`;
+        if (instaStatusBadgeEl) instaStatusBadgeEl.textContent = isDanger ? '반려?' : '승인?';
 
         const instaWarningTitleEl = document.getElementById('instaWarningTitle');
         const instaWarningSubEl = document.getElementById('instaWarningSub');
@@ -3368,22 +3409,37 @@
 
         if (isAllowanceMode()) {
           if (instaWarningTitleEl) {
-            instaWarningTitleEl.innerHTML = `${alertPrefix} <span id="instaLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭</span>`;
+            instaWarningTitleEl.innerHTML = `<span id="instaLaborHours">${formatNumber(allowanceDays)}일치 용돈 순삭</span>`;
           }
           if (instaWarningSubEl) {
-            instaWarningSubEl.innerHTML = `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준 한 달 용돈의 <span id="instaLaborDays">${formatNumber(allowanceMonthPct)}%</span>예요`;
+            instaWarningSubEl.innerHTML = `하루 용돈 ${formatNumber(getDailyAllowance())}원 기준, 한 달 용돈의 <span id="instaLaborDays">${formatNumber(allowanceMonthPct)}%</span>예요`;
           }
           if (instaRightMetricLabelEl) instaRightMetricLabelEl.textContent = '용돈 일수 환산';
           if (instaWorkHoursCardEl) instaWorkHoursCardEl.textContent = `${formatNumber(allowanceDays)}일치 용돈`;
+          if (instaWageSubEl) instaWageSubEl.textContent = `(월 용돈 ${formatNumber(state.monthlyAllowance)}원 기준)`;
         } else {
           if (instaWarningTitleEl) {
-            instaWarningTitleEl.innerHTML = `${alertPrefix} <span id="instaLaborHours">${formatNumber(laborHours)}시간</span> 노동 필요`;
+            instaWarningTitleEl.innerHTML = `<span id="instaLaborHours">${formatNumber(laborHours)}시간</span> 노동 필요`;
           }
           if (instaWarningSubEl) {
-            instaWarningSubEl.innerHTML = `일 8시간 근무 기준 약 <span id="instaLaborDays">${laborDays}일치 월급</span>에 해당해요`;
+            instaWarningSubEl.innerHTML = `하루 8시간 근무 기준, 약 <span id="instaLaborDays">${laborDays}일치 월급</span>에 해당해요`;
           }
-          if (instaRightMetricLabelEl) instaRightMetricLabelEl.textContent = '노동 시간 환산';
+          if (instaRightMetricLabelEl) instaRightMetricLabelEl.textContent = '내 시급 기준 환산';
           if (instaWorkHoursCardEl) instaWorkHoursCardEl.textContent = `${formatNumber(laborHours)}시간 근무치`;
+          if (instaWageSubEl) instaWageSubEl.textContent = `(시급 ${formatNumber(state.hourlyWage)}원 기준)`;
+        }
+
+        const instaSaveCountEl = document.getElementById('instaSaveCount');
+        const instaSaveTotalEl = document.getElementById('instaSaveTotal');
+        const instaLevelTextEl = document.getElementById('instaLevelText');
+        const instaNextLevelTextEl = document.getElementById('instaNextLevelText');
+        const levelInfo = getLevelInfo(state.totalSavedAmount);
+        if (instaSaveCountEl) instaSaveCountEl.textContent = formatNumber(state.savedCount || 0);
+        if (instaSaveTotalEl) instaSaveTotalEl.textContent = `${formatNumber(state.totalSavedAmount || 0)}원`;
+        if (instaLevelTextEl) instaLevelTextEl.textContent = `${levelInfo.name} Lv.${levelInfo.level}`;
+        if (instaNextLevelTextEl) {
+          const remaining = levelInfo.nextLevel ? Math.max(0, levelInfo.nextLevel.minAmount - (state.totalSavedAmount || 0)) : 0;
+          instaNextLevelTextEl.textContent = levelInfo.nextLevel ? `다음 레벨까지 ${formatNumber(remaining)}원` : '최고 레벨 달성!';
         }
       }
 
@@ -4808,10 +4864,12 @@
           clonedCard.style.visibility = 'visible';
           clonedCard.style.opacity = '1';
 
-          // 내부 모든 요소의 transform/transition/animation/backdrop-filter 초기화 & 정적 흐름 보장
+          // 내부 모든 요소의 transition/animation/backdrop-filter 초기화 & 정적 흐름 보장 (.keep-transform은 도장 기울기 유지)
           clonedCard.querySelectorAll('*').forEach((node) => {
             if (!node.style) return;
-            node.style.transform = 'none';
+            if (!node.classList || !node.classList.contains('keep-transform')) {
+              node.style.transform = 'none';
+            }
             node.style.transition = 'none';
             node.style.animation = 'none';
             node.style.backdropFilter = 'none';
@@ -5770,7 +5828,7 @@
         const serialEl = document.getElementById('receiptSerialNo');
         if (serialEl) {
           const code = String((now.getHours() * 60 + now.getMinutes()) * 17 + (state.itemPrice % 97)).slice(-4).padStart(4, '0');
-          serialEl.textContent = `NO. BOB-${code}`;
+          serialEl.textContent = `${now.getFullYear()}-BOB-${code}`;
         }
       }
 
