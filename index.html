@@ -13,12 +13,21 @@
   <meta name="apple-mobile-web-app-title" content="살까말까 판독기" />
   <meta name="application-name" content="살까말까 판독기" />
   <meta name="theme-color" content="#3182F6" />
-  <!-- Open Graph (카카오톡/SNS 링크 미리보기) -->
-  <meta property="og:title" content="💸 살까 말까 판독기 · 팩폭 영수증" />
-  <meta property="og:description" content="내 통장 살릴지 죽일지 지금 실시간 투표에 참여해 주세요!" />
+  <!-- Open Graph (카카오톡/SNS 링크 미리보기 요약 카드) -->
+  <meta property="og:site_name" content="살까 말까 판독기 - Buy or Bye" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:title" content="💸 [살까 말까 판독기] 지름신 팩폭 영수증 도착!" />
+  <meta property="og:description" content="🔥질러라 vs 🛑참아라! 내 통장 살릴지 죽일지 지금 실시간 투표에 참여해 주세요!" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://crengineer86-dot.github.io/buy-or-bye/" />
   <meta property="og:image" content="https://crengineer86-dot.github.io/buy-or-bye/icon-512.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:image:alt" content="살까 말까 판독기 팩폭 영수증 카드" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="💸 [살까 말까 판독기] 지름신 팩폭 영수증 도착!" />
+  <meta name="twitter:description" content="🔥질러라 vs 🛑참아라! 내 통장 살릴지 죽일지 지금 실시간 투표에 참여해 주세요!" />
+  <meta name="twitter:image" content="https://crengineer86-dot.github.io/buy-or-bye/icon-512.png" />
   <!-- Pretendard Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <!-- Tailwind CSS -->
@@ -4615,15 +4624,20 @@
         canvas,
         title,
         description,
+        shareText,
         targetUrl,
-        buttonTitle = '실시간 투표 참여하기',
+        buttonTitle = '투표하러 가기',
         fallbackFilename = `살까말까_카톡카드_${Date.now()}.png`,
-        successToast = '💬 카카오톡 카드가 준비되었어요!'
+        successToast = '💬 카카오톡 공유 창을 열고 있어요! (투표 링크 복사 완료)'
       }) {
         const cleanTargetUrl = targetUrl || 'https://crengineer86-dot.github.io/buy-or-bye/';
         const defaultThumbUrl = 'https://crengineer86-dot.github.io/buy-or-bye/icon-512.png';
+        const fallbackText = shareText || description || title;
 
-        // 1) Kakao JS SDK가 초기화된 경우: 캡처 이미지를 카카오 CDN에 업로드 후 링크 텍스트 노출 없는 Feed 템플릿으로 전송
+        // 투표 링크 클립보드 동시 복사
+        copyTextToClipboard(cleanTargetUrl);
+
+        // 1) Kakao JS SDK가 초기화된 경우: 버튼이 달린 피드형 요약 카드 전송
         if (initKakaoSdkIfConfigured() && window.Kakao.Share) {
           try {
             let thumbnailUrl = defaultThumbUrl;
@@ -4658,7 +4672,6 @@
                 }
               ]
             });
-            copyTextToClipboard(cleanTargetUrl);
             showToast(successToast);
             return 'kakao-sdk-feed';
           } catch (kakaoErr) {
@@ -4666,102 +4679,148 @@
           }
         }
 
-        // 2) Kakao SDK 미설정 또는 PC 폴백: 하단에 URL 텍스트가 덜렁 붙지 않도록 캡처 이미지 + 깔끔한 제목/설명만 전달 (투표 링크는 클립보드 복사)
-        if (canvas) {
-          return saveOrShareCanvasImage(canvas, {
-            filename: fallbackFilename,
-            shareTitle: title,
-            shareText: `${title}\n${description}`,
-            copyTextOnShare: cleanTargetUrl,
-            preferShareOnMobile: true,
-            noDownloadFallback: true,
-            successToast
-          });
+        // 2) Kakao SDK 키가 없는 경우: 카톡에서 url+text가 무시되고 사진만 가는 현상을 막기 위해
+        //    절대 files(이미지)를 넣지 않고 오직 title + text + url만 전송 (OG 요약 링크 카드 생성)
+        const cap = window.Capacitor;
+        const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
+        if (isCapNative && cap.Plugins && cap.Plugins.Share) {
+          try {
+            showToast(successToast);
+            await cap.Plugins.Share.share({
+              title,
+              text: fallbackText,
+              url: cleanTargetUrl,
+              dialogTitle: '카카오톡 투표 공유'
+            });
+            return 'capacitor-link-share';
+          } catch (capErr) {
+            if (capErr && /cancel/i.test(String(capErr.message || capErr))) return 'cancelled';
+            console.warn('Capacitor link share fallback:', capErr);
+          }
         }
-        return 'no-canvas';
+
+        if (typeof navigator.share === 'function') {
+          try {
+            showToast(successToast);
+            await navigator.share({
+              title,
+              text: fallbackText,
+              url: cleanTargetUrl
+            });
+            return 'web-link-share';
+          } catch (err) {
+            if (err && err.name === 'AbortError') return 'cancelled';
+            console.warn('Web link share fallback:', err);
+          }
+        }
+
+        // 3) navigator.share 미지원 PC 브라우저 폴백: 텍스트 + 실시간 투표 링크 복사
+        await copyTextToClipboard(`${fallbackText}\n${cleanTargetUrl}`);
+        showToast(successToast);
+        return 'clipboard-link';
       }
 
-      // 화면 팝업에서 보이는 실제 카드 본체(DOM)를 원본 레이아웃/스타일 그대로 1:1 고화질(scale: 3) 스냅샷 캡처
-      async function captureElementWithHtml2canvas(targetId, modalId) {
+      // 오프스크린 캡처 전용 정적 컨테이너를 생성해 transform/backdrop-filter/scale/스크롤 영향 없이 고화질(scale: 3) 캡처
+      async function captureElementWithHtml2canvas(targetId) {
         if (typeof window.html2canvas !== 'function') return null;
 
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
-        const modalEl = modalId ? document.getElementById(modalId) : null;
-        const wasHidden = modalEl ? modalEl.classList.contains('hidden') : false;
-
-        // 모달이 닫혀있는 상태에서 호출된 경우, 정확한 실측 크기 측정을 위해 임시 활성화
-        if (wasHidden && modalEl) {
-          modalEl.style.visibility = 'hidden';
-          modalEl.classList.remove('hidden');
-        }
-
-        // 1. 현재 사용자 화면에 렌더링된 실제 DOM 요소의 가로 폭 실측 (높이는 클론 후 자동 측정해 하단 잘림 방지)
-        const realWidth = targetEl.offsetWidth || 328;
+        const CAPTURE_WIDTH = 380;
+        let offscreenHost = null;
 
         try {
           if (document.fonts && document.fonts.ready) {
-            await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 200))]);
+            await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 250))]);
           }
 
-          // 2. 모달 전체나 바깥 회색 배경을 배제하고, 오직 안쪽에 있는 '실제 카드 element' 본체만 하단 잘림 없이 캡처
-          const canvas = await window.html2canvas(targetEl, {
+          // 1) 화면 모달(transform, backdrop-filter, scale, overflow)과 완전히 분리된 오프스크린 정적 컨테이너 생성
+          offscreenHost = document.createElement('div');
+          offscreenHost.style.position = 'fixed';
+          offscreenHost.style.left = '-99999px';
+          offscreenHost.style.top = '0';
+          offscreenHost.style.width = `${CAPTURE_WIDTH}px`;
+          offscreenHost.style.height = 'auto';
+          offscreenHost.style.margin = '0';
+          offscreenHost.style.padding = '0';
+          offscreenHost.style.background = '#ffffff';
+          offscreenHost.style.transform = 'none';
+          offscreenHost.style.backdropFilter = 'none';
+          offscreenHost.style.webkitBackdropFilter = 'none';
+          offscreenHost.style.filter = 'none';
+          offscreenHost.style.zIndex = '-1';
+          offscreenHost.style.pointerEvents = 'none';
+
+          // 2) 대상 카드 노드 복제 및 모든 내부 레이아웃을 정적 문서 흐름(static/relative, flex-col)으로 초기화
+          const clonedCard = targetEl.cloneNode(true);
+          clonedCard.removeAttribute('id');
+          clonedCard.style.position = 'relative';
+          clonedCard.style.left = '0';
+          clonedCard.style.top = '0';
+          clonedCard.style.margin = '0';
+          clonedCard.style.width = `${CAPTURE_WIDTH}px`;
+          clonedCard.style.minWidth = `${CAPTURE_WIDTH}px`;
+          clonedCard.style.maxWidth = `${CAPTURE_WIDTH}px`;
+          clonedCard.style.height = 'auto';
+          clonedCard.style.minHeight = '0';
+          clonedCard.style.maxHeight = 'none';
+          clonedCard.style.overflow = 'visible';
+          clonedCard.style.transform = 'none';
+          clonedCard.style.transition = 'none';
+          clonedCard.style.backdropFilter = 'none';
+          clonedCard.style.webkitBackdropFilter = 'none';
+          clonedCard.style.filter = 'none';
+          clonedCard.style.boxSizing = 'border-box';
+          clonedCard.style.visibility = 'visible';
+          clonedCard.style.opacity = '1';
+
+          // 내부 모든 요소의 transform/transition/animation/backdrop-filter 초기화 & 정적 흐름 보장
+          clonedCard.querySelectorAll('*').forEach((node) => {
+            if (!node.style) return;
+            node.style.transform = 'none';
+            node.style.transition = 'none';
+            node.style.animation = 'none';
+            node.style.backdropFilter = 'none';
+            node.style.webkitBackdropFilter = 'none';
+          });
+
+          // 캡슐 배지(.badge-item) 내 텍스트 수직·수평 중앙 정렬 고정
+          clonedCard.querySelectorAll('.badge-item').forEach((b) => {
+            b.style.display = 'inline-flex';
+            b.style.alignItems = 'center';
+            b.style.justifyContent = 'center';
+            b.style.lineHeight = '1';
+          });
+
+          offscreenHost.appendChild(clonedCard);
+          document.body.appendChild(offscreenHost);
+
+          // 브라우저가 오프스크린 레이아웃을 확정하도록 1프레임 대기
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+          const measuredHeight = Math.ceil(clonedCard.getBoundingClientRect().height || clonedCard.scrollHeight || 600);
+
+          const canvas = await window.html2canvas(clonedCard, {
             scale: 3,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: null,
-            logging: false,
+            backgroundColor: '#ffffff',
+            width: CAPTURE_WIDTH,
+            height: measuredHeight,
+            windowWidth: CAPTURE_WIDTH,
+            windowHeight: measuredHeight,
             scrollX: 0,
             scrollY: 0,
-            onclone: (clonedDoc) => {
-              const cardEl = clonedDoc.getElementById(targetId);
-              if (!cardEl) return;
-
-              // 모달 전체나 바깥 회색 배경(백드롭, 모달 컨테이너)을 clonedDoc에서 완전히 제거하고
-              // 오직 안쪽에 있는 순수 카드 본체 DOM만 body의 (0, 0) 위치에 단독 배치
-              clonedDoc.body.innerHTML = '';
-              clonedDoc.body.style.margin = '0';
-              clonedDoc.body.style.padding = '0';
-              clonedDoc.body.style.background = 'transparent';
-              clonedDoc.body.style.width = `${realWidth}px`;
-              clonedDoc.body.style.height = 'auto';
-              clonedDoc.body.style.overflow = 'visible';
-
-              cardEl.style.position = 'relative';
-              cardEl.style.left = '0';
-              cardEl.style.top = '0';
-              cardEl.style.margin = '0';
-              cardEl.style.width = `${realWidth}px`;
-              cardEl.style.maxWidth = `${realWidth}px`;
-              cardEl.style.minWidth = `${realWidth}px`;
-              cardEl.style.height = 'auto';
-              cardEl.style.maxHeight = 'none';
-              cardEl.style.overflow = 'visible';
-              cardEl.style.boxSizing = 'border-box';
-              cardEl.style.transform = 'none';
-              cardEl.style.visibility = 'visible';
-
-              // 캡슐 배지(.badge-item) 내 텍스트가 html2canvas baseline 오차로 아래로 쏠리지 않도록 정중앙 보정
-              const badges = cardEl.querySelectorAll('.badge-item');
-              badges.forEach((b) => {
-                b.style.display = 'inline-flex';
-                b.style.alignItems = 'center';
-                b.style.justifyContent = 'center';
-                b.style.lineHeight = '1';
-              });
-
-              clonedDoc.body.appendChild(cardEl);
-            }
+            logging: false
           });
           return canvas;
         } catch (captureErr) {
-          console.warn(`html2canvas failed on ${targetId}:`, captureErr);
+          console.warn(`html2canvas offscreen capture failed on ${targetId}:`, captureErr);
           return null;
         } finally {
-          if (wasHidden && modalEl) {
-            modalEl.classList.add('hidden');
-            modalEl.style.visibility = '';
+          if (offscreenHost && offscreenHost.parentNode) {
+            offscreenHost.parentNode.removeChild(offscreenHost);
           }
         }
       }
@@ -5721,7 +5780,7 @@
         setTimeout(() => switchScreen('poll'), 250);
       });
 
-      // 1) [카카오톡 투표]: 추가 팝업 없이 즉시 고화질 영수증 캡처 후 카카오톡 클릭형 피드 투표 카드 공유 실행
+      // 1) [카카오톡 투표]: 절대 files(이미지)를 넣지 않고, Kakao SDK 피드 카드 또는 텍스트+URL 전용 요약 링크 카드 즉시 공유
       document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', async () => {
         getAudioContext();
         const roomId = ensureRoomId();
@@ -5730,33 +5789,33 @@
         const shareUrl = generateShareUrl();
         const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
         const laborHours = Math.ceil(state.itemPrice / Math.max(1, state.hourlyWage));
-        const laborDays = (laborHours / 8).toFixed(1);
         const allowanceDays = formatAllowanceDays(state.itemPrice);
-        const allowanceMonthPct = getAllowanceMonthPct(state.itemPrice);
-        const timeSummary = isAllowanceMode()
-          ? `용돈 ${formatNumber(allowanceDays)}일치 순삭 (월 용돈의 ${formatNumber(allowanceMonthPct)}%)`
-          : `내 노동 ${formatNumber(laborHours)}시간 필요 (약 ${laborDays}일치 월급)`;
+        const effortLabel = isAllowanceMode()
+          ? `용돈 ${formatNumber(allowanceDays)}일치`
+          : `${formatNumber(laborHours)}시간 노동`;
+        const kakaoShareText = `🔥질러라 vs 🛑참아라! 내 통장 살릴지 죽일지 지금 투표해 주세요!\n👉 아이템: ${displayName} (${formatNumber(state.itemPrice)}원 / ${effortLabel})`;
 
         const kakaoBtn = document.getElementById('actionShareKakaoImmediateBtn');
         const kakaoLabel = document.getElementById('actionShareKakaoLabel');
         const prevLabel = kakaoLabel ? kakaoLabel.textContent : '카카오톡 투표';
         if (kakaoBtn) kakaoBtn.disabled = true;
-        if (kakaoLabel) kakaoLabel.textContent = '카드 준비 중...';
+        if (kakaoLabel) kakaoLabel.textContent = '공유 준비 중...';
 
         try {
-          const receiptCanvas = await createReceiptCanvas();
+          const receiptCanvas = initKakaoSdkIfConfigured() ? await createReceiptCanvas() : null;
           await shareKakaoFeedCard({
             canvas: receiptCanvas,
-            title: `💸 ${displayName} (${formatNumber(state.itemPrice)}원)`,
-            description: `⏰ ${timeSummary} · 내 통장 살릴지 죽일지 대신 투표해 주세요!`,
+            title: '[살까 말까 팩폭 영수증]',
+            description: `👉 아이템: ${displayName} (${formatNumber(state.itemPrice)}원 / ${effortLabel})`,
+            shareText: kakaoShareText,
             targetUrl: shareUrl,
             buttonTitle: '투표하러 가기',
             fallbackFilename: `살까말까_카톡영수증_${Date.now()}.png`,
             successToast: '💬 카카오톡 공유 창을 열고 있어요! (투표 링크 복사 완료)'
           });
         } catch (err) {
-          console.error('Kakao feed share failed:', err);
-          showToast('⚠️ 카카오톡 카드 공유 준비에 실패했어요');
+          console.error('Kakao share failed:', err);
+          showToast('⚠️ 카카오톡 공유 준비에 실패했어요');
         } finally {
           if (kakaoBtn) kakaoBtn.disabled = false;
           if (kakaoLabel) kakaoLabel.textContent = prevLabel;
