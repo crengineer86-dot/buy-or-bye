@@ -1521,8 +1521,8 @@
                 </p>
               </div>
 
-              <!-- 아이템 & 금액 + 기울어진 빈티지 다크레드 고무도장 -->
-              <div class="relative text-center py-1">
+              <!-- 아이템 & 금액 + 금액 우측 빈티지 다크레드 고무도장 -->
+              <div id="instaItemSection" class="relative text-center py-1.5">
                 <p class="text-[8px] font-bold tracking-[0.18em] text-[#666666] uppercase mb-0.5">ITEM TO BUY</p>
                 <h4 id="instaItemName" class="text-[15px] font-black text-[#111111] leading-snug px-2">고민 중인 아이템</h4>
                 <p id="instaItemPrice" class="text-[25px] font-black text-[#111111] tracking-tight mt-0.5 leading-none">0원</p>
@@ -1531,7 +1531,7 @@
                 <div
                   id="instaStatusBadge"
                   class="keep-transform inline-flex items-center justify-center font-black tracking-[0.12em] select-none"
-                  style="position: absolute; right: 2px; bottom: -14px; transform: rotate(-10deg); color: #8B2626; border: 2px solid rgba(139,38,38,0.85); background: rgba(235,234,230,0.9); padding: 4px 10px; font-size: 12px; line-height: 1.1; border-radius: 3px; box-shadow: inset 0 0 0 2px rgba(235,234,230,0.92), inset 0 0 0 3px rgba(139,38,38,0.5); z-index: 5;"
+                  style="position: absolute; right: 0px; bottom: 0px; transform: rotate(-10deg); color: #8B2626; border: 2px solid rgba(139,38,38,0.85); background: rgba(235,234,230,0.92); padding: 4px 10px; font-size: 12px; line-height: 1.1; border-radius: 3px; box-shadow: inset 0 0 0 2px rgba(235,234,230,0.92), inset 0 0 0 3px rgba(139,38,38,0.5); z-index: 5;"
                 >반려?</div>
                 <span id="instaSirenIcon" class="hidden"></span>
               </div>
@@ -5002,51 +5002,60 @@
         // 투표 링크 클립보드 동시 복사
         copyTextToClipboard(cleanTargetUrl);
 
-        // 1) Kakao JS SDK가 초기화된 경우: 썸네일 없는 순수 텍스트 + 투표 링크 버튼 카드 전송
-        const textOnlyInviteMessage = `${fallbackText}\n\n👉 실시간 투표 참여하기:\n${cleanTargetUrl}`;
+        // 1) Kakao JS SDK가 초기화된 경우: 버튼이 달린 피드형 요약 카드 전송 (아이템 영역 썸네일 우선 업로드)
         if (initKakaoSdkIfConfigured() && window.Kakao.Share) {
           try {
+            let thumbnailUrl = defaultThumbUrl;
+            const itemSectionBlob = await captureCardBlobWithHtmlToImage('instaItemSection', { forceFresh: true }).catch(() => null);
+            const thumbSource = itemSectionBlob || canvas;
+            if (thumbSource) {
+              const blob = (typeof Blob !== 'undefined' && thumbSource instanceof Blob) ? thumbSource : await canvasToPngBlob(thumbSource);
+              if (blob && typeof File !== 'undefined' && typeof window.Kakao.Share.uploadImage === 'function') {
+                const file = new File([blob], fallbackFilename, { type: 'image/png' });
+                const uploadRes = await window.Kakao.Share.uploadImage({ file: [file] });
+                if (uploadRes && uploadRes.infos && uploadRes.infos.original && uploadRes.infos.original.url) {
+                  thumbnailUrl = uploadRes.infos.original.url;
+                }
+              }
+            }
             window.Kakao.Share.sendDefault({
-              objectType: 'text',
-              text: textOnlyInviteMessage,
-              link: {
-                mobileWebUrl: cleanTargetUrl,
-                webUrl: cleanTargetUrl
+              objectType: 'feed',
+              content: {
+                title,
+                description,
+                imageUrl: thumbnailUrl,
+                link: {
+                  mobileWebUrl: cleanTargetUrl,
+                  webUrl: cleanTargetUrl
+                }
               },
-              buttonTitle
+              buttons: [
+                {
+                  title: buttonTitle,
+                  link: {
+                    mobileWebUrl: cleanTargetUrl,
+                    webUrl: cleanTargetUrl
+                  }
+                }
+              ]
             });
             showToast(successToast);
-            return 'kakao-sdk-text';
+            return 'kakao-sdk-feed';
           } catch (kakaoErr) {
-            console.warn('Kakao SDK text share fallback:', kakaoErr);
+            console.warn('Kakao SDK feed share fallback:', kakaoErr);
           }
         }
 
-        // 2) Kakao SDK 키가 없는 경우: 상단 썸네일(og:image) 박스 없이 순수 텍스트 + 클릭형 투표 링크만 깔끔하게 전송
-        if (document.visibilityState === 'hidden') {
-          await new Promise((resolve) => {
-            const onVis = () => {
-              if (document.visibilityState === 'visible') {
-                document.removeEventListener('visibilitychange', onVis);
-                resolve();
-              }
-            };
-            document.addEventListener('visibilitychange', onVis);
-            setTimeout(() => {
-              document.removeEventListener('visibilitychange', onVis);
-              resolve();
-            }, 3500);
-          });
-        }
-
+        // 2) Kakao SDK 키가 없는 경우: 카톡 상단에 장문 노란 말풍선이 같이 뜨지 않도록
+        //    title/text/files 없이 오직 { url }만 단독으로 전송 (OG 요약 링크 카드만 깔끔하게 생성)
         const cap = window.Capacitor;
         const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
         if (isCapNative && cap.Plugins && cap.Plugins.Share) {
           try {
             showToast(successToast);
             await cap.Plugins.Share.share({
-              text: textOnlyInviteMessage,
-              dialogTitle: '투표 초대 링크 공유'
+              url: cleanTargetUrl,
+              dialogTitle: '카카오톡 투표 공유'
             });
             return 'capacitor-link-share';
           } catch (capErr) {
@@ -5059,21 +5068,17 @@
           try {
             showToast(successToast);
             await navigator.share({
-              text: textOnlyInviteMessage
+              url: cleanTargetUrl
             });
             return 'web-link-share';
           } catch (err) {
             if (err && err.name === 'AbortError') return 'cancelled';
             console.warn('Web link share fallback:', err);
-            // 모바일 브라우저에서 1차 공유 후 제스처 만료(NotAllowedError) 시 원탭 이어보내기 팝업 즉시 표시
-            await copyTextToClipboard(textOnlyInviteMessage);
-            openInviteLinkQuickModal(cleanTargetUrl, textOnlyInviteMessage);
-            return 'quick-modal-link';
           }
         }
 
-        // 3) navigator.share 미지원 PC 브라우저 폴백: 순수 텍스트 + 투표 링크 복사
-        await copyTextToClipboard(textOnlyInviteMessage);
+        // 3) navigator.share 미지원 PC 브라우저 폴백: 실시간 투표 링크만 깔끔하게 복사
+        await copyTextToClipboard(cleanTargetUrl);
         showToast(successToast);
         return 'clipboard-link';
       }
@@ -6165,8 +6170,8 @@
         setTimeout(() => switchScreen('poll'), 250);
       });
 
-      // 1차 검증된 영수증 이미지 전송 ➔ 직후 2차 투표 초대 링크 카드 연속 공유 공통 함수
-      async function runTwoStepReceiptAndInviteShare({ btnId, labelId, defaultLabel }) {
+      // 1) [카카오톡 투표]: 원래의 깔끔한 투표 링크 요약 카드(URL) 전송
+      document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', async () => {
         getAudioContext();
         triggerHaptic(15, true);
         const roomId = ensureRoomId();
@@ -6181,64 +6186,64 @@
           : `${formatNumber(laborHours)}시간 노동`;
         const kakaoShareText = `🔥 질러라! vs 🛑 참아라! 내 통장 살릴지 죽일지 투표 요청!\n👉 아이템: ${displayName} (${formatNumber(state.itemPrice)}원 / ${effortLabel})`;
 
-        const btnEl = document.getElementById(btnId);
-        const labelEl = document.getElementById(labelId);
-        const prevLabel = labelEl ? labelEl.textContent : defaultLabel;
-        if (btnEl) btnEl.disabled = true;
-        if (labelEl) labelEl.textContent = '공유 준비 중...';
+        const kakaoBtn = document.getElementById('actionShareKakaoImmediateBtn');
+        const kakaoLabel = document.getElementById('actionShareKakaoLabel');
+        const prevLabel = kakaoLabel ? kakaoLabel.textContent : '카카오톡 투표';
+        if (kakaoBtn) kakaoBtn.disabled = true;
+        if (kakaoLabel) kakaoLabel.textContent = '공유 준비 중...';
 
         try {
-          // 1차 전송: 검증된 SNS 공유용 고화질 팩폭 영수증 이미지 단독 전송
-          const receiptCanvas = await createReceiptCanvas();
-          const imgShareResult = await saveOrShareCanvasImage(receiptCanvas, {
-            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
-            shareTitle: '살까 말까 팩폭 영수증',
-            copyTextOnShare: shareUrl,
-            preferShareOnMobile: true,
-            imageOnlyShare: true,
-            noDownloadFallback: true,
-            successToast: ''
-          });
-          if (imgShareResult === 'cancelled') {
-            return;
-          }
-
-          // 2차 전송: 지연 없이 곧바로 이어서 '질러라 vs 참아라' 투표 초대 링크 카드 연속 호출
           await shareKakaoFeedCard({
-            canvas: receiptCanvas,
+            canvas: null,
             title: '[살까 말까 팩폭 영수증]',
             description: `👉 아이템: ${displayName} (${formatNumber(state.itemPrice)}원 / ${effortLabel})`,
             shareText: kakaoShareText,
             targetUrl: shareUrl,
             buttonTitle: '투표하러 가기',
             fallbackFilename: `살까말까_카톡영수증_${Date.now()}.png`,
-            successToast: '💬 영수증 이미지 + 투표 초대 링크 2연발 공유 완료!'
+            successToast: '💬 카카오톡 공유 창을 열고 있어요! (투표 링크 복사 완료)'
           });
         } catch (err) {
-          console.error('2-step share failed:', err);
-          showToast('⚠️ 공유 준비에 실패했어요');
+          console.error('Kakao share failed:', err);
+          showToast('⚠️ 카카오톡 공유 준비에 실패했어요');
         } finally {
-          if (btnEl) btnEl.disabled = false;
-          if (labelEl) labelEl.textContent = prevLabel;
+          if (kakaoBtn) kakaoBtn.disabled = false;
+          if (kakaoLabel) kakaoLabel.textContent = prevLabel;
         }
-      }
-
-      // 1) [카카오톡 투표]: 1차 영수증 이미지 ➔ 2차 투표 초대 링크 2연발 연속 공유
-      document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', () => {
-        runTwoStepReceiptAndInviteShare({
-          btnId: 'actionShareKakaoImmediateBtn',
-          labelId: 'actionShareKakaoLabel',
-          defaultLabel: '카카오톡 투표'
-        });
       });
 
-      // 2) [SNS 공유]: 1차 영수증 이미지 ➔ 2차 투표 초대 링크 2연발 연속 공유
-      document.getElementById('actionShareSnsImmediateBtn').addEventListener('click', () => {
-        runTwoStepReceiptAndInviteShare({
-          btnId: 'actionShareSnsImmediateBtn',
-          labelId: 'actionShareSnsLabel',
-          defaultLabel: 'SNS 공유'
-        });
+      // 2) [SNS 공유]: 사전 캡처된 고화질 영수증 이미지 단독 즉시 공유
+      document.getElementById('actionShareSnsImmediateBtn').addEventListener('click', async () => {
+        getAudioContext();
+        triggerHaptic(15, true);
+        const roomId = ensureRoomId();
+        ensureRoomCreatedInDb(roomId);
+        const shareUrl = generateShareUrl();
+
+        const snsBtn = document.getElementById('actionShareSnsImmediateBtn');
+        const snsLabel = document.getElementById('actionShareSnsLabel');
+        const prevLabel = snsLabel ? snsLabel.textContent : 'SNS 공유';
+        if (snsBtn) snsBtn.disabled = true;
+        if (snsLabel) snsLabel.textContent = '공유 준비 중...';
+
+        try {
+          const receiptCanvas = await createReceiptCanvas();
+          await saveOrShareCanvasImage(receiptCanvas, {
+            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
+            shareTitle: '살까 말까 팩폭 영수증',
+            copyTextOnShare: shareUrl,
+            preferShareOnMobile: true,
+            imageOnlyShare: true,
+            noDownloadFallback: true,
+            successToast: '📲 공유할 SNS 앱을 선택해 주세요! (투표 링크도 복사되었어요)'
+          });
+        } catch (err) {
+          console.error('SNS image share failed:', err);
+          showToast('⚠️ SNS 공유 이미지 준비에 실패했어요');
+        } finally {
+          if (snsBtn) snsBtn.disabled = false;
+          if (snsLabel) snsLabel.textContent = prevLabel;
+        }
       });
 
       // 3) [이미지 저장]: 공유창 없이 기기 앨범으로 고화질 영수증 PNG 파일 즉시 저장
