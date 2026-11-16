@@ -402,37 +402,36 @@
               <input type="file" id="itemPhotoCameraInput" accept="image/*" capture="environment" class="hidden" />
               <input type="file" id="itemPhotoGalleryInput" accept="image/*" class="hidden" />
 
-              <!-- 실물사진 선택 팝오버 (촬영 / 앨범 2개 버튼) -->
+              <!-- 제품 사진 선택 미니 말풍선 드롭다운 팝오버 (카메라 버튼 바로 아래) -->
               <div
                 id="photoSourcePopover"
-                class="hidden absolute left-0 right-0 top-full mt-2 z-40 bg-white rounded-2xl p-3 shadow-xl border border-slate-200/90"
+                class="hidden absolute right-[54px] top-full mt-2 w-[152px] z-40 bg-white rounded-2xl p-1.5 shadow-[0_10px_28px_rgba(15,23,42,0.16)] border border-slate-200/90"
               >
-                <div class="flex items-center justify-between mb-2 px-0.5">
-                  <span class="text-[11.5px] font-extrabold text-[#191F28]">제품 사진 첨부 (투표판 연동)</span>
-                  <button
-                    type="button"
-                    id="photoRemoveBtn"
-                    class="hidden text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
-                  >
-                    사진 삭제
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="absolute -top-[5.5px] right-4 w-2.5 h-2.5 bg-white border-t border-l border-slate-200/90 rotate-45" aria-hidden="true"></div>
+                <div class="relative z-10 flex flex-col gap-1">
                   <button
                     type="button"
                     id="photoCameraBtn"
-                    class="flex items-center justify-center gap-1.5 bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] font-extrabold text-[12px] py-2 rounded-xl border border-[#BFDBFE] cursor-pointer"
+                    class="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[#EFF6FF] text-[#1D4ED8] font-extrabold text-[12px] text-left transition-colors cursor-pointer"
                   >
-                    <span>📸</span>
+                    <span class="text-[14px] leading-none">📸</span>
                     <span>사진 촬영</span>
                   </button>
                   <button
                     type="button"
                     id="photoGalleryBtn"
-                    class="flex items-center justify-center gap-1.5 bg-[#F8FAFC] hover:bg-slate-100 text-[#191F28] font-extrabold text-[12px] py-2 rounded-xl border border-slate-200 cursor-pointer"
+                    class="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 text-[#191F28] font-extrabold text-[12px] text-left transition-colors cursor-pointer"
                   >
-                    <span>🖼️</span>
-                    <span>앨범</span>
+                    <span class="text-[14px] leading-none">🖼️</span>
+                    <span>앨범 선택</span>
+                  </button>
+                  <button
+                    type="button"
+                    id="photoRemoveBtn"
+                    class="hidden w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-rose-50 text-rose-500 font-extrabold text-[12px] text-left border-t border-slate-100 transition-colors cursor-pointer"
+                  >
+                    <span class="text-[14px] leading-none">🗑️</span>
+                    <span>사진 삭제</span>
                   </button>
                 </div>
               </div>
