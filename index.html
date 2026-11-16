@@ -802,6 +802,26 @@
               아직 투표가 없어요! 친구들에게 공유하거나 첫 표를 던져보세요 👇
             </p>
           </div>
+
+          <!-- 투표 완료 직후 바이럴 유입 유도 배너 -->
+          <div
+            id="postVoteViralBanner"
+            class="hidden mt-3.5 bg-gradient-to-br from-[#EFF6FF] via-white to-[#F5F3FF] border border-[#BFDBFE] rounded-2xl p-4 shadow-2xs transition-all duration-300 opacity-0 translate-y-1"
+          >
+            <p class="text-[13.5px] font-black text-[#191F28] leading-snug">
+              나도 지름신 강림했는데... 내 영수증도 판독해볼까? 🤔
+            </p>
+            <p class="text-[11.5px] font-semibold text-[#64748B] mt-1 leading-relaxed">
+              친구의 지름을 말리거나 동조하고, 나만의 팩폭 영수증과 긴급 절약 성과 보고서를 만들어보세요!
+            </p>
+            <button
+              type="button"
+              id="goMainDetectorBtn"
+              class="w-full mt-3 bg-[#3182F6] hover:bg-[#1B64DA] active:scale-[0.99] text-white font-extrabold text-[13px] py-3 rounded-xl shadow-sm transition-all cursor-pointer"
+            >
+              🚀 나도 살까 말까 판독기 쓰러 가기
+            </button>
+          </div>
         </section>
 
         <!-- 친구들의 실시간 팩폭 (한 줄 참견 댓글) -->
@@ -2892,6 +2912,27 @@
           if (pollBuyBarEl) pollBuyBarEl.className = 'h-full bg-[#60A5FA] rounded-l-full transition-all duration-500';
           if (pollByeBarEl) pollByeBarEl.className = 'h-full bg-[#3182F6] rounded-r-full transition-all duration-500';
           if (statusSummary) statusSummary.textContent = '현재 50:50 팽팽한 동률 접전 중이에요! ⚡';
+        }
+
+        // 투표 완료 시 바이럴 유입 배너 부드럽게 노출
+        const postVoteBannerEl = document.getElementById('postVoteViralBanner');
+        if (postVoteBannerEl) {
+          const hasVoted = myVote === 'buy' || myVote === 'bye';
+          if (hasVoted) {
+            if (postVoteBannerEl.classList.contains('hidden')) {
+              postVoteBannerEl.classList.remove('hidden');
+              requestAnimationFrame(() => {
+                postVoteBannerEl.classList.remove('opacity-0', 'translate-y-1');
+                postVoteBannerEl.classList.add('opacity-100', 'translate-y-0');
+              });
+            } else {
+              postVoteBannerEl.classList.remove('opacity-0', 'translate-y-1');
+              postVoteBannerEl.classList.add('opacity-100', 'translate-y-0');
+            }
+          } else {
+            postVoteBannerEl.classList.add('hidden', 'opacity-0', 'translate-y-1');
+            postVoteBannerEl.classList.remove('opacity-100', 'translate-y-0');
+          }
         }
 
         // 댓글 리스트 렌더링 (현재 roomId에 속한 팩폭만 표시)
@@ -5862,6 +5903,20 @@
         openSavingReportFromCategoryBtn.addEventListener('click', () => {
           closeCategoryReportModal();
           openLevelUpModal(false, 'report');
+        });
+      }
+      const goMainDetectorBtn = document.getElementById('goMainDetectorBtn');
+      if (goMainDetectorBtn) {
+        goMainDetectorBtn.addEventListener('click', () => {
+          if (window.location.search && window.history && typeof window.history.replaceState === 'function') {
+            window.history.replaceState({}, '', window.location.pathname);
+          }
+          isSharedRoomEntry = false;
+          rotateRoomForNewCalculation();
+          saveState();
+          renderAll();
+          switchScreen('main');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       }
       document.getElementById('closeCategoryReportBtn').addEventListener('click', closeCategoryReportModal);
