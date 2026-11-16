@@ -20,14 +20,14 @@
   <meta property="og:description" content="🔥질러라 vs 🛑참아라! 내 통장 살릴지 죽일지 지금 실시간 투표에 참여해 주세요!" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://crengineer86-dot.github.io/buy-or-bye/" />
-  <meta property="og:image" content="https://crengineer86-dot.github.io/buy-or-bye/icon-512.png" />
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
+  <meta property="og:image" content="https://crengineer86-dot.github.io/buy-or-bye/og-thumbnail.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="살까 말까 판독기 팩폭 영수증 카드" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="💸 [살까 말까 판독기] 지름신 팩폭 영수증 도착!" />
   <meta name="twitter:description" content="🔥질러라 vs 🛑참아라! 내 통장 살릴지 죽일지 지금 실시간 투표에 참여해 주세요!" />
-  <meta name="twitter:image" content="https://crengineer86-dot.github.io/buy-or-bye/icon-512.png" />
+  <meta name="twitter:image" content="https://crengineer86-dot.github.io/buy-or-bye/og-thumbnail.png" />
   <!-- Pretendard Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <!-- Tailwind CSS -->
@@ -1459,12 +1459,12 @@
               </div>
 
               <!-- 영수증 최하단: 점선 + 발행 일시 + 바코드 그래픽 + 리포트 문구 -->
-              <div class="text-center pt-2 border-t border-dashed border-slate-300 shrink-0 space-y-1.5">
-                <div class="flex items-center justify-between text-[9px] font-mono font-bold text-slate-400 px-1 leading-none">
+              <div class="text-center pt-2.5 border-t border-dashed border-slate-300 shrink-0">
+                <div class="flex items-center justify-between text-[9px] font-mono font-bold text-slate-400 px-1 leading-none" style="margin-bottom: 10px;">
                   <span id="receiptIssuedAt">ISSUED 2026.11.16 09:00</span>
                   <span id="receiptSerialNo">NO. BOB-1042</span>
                 </div>
-                <div class="flex items-stretch justify-center gap-[1.5px] h-5 px-4 opacity-80" aria-hidden="true">
+                <div class="flex items-stretch justify-center gap-[1.5px] h-5 px-4 opacity-80" style="margin-top: 10px; margin-bottom: 6px;" aria-hidden="true">
                   <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
                   <span class="w-[1.5px] bg-transparent"></span>
                   <span class="w-[2px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[1px] bg-slate-800"></span><span class="w-[3px] bg-slate-800"></span>
@@ -1759,24 +1759,74 @@
           } else {
             state.pollComments = [];
           }
+
+          let itemHydrated = false;
+          if (isSharedRoomEntry && val.item) {
+            state.itemName = String(val.item);
+            if (val.price !== undefined && !Number.isNaN(Number(val.price))) {
+              state.itemPrice = Math.max(0, Number(val.price));
+            }
+            if (val.period !== undefined && !Number.isNaN(Number(val.period))) {
+              state.useCount = Math.max(1, Math.min(365, Number(val.period)));
+            }
+            if (val.wage !== undefined && !Number.isNaN(Number(val.wage))) {
+              state.hourlyWage = Math.max(1, Number(val.wage));
+            }
+            if (val.cat) {
+              state.customItemIcon = String(val.cat).trim() || null;
+            }
+            if (val.mode === 'allowance') {
+              state.incomeMode = 'allowance';
+              state.wageMode = 'allowance';
+              if (val.allow !== undefined && !Number.isNaN(Number(val.allow))) {
+                state.monthlyAllowance = Math.max(1000, Number(val.allow));
+              }
+            } else if (val.mode === 'hourly') {
+              state.incomeMode = 'hourly';
+              state.wageMode = 'hourly';
+            }
+            itemHydrated = true;
+          }
+
           isRoomSyncedInDb = true;
           saveState();
-          renderPollAndVerdict();
+          if (itemHydrated && typeof renderAll === 'function') {
+            renderAll();
+          } else {
+            renderPollAndVerdict();
+          }
         };
         activeRoomRef = ref;
         activeRoomHandler = handler;
         ref.on('value', handler);
       }
 
+      function getCurrentRoomMetadata() {
+        const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
+        const resolvedCat = state.customItemIcon || pickItemEmoji(displayName);
+        return {
+          item: displayName,
+          price: Math.max(0, Number(state.itemPrice) || 0),
+          period: Math.max(1, Math.min(365, Number(state.useCount) || 1)),
+          wage: Math.max(1, Number(state.hourlyWage) || 10000),
+          cat: resolvedCat,
+          mode: isAllowanceMode() ? 'allowance' : 'hourly',
+          allow: isAllowanceMode() ? Math.max(1000, Number(state.monthlyAllowance) || 300000) : 0
+        };
+      }
+
       async function ensureRoomCreatedInDb(roomId) {
         if (!rtdb || !roomId) return false;
         try {
+          const meta = getCurrentRoomMetadata();
           await rtdb.ref(`rooms/${roomId}`).transaction((current) => {
             if (current === null || typeof current !== 'object') {
-              return { buy: 0, bye: 0 };
+              return { buy: 0, bye: 0, ...meta };
             }
+            const shouldWriteMeta = !isSharedRoomEntry || !current.item;
             return {
               ...current,
+              ...(shouldWriteMeta ? meta : {}),
               buy: Math.max(0, Number(current.buy) || 0),
               bye: Math.max(0, Number(current.bye) || 0)
             };
@@ -1814,21 +1864,8 @@
 
       function generateShareUrl() {
         const roomId = ensureRoomId();
-        attachRoomListener(roomId);
-        const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
-        const resolvedCat = state.customItemIcon || pickItemEmoji(displayName);
-        const params = new URLSearchParams();
-        params.set('item', displayName);
-        params.set('price', String(Math.max(0, Number(state.itemPrice) || 0)));
-        params.set('period', String(Math.max(1, Number(state.useCount) || 1)));
-        params.set('wage', String(Math.max(1, Number(state.hourlyWage) || 10000)));
-        params.set('cat', resolvedCat);
-        params.set('room', roomId);
-        if (isAllowanceMode()) {
-          params.set('mode', 'allowance');
-          params.set('allow', String(Math.max(1000, Number(state.monthlyAllowance) || 300000)));
-        }
-        return `${getShareBaseUrl()}?${params.toString()}`;
+        ensureRoomCreatedInDb(roomId);
+        return `${getShareBaseUrl()}?room=${encodeURIComponent(roomId)}`;
       }
 
       function applyShareUrlParamsOnBoot() {
@@ -4631,7 +4668,7 @@
         successToast = '💬 카카오톡 공유 창을 열고 있어요! (투표 링크 복사 완료)'
       }) {
         const cleanTargetUrl = targetUrl || 'https://crengineer86-dot.github.io/buy-or-bye/';
-        const defaultThumbUrl = 'https://crengineer86-dot.github.io/buy-or-bye/icon-512.png';
+        const defaultThumbUrl = 'https://crengineer86-dot.github.io/buy-or-bye/og-thumbnail.png';
         const fallbackText = shareText || description || title;
 
         // 투표 링크 클립보드 동시 복사
@@ -4792,6 +4829,15 @@
             b.style.justifyContent = 'center';
             b.style.lineHeight = '1';
           });
+          // html2canvas 폰트 베이스라인 하향 보정: 검은색 REALTIME POLL 배지 텍스트 상하 정중앙 정렬
+          const pollBadgeClone = clonedCard.querySelector('#instaPollStickerBadge');
+          if (pollBadgeClone) {
+            pollBadgeClone.style.paddingTop = '4px';
+            pollBadgeClone.style.paddingBottom = '8px';
+            pollBadgeClone.style.paddingLeft = '10px';
+            pollBadgeClone.style.paddingRight = '10px';
+            pollBadgeClone.style.lineHeight = '1';
+          }
 
           offscreenHost.appendChild(clonedCard);
           document.body.appendChild(offscreenHost);
