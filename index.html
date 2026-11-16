@@ -1198,16 +1198,16 @@
       <div id="levelModalBackdrop" class="absolute inset-0 bg-black/70 backdrop-fade opacity-0"></div>
       <div id="levelModalContent" class="relative z-10 w-full max-w-[360px] mx-auto bg-white rounded-3xl p-4 text-center shadow-2xl modal-pop scale-95 opacity-0 max-h-[92vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-2.5 px-1">
-          <span id="modalHeaderTag" class="badge-item inline-flex items-center justify-center text-[11px] font-extrabold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full leading-none">
-            🚨 긴급 절약 성과 보고서
+          <span id="modalHeaderTag" class="badge-item inline-flex items-center justify-center text-[11px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full leading-none">
+            🏆 짠테크 레벨 인증 카드
           </span>
           <button type="button" id="closeLevelModalTopBtn" class="text-slate-400 hover:text-slate-700 font-bold px-1.5 cursor-pointer">✕</button>
         </div>
 
-        <!-- 캡처 대상: 황금빛 긴급 절약 성과 보고서 카드 -->
+        <!-- 캡처 대상: 황금빛 레벨 인증 카드 / 긴급 절약 성과 보고서 -->
         <div id="levelCertificateCaptureBox" class="w-full mx-auto bg-gradient-to-b from-[#FFFBEB] via-white to-[#EFF6FF] rounded-2xl p-5 border-2 border-amber-200/90 shadow-inner text-center">
-          <span class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full mb-2 leading-none">
-            OFFICIAL SAVING REPORT
+          <span id="modalEnglishLabel" class="badge-item inline-flex items-center justify-center text-[10px] font-extrabold tracking-widest text-amber-600 uppercase bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full mb-2 leading-none">
+            OFFICIAL SAVING CERTIFICATE
           </span>
 
           <div id="modalLevelIcon" class="w-16 h-16 mx-auto rounded-full bg-gradient-to-tr from-amber-300 via-yellow-100 to-amber-50 border-4 border-amber-300 flex items-center justify-center text-[32px] leading-none shadow-md my-2 select-none overflow-hidden" style="line-height: 1;">
@@ -1222,11 +1222,11 @@
             🌱 절약 입문자 Lv.1
           </div>
 
-          <h3 id="modalLevelTitle" class="text-[16.5px] font-black text-[#191F28] leading-snug">
-            독하게 참았습니다! 칭찬과 보상이 시급함!
+          <h3 id="modalLevelTitle" class="text-[18px] font-black text-[#191F28] leading-snug">
+            지름신 이겨내고 통장 방어 성공!
           </h3>
-          <p class="text-[9.5px] text-[#64748B] font-semibold mt-1 leading-snug tracking-tight whitespace-nowrap">
-            유혹을 이겨낸 대가로 진짜 필요한 아이템 구매 자격을 얻었습니다 🎉
+          <p id="modalLevelSubtitle" class="text-[11.5px] text-[#64748B] font-semibold mt-1 leading-snug">
+            충동구매 유혹을 뿌리치고 소중한 자산을 지켰어요
           </p>
 
           <!-- 핵심 성과 하이라이트 박스 -->
@@ -1258,14 +1258,14 @@
             id="shareLevelNativeBtn"
             class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[13px] py-3 rounded-xl shadow-xs transition-all cursor-pointer"
           >
-            📤 긴급 절약 보고서 공유하기
+            📤 레벨 인증 카드 공유하기
           </button>
           <button
             type="button"
             id="downloadLevelCertBtn"
             class="w-full bg-[#1E293B] hover:bg-[#0F172A] text-white font-extrabold text-[13px] py-3 rounded-xl transition-all cursor-pointer"
           >
-            💾 보고서 이미지 앨범에 저장
+            💾 레벨 인증 카드 이미지 저장
           </button>
           <button
             type="button"
@@ -4134,7 +4134,12 @@
         };
       }
 
-      function openLevelUpModal(isLevelUp = false) {
+      let currentLevelModalMode = 'certificate';
+
+      function openLevelUpModal(isLevelUp = false, modalMode = 'certificate') {
+        currentLevelModalMode = modalMode === 'report' ? 'report' : 'certificate';
+        const isReportMode = currentLevelModalMode === 'report';
+
         if (isLevelUp) {
           playFanfareSound();
           triggerHaptic([100, 50, 100, 50, 200]);
@@ -4149,18 +4154,58 @@
 
         const headerTagEl = document.getElementById('modalHeaderTag');
         if (headerTagEl) {
-          headerTagEl.textContent = isLevelUp
-            ? `🎉 LEVEL UP! Lv.${levelInfo.level} 승급 축하`
-            : '🚨 긴급 절약 성과 보고서';
+          if (isReportMode) {
+            headerTagEl.textContent = '🚨 긴급 절약 성과 보고서';
+            headerTagEl.className = 'badge-item inline-flex items-center justify-center text-[11px] font-extrabold text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full leading-none';
+          } else {
+            headerTagEl.textContent = isLevelUp
+              ? `🎉 LEVEL UP! Lv.${levelInfo.level} 승급 축하`
+              : '🏆 짠테크 레벨 인증 카드';
+            headerTagEl.className = 'badge-item inline-flex items-center justify-center text-[11px] font-extrabold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full leading-none';
+          }
+        }
+        const englishLabelEl = document.getElementById('modalEnglishLabel');
+        if (englishLabelEl) {
+          englishLabelEl.textContent = isReportMode ? 'OFFICIAL SAVING REPORT' : 'OFFICIAL SAVING CERTIFICATE';
         }
         const iconEl = document.getElementById('modalLevelIcon');
         if (iconEl) {
           iconEl.textContent = levelInfo.icon;
         }
         document.getElementById('modalLevelPill').textContent = levelInfo.badgeText;
-        document.getElementById('modalLevelTitle').textContent = isLevelUp
-          ? `축하해요! '${levelInfo.name}' 등극!`
-          : '독하게 참았습니다! 칭찬과 보상이 시급함!';
+
+        const titleEl = document.getElementById('modalLevelTitle');
+        const subtitleEl = document.getElementById('modalLevelSubtitle');
+        if (isReportMode) {
+          if (titleEl) {
+            titleEl.textContent = '독하게 참았습니다! 칭찬과 보상이 시급함!';
+            titleEl.className = 'text-[16.5px] font-black text-[#191F28] leading-snug';
+          }
+          if (subtitleEl) {
+            subtitleEl.textContent = '유혹을 이겨낸 대가로 진짜 필요한 아이템 구매 자격을 얻었습니다 🎉';
+            subtitleEl.className = 'text-[9.5px] text-[#64748B] font-semibold mt-1 leading-snug tracking-tight whitespace-nowrap';
+          }
+        } else {
+          if (titleEl) {
+            titleEl.textContent = isLevelUp
+              ? `축하해요! '${levelInfo.name}' 등극!`
+              : '지름신 이겨내고 통장 방어 성공!';
+            titleEl.className = 'text-[18px] font-black text-[#191F28] leading-snug';
+          }
+          if (subtitleEl) {
+            subtitleEl.textContent = '충동구매 유혹을 뿌리치고 소중한 자산을 지켰어요';
+            subtitleEl.className = 'text-[11.5px] text-[#64748B] font-semibold mt-1 leading-snug';
+          }
+        }
+
+        const shareBtnEl = document.getElementById('shareLevelNativeBtn');
+        const downloadBtnEl = document.getElementById('downloadLevelCertBtn');
+        if (shareBtnEl) {
+          shareBtnEl.textContent = isReportMode ? '📤 긴급 절약 보고서 공유하기' : '📤 레벨 인증 카드 공유하기';
+        }
+        if (downloadBtnEl) {
+          downloadBtnEl.textContent = isReportMode ? '💾 보고서 이미지 앨범에 저장' : '💾 레벨 인증 카드 이미지 저장';
+        }
         document.getElementById('modalSavedCount').textContent = `${formatNumber(totalCount)}번`;
         document.getElementById('modalSavedAmount').textContent = `${formatNumber(totalSaved)}원`;
 
@@ -4214,15 +4259,23 @@
           ? `아낀 총 용돈 약 ${formatNumber(totalSavedAllowanceDays)}일치`
           : `구출한 내 노동 시간 약 ${formatNumber(totalHours)}시간`;
 
+        const isReportMode = currentLevelModalMode === 'report';
+        if (isReportMode) {
+          await copyTextToClipboard('🚨 [긴급 보고] 독하게 아꼈으니 이제 진짜 필요한 거 하나 사겠습니다 🙏');
+        }
+
         try {
           const canvas = await createLevelCertCanvas();
           await saveOrShareCanvasImage(canvas, {
-            filename: `긴급_절약_성과_보고서_${Date.now()}.png`,
-            shareTitle: '🚨 긴급 절약 성과 보고서',
-            shareText: '🚨 [긴급 보고] 독하게 아꼈으니 이제 진짜 필요한 거 하나 사겠습니다 🙏',
+            filename: isReportMode
+              ? `긴급_절약_성과_보고서_${Date.now()}.png`
+              : `짠테크_레벨인증카드_${Date.now()}.png`,
+            shareTitle: isReportMode ? '🚨 긴급 절약 성과 보고서' : '🏆 짠테크 레벨 인증 카드',
             preferShareOnMobile: true,
-            imageOnlyShare: false,
-            successToast: '📤 공유할 앱을 선택해 주세요! 🚨'
+            imageOnlyShare: true,
+            successToast: isReportMode
+              ? '공유 문구가 복사되었습니다! 카톡창에 붙여넣어 보세요'
+              : '📤 공유할 앱을 선택해 주세요! 🏆'
           });
         } catch (err) {
           console.error('Level card share failed:', err);
@@ -5906,7 +5959,7 @@
       if (openSavingReportFromCategoryBtn) {
         openSavingReportFromCategoryBtn.addEventListener('click', () => {
           closeCategoryReportModal();
-          openLevelUpModal(false);
+          openLevelUpModal(false, 'report');
         });
       }
       document.getElementById('closeCategoryReportBtn').addEventListener('click', closeCategoryReportModal);
