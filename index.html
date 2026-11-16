@@ -92,6 +92,44 @@
       overflow-x: hidden;
     }
 
+    /* 주요 인터랙션 버튼 공통 손맛(Tactile Active Scale) */
+    button {
+      transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    }
+    button:not(:disabled):active {
+      transform: scale(0.97) !important;
+    }
+
+    /* 투표 완료 배너 부드러운 슬라이드-다운 + 페이드인 */
+    @keyframes slideDownFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .animate-slide-down-fade {
+      animation: slideDownFadeIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* 새 팩폭 댓글 최상단 톡 꽂히는 팝인 애니메이션 */
+    @keyframes commentPopIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .animate-comment-pop {
+      animation: commentPopIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
     /* Custom Range Slider (Toss Blue style, Track-Integrated Nodes) */
     input[type="range"] {
       -webkit-appearance: none;
@@ -2904,24 +2942,21 @@
           if (statusSummary) statusSummary.textContent = '현재 50:50 팽팽한 동률 접전 중이에요! ⚡';
         }
 
-        // 투표 완료 시 바이럴 유입 배너 부드럽게 노출
+        // 투표 완료 시 바이럴 유입 배너 부드럽게 슬라이드-다운 & 페이드인 노출
         const postVoteBannerEl = document.getElementById('postVoteViralBanner');
         if (postVoteBannerEl) {
           const hasVoted = myVote === 'buy' || myVote === 'bye';
           if (hasVoted) {
             if (postVoteBannerEl.classList.contains('hidden')) {
-              postVoteBannerEl.classList.remove('hidden');
-              requestAnimationFrame(() => {
-                postVoteBannerEl.classList.remove('opacity-0', 'translate-y-1');
-                postVoteBannerEl.classList.add('opacity-100', 'translate-y-0');
-              });
+              postVoteBannerEl.classList.remove('hidden', 'opacity-0', 'translate-y-1');
+              postVoteBannerEl.classList.add('opacity-100', 'translate-y-0', 'animate-slide-down-fade');
             } else {
               postVoteBannerEl.classList.remove('opacity-0', 'translate-y-1');
               postVoteBannerEl.classList.add('opacity-100', 'translate-y-0');
             }
           } else {
             postVoteBannerEl.classList.add('hidden', 'opacity-0', 'translate-y-1');
-            postVoteBannerEl.classList.remove('opacity-100', 'translate-y-0');
+            postVoteBannerEl.classList.remove('opacity-100', 'translate-y-0', 'animate-slide-down-fade');
           }
         }
 
@@ -2960,8 +2995,9 @@
           commentListEl.appendChild(inviteHint);
         } else {
           comments.forEach((c) => {
+            const isNewlyAdded = Boolean(lastAddedCommentId && c.id === lastAddedCommentId);
             const item = document.createElement('div');
-            item.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5';
+            item.className = `bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5${isNewlyAdded ? ' animate-comment-pop' : ''}`;
             item.innerHTML = `
               <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[15px] shrink-0">
                 ${escapeHtml(c.avatar || '💬')}
@@ -2976,6 +3012,10 @@
             `;
             commentListEl.appendChild(item);
           });
+          if (lastAddedCommentId) {
+            commentListEl.scrollTo({ top: 0, behavior: 'smooth' });
+            lastAddedCommentId = null;
+          }
         }
 
         // 화면 ②: 최종 판정 결과 동기화 (0표 / 질러라 우세 / 참아라 우세 / 동률 분기)
@@ -3918,6 +3958,8 @@
         castRoomVote('bye');
       });
 
+      let lastAddedCommentId = null;
+
       async function addPollComment() {
         const input = document.getElementById('newPollCommentInput');
         const text = input.value.trim();
@@ -3943,6 +3985,7 @@
           likes: 1
         };
 
+        lastAddedCommentId = commentId;
         state.pollComments.unshift(newComment);
         input.value = '';
         saveState();
