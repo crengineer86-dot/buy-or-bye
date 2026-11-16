@@ -1252,29 +1252,20 @@
         </div>
 
         <!-- 레벨 인증 전용 공유 액션 버튼들 -->
-        <div class="mt-3.5 space-y-2">
-          <div class="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              id="shareLevelInstaBtn"
-              class="bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[12.5px] py-3 rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              📸 인스타 자랑하기
-            </button>
-            <button
-              type="button"
-              id="shareLevelKakaoBtn"
-              class="bg-[#FEE500] hover:bg-[#FDD835] text-[#191F28] font-extrabold text-[12.5px] py-3 rounded-xl shadow-xs transition-all cursor-pointer"
-            >
-              💬 카카오톡 자랑하기
-            </button>
-          </div>
+        <div class="mt-4 space-y-2">
+          <button
+            type="button"
+            id="shareLevelNativeBtn"
+            class="w-full bg-[#3182F6] hover:bg-[#1B64DA] text-white font-extrabold text-[13px] py-3 rounded-xl shadow-xs transition-all cursor-pointer"
+          >
+            📤 레벨 인증 카드 공유하기
+          </button>
           <button
             type="button"
             id="downloadLevelCertBtn"
             class="w-full bg-[#1E293B] hover:bg-[#0F172A] text-white font-extrabold text-[13px] py-3 rounded-xl transition-all cursor-pointer"
           >
-            📥 레벨 인증 카드 이미지 저장
+            💾 레벨 인증 카드 이미지 저장
           </button>
           <button
             type="button"
@@ -4196,42 +4187,25 @@
         const bottomMetricLine = isAllowanceMode()
           ? `아낀 총 용돈 약 ${formatNumber(totalSavedAllowanceDays)}일치`
           : `구출한 내 노동 시간 약 ${formatNumber(totalHours)}시간`;
-        const isKakao = channelLabel.includes('카카오톡');
 
         try {
           const canvas = await createLevelCertCanvas();
-          if (isKakao) {
-            await shareKakaoFeedCard({
-              canvas,
-              title: `🏆 ${levelInfo.badgeText} · 통장 방어 성공!`,
-              description: `총 ${formatNumber(totalCount)}번 참아서 ${formatNumber(totalSaved)}원 절약 (${bottomMetricLine})`,
-              targetUrl: 'https://crengineer86-dot.github.io/buy-or-bye/',
-              buttonTitle: '나도 절약 레벨 측정하기',
-              fallbackFilename: `짠테크_레벨인증카드_${Date.now()}.png`,
-              successToast: '💬 카카오톡용 레벨 인증 카드가 준비되었어요! 🏆'
-            });
-          } else {
-            const storyCanvas = createInstaStoryCanvas(canvas);
-            await saveOrShareCanvasImage(storyCanvas, {
-              filename: `짠테크_레벨인증_스토리_${Date.now()}.png`,
-              shareTitle: '나의 짠테크 레벨 인증 카드',
-              preferShareOnMobile: true,
-              imageOnlyShare: true,
-              successToast: '📸 인스타 스토리 전용 고화질 이미지가 준비되었어요! 🏆'
-            });
-          }
+          await saveOrShareCanvasImage(canvas, {
+            filename: `짠테크_레벨인증카드_${Date.now()}.png`,
+            shareTitle: `🏆 ${levelInfo.badgeText} · 통장 방어 성공!`,
+            shareText: `총 ${formatNumber(totalCount)}번 참아서 ${formatNumber(totalSaved)}원 절약 (${bottomMetricLine})`,
+            preferShareOnMobile: true,
+            imageOnlyShare: true,
+            successToast: '📤 공유할 앱을 선택해 주세요! 🏆'
+          });
         } catch (err) {
           console.error('Level card share failed:', err);
           showToast('⚠️ 레벨 인증 카드 이미지 준비에 실패했어요');
         }
       }
 
-      document.getElementById('shareLevelInstaBtn').addEventListener('click', () => {
-        shareLevelAchievementText('📸 인스타');
-      });
-
-      document.getElementById('shareLevelKakaoBtn').addEventListener('click', () => {
-        shareLevelAchievementText('💬 카카오톡');
+      document.getElementById('shareLevelNativeBtn').addEventListener('click', () => {
+        shareLevelAchievementText('native');
       });
 
       const CANVAS_FONT_FAMILY = "'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif";
