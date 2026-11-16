@@ -6103,9 +6103,10 @@
         setTimeout(() => switchScreen('poll'), 250);
       });
 
-      // 1) [카카오톡 투표]: 절대 files(이미지)를 넣지 않고, Kakao SDK 피드 카드 또는 텍스트+URL 전용 요약 링크 카드 즉시 공유
+      // 1) [카카오톡 투표]: 1차 팩폭 영수증 고화질 이미지 전송 ➔ 직후 2차 '질러라 vs 참아라' 투표 초대 링크 카드 연속(2연발) 공유
       document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', async () => {
         getAudioContext();
+        triggerHaptic(15, true);
         const roomId = ensureRoomId();
         ensureRoomCreatedInDb(roomId);
 
@@ -6125,7 +6126,22 @@
         if (kakaoLabel) kakaoLabel.textContent = '공유 준비 중...';
 
         try {
-          const receiptCanvas = initKakaoSdkIfConfigured() ? await createReceiptCanvas() : null;
+          // 1차 전송: 검증된 SNS 공유용 고화질 팩폭 영수증 이미지 단독 전송
+          const receiptCanvas = await createReceiptCanvas();
+          const imgShareResult = await saveOrShareCanvasImage(receiptCanvas, {
+            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
+            shareTitle: '살까 말까 팩폭 영수증',
+            copyTextOnShare: shareUrl,
+            preferShareOnMobile: true,
+            imageOnlyShare: true,
+            noDownloadFallback: true,
+            successToast: ''
+          });
+          if (imgShareResult === 'cancelled') {
+            return;
+          }
+
+          // 2차 전송: 지연 없이 곧바로 이어서 '질러라 vs 참아라' 투표 초대 링크 카드 연속 호출
           await shareKakaoFeedCard({
             canvas: receiptCanvas,
             title: '[살까 말까 팩폭 영수증]',
@@ -6134,10 +6150,10 @@
             targetUrl: shareUrl,
             buttonTitle: '투표하러 가기',
             fallbackFilename: `살까말까_카톡영수증_${Date.now()}.png`,
-            successToast: '💬 카카오톡 공유 창을 열고 있어요! (투표 링크 복사 완료)'
+            successToast: '💬 영수증 이미지 + 투표 초대 링크 2연발 공유 완료!'
           });
         } catch (err) {
-          console.error('Kakao share failed:', err);
+          console.error('Kakao 2-step share failed:', err);
           showToast('⚠️ 카카오톡 공유 준비에 실패했어요');
         } finally {
           if (kakaoBtn) kakaoBtn.disabled = false;
