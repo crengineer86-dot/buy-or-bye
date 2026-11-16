@@ -140,9 +140,11 @@ jobs:
           main_activity.write_text(
               """package com.buyorbye.app;
 
+          import android.app.Activity;
           import android.content.ContentResolver;
           import android.content.ContentValues;
           import android.content.Context;
+          import android.content.Intent;
           import android.media.MediaScannerConnection;
           import android.net.Uri;
           import android.os.Build;
@@ -154,17 +156,54 @@ jobs:
           import android.webkit.JavascriptInterface;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
+          import androidx.activity.result.ActivityResultLauncher;
+          import androidx.activity.result.contract.ActivityResultContracts;
           import com.getcapacitor.BridgeActivity;
+          import java.io.ByteArrayOutputStream;
           import java.io.File;
           import java.io.FileOutputStream;
+          import java.io.InputStream;
           import java.io.OutputStream;
 
           public class MainActivity extends BridgeActivity {
+              private ActivityResultLauncher<Intent> galleryPickerLauncher;
+              private volatile String pendingPickedImageDataUrl = null;
+
+              public void launchDirectGalleryPicker() {
+                  runOnUiThread(() -> {
+                      if (galleryPickerLauncher == null) return;
+                      Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                      intent.setType("image/*");
+                      galleryPickerLauncher.launch(intent);
+                  });
+              }
+
+              public String consumePendingPickedImage() {
+                  String data = pendingPickedImageDataUrl;
+                  pendingPickedImageDataUrl = null;
+                  return data != null ? data : "";
+              }
+
               public static class AndroidGalleryBridge {
                   private final Context context;
 
                   public AndroidGalleryBridge(Context context) {
                       this.context = context;
+                  }
+
+                  @JavascriptInterface
+                  public void openGalleryPicker() {
+                      if (context instanceof MainActivity) {
+                          ((MainActivity) context).launchDirectGalleryPicker();
+                      }
+                  }
+
+                  @JavascriptInterface
+                  public String consumePickedImage() {
+                      if (context instanceof MainActivity) {
+                          return ((MainActivity) context).consumePendingPickedImage();
+                      }
+                      return "";
                   }
 
                   @JavascriptInterface
@@ -234,6 +273,42 @@ jobs:
 
               @Override
               public void onCreate(Bundle savedInstanceState) {
+                  galleryPickerLauncher = registerForActivityResult(
+                      new ActivityResultContracts.StartActivityForResult(),
+                      result -> {
+                          if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                              Uri uri = result.getData().getData();
+                              if (uri != null) {
+                                  new Thread(() -> {
+                                      try (InputStream is = getContentResolver().openInputStream(uri)) {
+                                          if (is == null) return;
+                                          ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                          byte[] chunk = new byte[16384];
+                                          int n;
+                                          while ((n = is.read(chunk)) != -1) {
+                                              buffer.write(chunk, 0, n);
+                                          }
+                                          String mime = getContentResolver().getType(uri);
+                                          if (mime == null || !mime.startsWith("image/")) {
+                                              mime = "image/jpeg";
+                                          }
+                                          String base64 = Base64.encodeToString(buffer.toByteArray(), Base64.NO_WRAP);
+                                          pendingPickedImageDataUrl = "data:" + mime + ";base64," + base64;
+                                          runOnUiThread(() -> {
+                                              if (getBridge() != null && getBridge().getWebView() != null) {
+                                                  getBridge().getWebView().evaluateJavascript(
+                                                      "window.__onAndroidGalleryImagePicked && window.__onAndroidGalleryImagePicked();",
+                                                      null
+                                                  );
+                                              }
+                                          });
+                                      } catch (Exception ignored) {
+                                      }
+                                  }).start();
+                              }
+                          }
+                      }
+                  );
                   super.onCreate(savedInstanceState);
                   if (getBridge() != null && getBridge().getWebView() != null) {
                       WebView webView = getBridge().getWebView();

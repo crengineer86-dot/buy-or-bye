@@ -400,7 +400,7 @@
               </div>
 
               <input type="file" id="itemPhotoCameraInput" accept="image/*" capture="environment" class="hidden" />
-              <input type="file" id="itemPhotoGalleryInput" accept="image/*" class="hidden" />
+              <input type="file" id="itemPhotoGalleryInput" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif" class="hidden" />
 
               <!-- 제품 사진 선택 미니 말풍선 아이콘 타일 팝오버 (카메라 버튼 바로 아래) -->
               <div
@@ -3855,42 +3855,59 @@
       const realPhotoLightboxCloseBtn = document.getElementById('realPhotoLightboxCloseBtn');
       const pollOpenPhotoBtn = document.getElementById('pollOpenPhotoBtn');
 
+      function compressAndStoreItemPhotoDataUrl(dataUrl) {
+        if (!dataUrl) return;
+        const img = new Image();
+        img.onload = () => {
+          const MAX_SIDE = 800;
+          let w = img.width || 800;
+          let h = img.height || 800;
+          if (w > MAX_SIDE || h > MAX_SIDE) {
+            if (w >= h) {
+              h = Math.round((h * MAX_SIDE) / w);
+              w = MAX_SIDE;
+            } else {
+              w = Math.round((w * MAX_SIDE) / h);
+              h = MAX_SIDE;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+          state.itemPhoto = compressedDataUrl;
+          saveState();
+          renderAll();
+          if (rtdb && state.roomId && !isSharedRoomEntry) {
+            ensureRoomCreatedInDb(state.roomId);
+          }
+          showToast('📸 제품 사진이 첨부되었어요! (투표판에서도 볼 수 있어요)');
+        };
+        img.src = String(dataUrl);
+      }
+
       function compressAndStoreItemPhoto(file) {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const MAX_SIDE = 800;
-            let w = img.width || 800;
-            let h = img.height || 800;
-            if (w > MAX_SIDE || h > MAX_SIDE) {
-              if (w >= h) {
-                h = Math.round((h * MAX_SIDE) / w);
-                w = MAX_SIDE;
-              } else {
-                w = Math.round((w * MAX_SIDE) / h);
-                h = MAX_SIDE;
-              }
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
-            state.itemPhoto = compressedDataUrl;
-            saveState();
-            renderAll();
-            if (rtdb && state.roomId && !isSharedRoomEntry) {
-              ensureRoomCreatedInDb(state.roomId);
-            }
-            showToast('📸 제품 사진이 첨부되었어요! (투표판에서도 볼 수 있어요)');
-          };
-          img.src = String(ev.target.result || '');
+          compressAndStoreItemPhotoDataUrl(String(ev.target.result || ''));
         };
         reader.readAsDataURL(file);
       }
+
+      window.__onAndroidGalleryImagePicked = () => {
+        try {
+          if (window.AndroidGalleryBridge && typeof window.AndroidGalleryBridge.consumePickedImage === 'function') {
+            const dataUrl = window.AndroidGalleryBridge.consumePickedImage();
+            if (dataUrl) compressAndStoreItemPhotoDataUrl(dataUrl);
+          }
+        } catch (err) {
+          console.error('Android gallery pick error:', err);
+          showToast('⚠️ 앨범에서 사진을 불러오지 못했어요');
+        }
+      };
 
       if (itemPhotoPickerBtn && photoSourcePopover) {
         itemPhotoPickerBtn.addEventListener('click', (e) => {
@@ -3914,6 +3931,10 @@
           e.stopPropagation();
           triggerHaptic(15, true);
           if (photoSourcePopover) photoSourcePopover.classList.add('hidden');
+          if (window.AndroidGalleryBridge && typeof window.AndroidGalleryBridge.openGalleryPicker === 'function') {
+            window.AndroidGalleryBridge.openGalleryPicker();
+            return;
+          }
           itemPhotoGalleryInput.value = '';
           itemPhotoGalleryInput.click();
         });
