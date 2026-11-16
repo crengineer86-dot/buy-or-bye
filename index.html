@@ -36,13 +36,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <!-- html2canvas (오프라인 로컬 에셋 우선 + jsDelivr CDN 폴백) -->
-  <script src="assets/js/html2canvas.min.js"></script>
-  <script>
-    if (typeof html2canvas === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script>');
-    }
-  </script>
+  <!-- html-to-image (네이티브 브라우저 렌더링 기반 1:1 무왜곡 캡처) -->
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
   <!-- Firebase Compat SDK (App + Realtime Database) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
@@ -1263,7 +1258,7 @@
         </div>
 
         <!-- 레벨 인증 전용 공유 액션 버튼들 -->
-        <div class="mt-4 space-y-2" data-html2canvas-ignore="true">
+        <div class="mt-4 space-y-2" data-capture-ignore="true">
           <button
             type="button"
             id="shareLevelNativeBtn"
@@ -4614,7 +4609,17 @@
       });
 
       // 모바일(Capacitor Native Share / Web Share API 파일 공유) 우선 + PC/인앱브라우저 폴백 통합 이미지 저장·공유기
-      async function saveOrShareCanvasImage(canvas, options = {}) {
+      function blobToDataUrl(blob) {
+        return new Promise((resolve) => {
+          if (!blob) return resolve('');
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(String(reader.result || ''));
+          reader.onerror = () => resolve('');
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      async function saveOrShareCanvasImage(canvasOrBlob, options = {}) {
         const {
           filename = `buy_or_bye_${Date.now()}.png`,
           shareTitle = '살까 말까 판독기',
@@ -4630,14 +4635,16 @@
           copyTextToClipboard(copyTextOnShare);
         }
 
-        const dataUrl = canvas.toDataURL('image/png');
-        const blob = await canvasToPngBlob(canvas);
+        const isDirectBlob = typeof Blob !== 'undefined' && canvasOrBlob instanceof Blob;
+        const blob = isDirectBlob ? canvasOrBlob : await canvasToPngBlob(canvasOrBlob);
+        const getDataUrl = async () => (isDirectBlob ? await blobToDataUrl(blob) : canvasOrBlob.toDataURL('image/png'));
         const mobile = isMobileClient();
 
         // 0) 직접 저장 모드(preferShareOnMobile === false)일 때 Capacitor Android 네이티브 MediaStore 갤러리 브리지 우선 실행 (공유창 없음)
         if (!preferShareOnMobile && window.AndroidGalleryBridge && typeof window.AndroidGalleryBridge.saveImageToGallery === 'function') {
           try {
-            const bridgeResult = window.AndroidGalleryBridge.saveImageToGallery(dataUrl, filename);
+            const bridgeDataUrl = await getDataUrl();
+            const bridgeResult = window.AndroidGalleryBridge.saveImageToGallery(bridgeDataUrl, filename);
             if (bridgeResult === 'OK') {
               playShutterSound();
               triggerHaptic(40);
@@ -4655,7 +4662,8 @@
         const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
         if (isCapNative && preferShareOnMobile && cap.Plugins && cap.Plugins.Filesystem && cap.Plugins.Share) {
           try {
-            const base64Data = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+            const capDataUrl = await getDataUrl();
+            const base64Data = capDataUrl.includes(',') ? capDataUrl.split(',')[1] : capDataUrl;
             await cap.Plugins.Filesystem.writeFile({
               path: filename,
               data: base64Data,
@@ -4725,13 +4733,15 @@
               console.warn('Clipboard image copy fallback skipped:', clipErr);
             }
           }
-          openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
+          const fallbackUrl = await getDataUrl();
+          openImageSaveFallbackModal(fallbackUrl, blob, filename, shareTitle, shareText);
           if (successToast) showToast(successToast);
           return 'share-fallback-modal';
         }
 
         if (mobile && preferShareOnMobile) {
-          openImageSaveFallbackModal(dataUrl, blob, filename, shareTitle, shareText);
+          const fallbackUrl = await getDataUrl();
+          openImageSaveFallbackModal(fallbackUrl, blob, filename, shareTitle, shareText);
           showToast('📱 [공유 / 앨범 저장] 또는 이미지를 길게 눌러 앨범에 저장해 주세요!');
           return 'mobile-fallback-modal';
         }
@@ -4739,11 +4749,12 @@
         if (blob) {
           triggerBlobDownload(blob, filename, successToast);
         } else {
+          const fallbackUrl = await getDataUrl();
           playShutterSound();
           triggerHaptic(40);
           const link = document.createElement('a');
           link.download = filename;
-          link.href = dataUrl;
+          link.href = fallbackUrl;
           document.body.appendChild(link);
           link.click();
           link.remove();
@@ -4928,10 +4939,10 @@
       }
 
       function prewarmCapture(targetId) {
-        if (!targetId || typeof window.html2canvas !== 'function') return;
+        if (!targetId || !window.htmlToImage || typeof window.htmlToImage.toBlob !== 'function') return;
         if (prewarmedCaptureMap.has(targetId)) return;
         const promise = new Promise((resolve) => setTimeout(resolve, 320))
-          .then(() => captureElementWithHtml2canvas(targetId, { forceFresh: true }))
+          .then(() => captureCardBlobWithHtmlToImage(targetId, { forceFresh: true }))
           .catch(() => {
             prewarmedCaptureMap.delete(targetId);
             return null;
@@ -4939,9 +4950,9 @@
         prewarmedCaptureMap.set(targetId, promise);
       }
 
-      // 눈에 보이는 실제 화면 비율 그대로(scale: 3) 찍는 단일 고화질 캡처 함수
-      async function captureElementWithHtml2canvas(targetId, { forceFresh = false } = {}) {
-        if (typeof window.html2canvas !== 'function') return null;
+      // html-to-image 기반 왜곡 0% 단일 고화질 캡처 함수 (영수증 / 레벨 카드 / 긴급 보고서 공통)
+      async function captureCardBlobWithHtmlToImage(targetId, { forceFresh = false } = {}) {
+        if (!window.htmlToImage || typeof window.htmlToImage.toBlob !== 'function') return null;
 
         if (!forceFresh && prewarmedCaptureMap.has(targetId)) {
           const cached = await prewarmedCaptureMap.get(targetId);
@@ -4960,34 +4971,29 @@
             await ensureReceiptPaperPreloaded();
           }
 
-          const rect = targetEl.getBoundingClientRect();
-          const canvas = await window.html2canvas(targetEl, {
-            scale: 3,
-            width: rect.width,
-            height: rect.height,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: null,
-            logging: false
+          const blob = await window.htmlToImage.toBlob(targetEl, {
+            pixelRatio: 3,
+            cacheBust: true,
+            style: {
+              transform: 'none',
+              margin: '0'
+            },
+            filter: (node) => !(node && typeof node.hasAttribute === 'function' && node.hasAttribute('data-capture-ignore'))
           });
-          return canvas;
+          return blob;
         } catch (captureErr) {
-          console.warn(`html2canvas capture failed on ${targetId}:`, captureErr);
+          console.warn(`htmlToImage capture failed on ${targetId}:`, captureErr);
           return null;
         }
       }
 
-      // ④ 절약 레벨 인증 카드 (실제 DOM 1:1 캡처 우선 + 슬림 비율 폴백)
+      // ④ 절약 레벨 인증 카드 / 긴급 절약 성과 보고서 (실제 DOM html-to-image 우선 + 슬림 비율 폴백)
       async function createLevelCertCanvas() {
-        if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
-          await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
-        }
-
-        // 1) 화면 팝업 실제 DOM 크기(offsetWidth, offsetHeight) 기반 html2canvas 고화질(scale: 3) 캡처 우선
+        // 1) 화면 팝업 실제 카드 본체(levelCertificateCaptureBox) 기반 html-to-image 고화질 캡처 우선
         try {
-          const domCanvas = await captureElementWithHtml2canvas('levelCertificateCaptureBox', 'levelUpModal');
-          if (domCanvas) {
-            return domCanvas;
+          const domBlob = await captureCardBlobWithHtmlToImage('levelCertificateCaptureBox');
+          if (domBlob) {
+            return domBlob;
           }
         } catch (domErr) {
           console.warn('level cert DOM capture fallback:', domErr);
@@ -5219,17 +5225,13 @@
         }
       }
 
-      // ①②③ 팩폭 영수증 카드 Canvas 생성기 (실제 DOM 1:1 캡처 우선 + 슬림 9:16 비율 폴백)
+      // ①②③ 팩폭 영수증 카드 캡처 생성기 (실제 DOM html-to-image 1:1 캡처 우선 + 슬림 9:16 비율 폴백)
       async function createReceiptCanvas() {
-        if (document.fonts && document.fonts.status !== 'loaded' && document.fonts.ready) {
-          await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 300))]);
-        }
-
-        // 1) 화면 상단 플로팅 실제 DOM 영수증 카드(instaReceiptCaptureBox) 기반 html2canvas 고화질(scale: 3) 캡처 우선
+        // 1) 화면 상단 플로팅 실제 DOM 영수증 카드(instaReceiptCaptureBox) 기반 html-to-image 고화질 캡처 우선
         try {
-          const domCanvas = await captureElementWithHtml2canvas('instaReceiptCaptureBox', 'shareBottomSheet');
-          if (domCanvas) {
-            return domCanvas;
+          const domBlob = await captureCardBlobWithHtmlToImage('instaReceiptCaptureBox');
+          if (domBlob) {
+            return domBlob;
           }
         } catch (domErr) {
           console.warn('Receipt DOM capture fallback:', domErr);
@@ -6007,7 +6009,7 @@
             shareText: `💸 ${displayName} (${formatNumber(state.itemPrice)}원) · ${timeSummary}`,
             copyTextOnShare: shareUrl,
             preferShareOnMobile: true,
-            imageOnlyShare: false,
+            imageOnlyShare: true,
             noDownloadFallback: true,
             successToast: '📲 공유할 SNS 앱을 선택해 주세요! (투표 링크도 복사되었어요)'
           });
