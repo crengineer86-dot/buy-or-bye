@@ -268,6 +268,33 @@
       </div>
     </div>
 
+    <!-- 2차 투표 초대 링크 원탭 이어보내기 팝업 (모바일 브라우저 2연속 Web Share 권한 만료 폴백) -->
+    <div id="inviteLinkQuickModal" class="hidden fixed inset-0 z-[125] flex items-center justify-center p-5 bg-black/55 backdrop-blur-xs">
+      <div class="w-full max-w-[330px] bg-white rounded-3xl p-5 text-center shadow-2xl border border-slate-100">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-[#FEE500] flex items-center justify-center text-[24px] shadow-xs mb-3">
+          💬
+        </div>
+        <h3 class="text-[16px] font-black text-[#191F28] leading-snug">영수증 사진 전송 완료!</h3>
+        <p class="text-[12px] font-semibold text-[#64748B] mt-1 leading-relaxed">
+          바로 이어서 친구들이 투표할 수 있는<br />초대 링크 카드를 보내주세요!
+        </p>
+        <button
+          type="button"
+          id="inviteLinkQuickSendBtn"
+          class="w-full mt-4 bg-[#FEE500] hover:bg-[#FDD835] text-[#191F28] font-extrabold text-[13.5px] py-3.5 rounded-xl shadow-xs cursor-pointer"
+        >
+          🗳️ 투표 초대 링크 바로 보내기
+        </button>
+        <button
+          type="button"
+          id="inviteLinkQuickCloseBtn"
+          class="w-full mt-2 bg-slate-100 hover:bg-slate-200 text-[#64748B] font-bold text-[12.5px] py-2.5 rounded-xl cursor-pointer"
+        >
+          닫기 (링크 복사됨)
+        </button>
+      </div>
+    </div>
+
     <!-- ========================================== -->
     <!-- [메인 뷰] 살까 말까 판독기 홈 화면 -->
     <!-- ========================================== -->
@@ -5019,6 +5046,22 @@
 
         // 2) Kakao SDK 키가 없는 경우: 카톡 상단에 장문 노란 말풍선이 같이 뜨지 않도록
         //    title/text/files 없이 오직 { url }만 단독으로 전송 (OG 요약 링크 카드만 깔끔하게 생성)
+        if (document.visibilityState === 'hidden') {
+          await new Promise((resolve) => {
+            const onVis = () => {
+              if (document.visibilityState === 'visible') {
+                document.removeEventListener('visibilitychange', onVis);
+                resolve();
+              }
+            };
+            document.addEventListener('visibilitychange', onVis);
+            setTimeout(() => {
+              document.removeEventListener('visibilitychange', onVis);
+              resolve();
+            }, 3500);
+          });
+        }
+
         const cap = window.Capacitor;
         const isCapNative = Boolean(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
         if (isCapNative && cap.Plugins && cap.Plugins.Share) {
@@ -5045,6 +5088,10 @@
           } catch (err) {
             if (err && err.name === 'AbortError') return 'cancelled';
             console.warn('Web link share fallback:', err);
+            // 모바일 브라우저에서 1차 공유 후 제스처 만료(NotAllowedError) 시 원탭 이어보내기 팝업 즉시 표시
+            await copyTextToClipboard(cleanTargetUrl);
+            openInviteLinkQuickModal(cleanTargetUrl);
+            return 'quick-modal-link';
           }
         }
 
@@ -5052,6 +5099,40 @@
         await copyTextToClipboard(cleanTargetUrl);
         showToast(successToast);
         return 'clipboard-link';
+      }
+
+      let pendingQuickInviteUrl = '';
+      function openInviteLinkQuickModal(url) {
+        pendingQuickInviteUrl = url || generateShareUrl();
+        const modal = document.getElementById('inviteLinkQuickModal');
+        if (modal) modal.classList.remove('hidden');
+      }
+      function closeInviteLinkQuickModal() {
+        const modal = document.getElementById('inviteLinkQuickModal');
+        if (modal) modal.classList.add('hidden');
+      }
+      const inviteLinkQuickSendBtnEl = document.getElementById('inviteLinkQuickSendBtn');
+      if (inviteLinkQuickSendBtnEl) {
+        inviteLinkQuickSendBtnEl.addEventListener('click', async () => {
+          triggerHaptic(15, true);
+          const urlToSend = pendingQuickInviteUrl || generateShareUrl();
+          closeInviteLinkQuickModal();
+          if (typeof navigator.share === 'function') {
+            try {
+              await navigator.share({ url: urlToSend });
+              showToast('💬 투표 초대 링크 공유 완료!');
+              return;
+            } catch (e) {
+              if (e && e.name === 'AbortError') return;
+            }
+          }
+          await copyTextToClipboard(urlToSend);
+          showToast('🔗 투표 초대 링크가 복사되었어요!');
+        });
+      }
+      const inviteLinkQuickCloseBtnEl = document.getElementById('inviteLinkQuickCloseBtn');
+      if (inviteLinkQuickCloseBtnEl) {
+        inviteLinkQuickCloseBtnEl.addEventListener('click', closeInviteLinkQuickModal);
       }
 
       const prewarmedCaptureMap = new Map();
@@ -6103,8 +6184,8 @@
         setTimeout(() => switchScreen('poll'), 250);
       });
 
-      // 1) [카카오톡 투표]: 1차 팩폭 영수증 고화질 이미지 전송 ➔ 직후 2차 '질러라 vs 참아라' 투표 초대 링크 카드 연속(2연발) 공유
-      document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', async () => {
+      // 1차 검증된 영수증 이미지 전송 ➔ 직후 2차 투표 초대 링크 카드 연속 공유 공통 함수
+      async function runTwoStepReceiptAndInviteShare({ btnId, labelId, defaultLabel }) {
         getAudioContext();
         triggerHaptic(15, true);
         const roomId = ensureRoomId();
@@ -6119,11 +6200,11 @@
           : `${formatNumber(laborHours)}시간 노동`;
         const kakaoShareText = `🔥 질러라! vs 🛑 참아라! 내 통장 살릴지 죽일지 투표 요청!\n👉 아이템: ${displayName} (${formatNumber(state.itemPrice)}원 / ${effortLabel})`;
 
-        const kakaoBtn = document.getElementById('actionShareKakaoImmediateBtn');
-        const kakaoLabel = document.getElementById('actionShareKakaoLabel');
-        const prevLabel = kakaoLabel ? kakaoLabel.textContent : '카카오톡 투표';
-        if (kakaoBtn) kakaoBtn.disabled = true;
-        if (kakaoLabel) kakaoLabel.textContent = '공유 준비 중...';
+        const btnEl = document.getElementById(btnId);
+        const labelEl = document.getElementById(labelId);
+        const prevLabel = labelEl ? labelEl.textContent : defaultLabel;
+        if (btnEl) btnEl.disabled = true;
+        if (labelEl) labelEl.textContent = '공유 준비 중...';
 
         try {
           // 1차 전송: 검증된 SNS 공유용 고화질 팩폭 영수증 이미지 단독 전송
@@ -6153,51 +6234,30 @@
             successToast: '💬 영수증 이미지 + 투표 초대 링크 2연발 공유 완료!'
           });
         } catch (err) {
-          console.error('Kakao 2-step share failed:', err);
-          showToast('⚠️ 카카오톡 공유 준비에 실패했어요');
+          console.error('2-step share failed:', err);
+          showToast('⚠️ 공유 준비에 실패했어요');
         } finally {
-          if (kakaoBtn) kakaoBtn.disabled = false;
-          if (kakaoLabel) kakaoLabel.textContent = prevLabel;
+          if (btnEl) btnEl.disabled = false;
+          if (labelEl) labelEl.textContent = prevLabel;
         }
+      }
+
+      // 1) [카카오톡 투표]: 1차 영수증 이미지 ➔ 2차 투표 초대 링크 2연발 연속 공유
+      document.getElementById('actionShareKakaoImmediateBtn').addEventListener('click', () => {
+        runTwoStepReceiptAndInviteShare({
+          btnId: 'actionShareKakaoImmediateBtn',
+          labelId: 'actionShareKakaoLabel',
+          defaultLabel: '카카오톡 투표'
+        });
       });
 
-      // 2) [SNS 공유]: 앨범 저장 없이 캡처된 영수증 이미지 파일(Blob/File)로 OS 기본 공유 창(navigator.share) 즉시 실행
-      document.getElementById('actionShareSnsImmediateBtn').addEventListener('click', async () => {
-        getAudioContext();
-        const roomId = ensureRoomId();
-        ensureRoomCreatedInDb(roomId);
-        const shareUrl = generateShareUrl();
-        const displayName = (state.itemName || '').trim() || '고민 중인 아이템';
-        const laborHours = Math.ceil(state.itemPrice / Math.max(1, state.hourlyWage));
-        const timeSummary = isAllowanceMode()
-          ? `용돈 ${formatNumber(formatAllowanceDays(state.itemPrice))}일치`
-          : `내 노동 ${formatNumber(laborHours)}시간 필요`;
-
-        const snsBtn = document.getElementById('actionShareSnsImmediateBtn');
-        const snsLabel = document.getElementById('actionShareSnsLabel');
-        const prevLabel = snsLabel ? snsLabel.textContent : 'SNS 공유';
-        if (snsBtn) snsBtn.disabled = true;
-        if (snsLabel) snsLabel.textContent = '공유 준비 중...';
-
-        try {
-          const receiptCanvas = await createReceiptCanvas();
-          await saveOrShareCanvasImage(receiptCanvas, {
-            filename: `살까말까_팩폭영수증_${Date.now()}.png`,
-            shareTitle: '살까 말까 팩폭 영수증',
-            shareText: `💸 ${displayName} (${formatNumber(state.itemPrice)}원) · ${timeSummary}`,
-            copyTextOnShare: shareUrl,
-            preferShareOnMobile: true,
-            imageOnlyShare: true,
-            noDownloadFallback: true,
-            successToast: '📲 공유할 SNS 앱을 선택해 주세요! (투표 링크도 복사되었어요)'
-          });
-        } catch (err) {
-          console.error('SNS image share failed:', err);
-          showToast('⚠️ SNS 공유 이미지 준비에 실패했어요');
-        } finally {
-          if (snsBtn) snsBtn.disabled = false;
-          if (snsLabel) snsLabel.textContent = prevLabel;
-        }
+      // 2) [SNS 공유]: 1차 영수증 이미지 ➔ 2차 투표 초대 링크 2연발 연속 공유
+      document.getElementById('actionShareSnsImmediateBtn').addEventListener('click', () => {
+        runTwoStepReceiptAndInviteShare({
+          btnId: 'actionShareSnsImmediateBtn',
+          labelId: 'actionShareSnsLabel',
+          defaultLabel: 'SNS 공유'
+        });
       });
 
       // 3) [이미지 저장]: 공유창 없이 기기 앨범으로 고화질 영수증 PNG 파일 즉시 저장
