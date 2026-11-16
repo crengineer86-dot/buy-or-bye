@@ -863,13 +863,6 @@
           >
             <span>투표 마감 &amp; 결과 보기 🏁</span>
           </button>
-          <button
-            type="button"
-            id="backToMainBottomBtn"
-            class="w-full bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#1D4ED8] font-extrabold text-[13.5px] py-3 rounded-2xl transition-all cursor-pointer"
-          >
-            ⚡ 나도 살까 말까 판독해보기 (메인으로)
-          </button>
         </div>
       </div>
     </div>
@@ -3980,7 +3973,6 @@
 
       // 투표판 ➔ 최종 판정 결과 ➔ 메인 화면 순차 전환 버튼들
       document.getElementById('backFromPollToMainBtn').addEventListener('click', () => switchScreen('main'));
-      document.getElementById('backToMainBottomBtn').addEventListener('click', () => switchScreen('main'));
       document.getElementById('openVerdictViewBtn').addEventListener('click', () => switchScreen('verdict'));
       document.getElementById('backFromVerdictToPollBtn').addEventListener('click', () => switchScreen('poll'));
       document.getElementById('backFromVerdictToMainBtn').addEventListener('click', () => switchScreen('main'));
