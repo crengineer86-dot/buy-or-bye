@@ -4792,8 +4792,8 @@
         const targetEl = document.getElementById(targetId);
         if (!targetEl) return null;
 
-        const rect = targetEl.getBoundingClientRect();
-        const CAPTURE_WIDTH = Math.max(280, Math.round(rect.width) || 310);
+        const isLevelCard = targetId === 'levelCertificateCaptureBox';
+        const CAPTURE_WIDTH = isLevelCard ? 308 : 310;
         let offscreenHost = null;
 
         try {
@@ -4813,16 +4813,16 @@
             });
           }
 
-          // 1) 화면 모달(transform, backdrop-filter, scale, overflow)과 완전히 분리된 오프스크린 정적 컨테이너 생성
+          // 1) 화면 모달(transform, backdrop-filter, scale, overflow)과 완전히 분리된 투명 오프스크린 컨테이너 생성
           offscreenHost = document.createElement('div');
           offscreenHost.style.position = 'fixed';
           offscreenHost.style.left = '-99999px';
           offscreenHost.style.top = '0';
-          offscreenHost.style.width = `${CAPTURE_WIDTH + 24}px`;
+          offscreenHost.style.width = `${CAPTURE_WIDTH}px`;
           offscreenHost.style.height = 'auto';
           offscreenHost.style.margin = '0';
-          offscreenHost.style.padding = '12px';
-          offscreenHost.style.background = '#F1F5F9';
+          offscreenHost.style.padding = '0';
+          offscreenHost.style.background = 'transparent';
           offscreenHost.style.boxSizing = 'border-box';
           offscreenHost.style.transform = 'none';
           offscreenHost.style.backdropFilter = 'none';
@@ -4831,7 +4831,7 @@
           offscreenHost.style.zIndex = '-1';
           offscreenHost.style.pointerEvents = 'none';
 
-          // 2) 대상 카드 노드 복제 및 화면과 100% 동일한 폭/비율로 정적 문서 흐름 초기화
+          // 2) 대상 카드 노드 복제 및 화면과 동일한 비율·정적 문서 흐름 초기화
           const clonedCard = targetEl.cloneNode(true);
           clonedCard.removeAttribute('id');
           clonedCard.style.position = 'relative';
@@ -4880,25 +4880,47 @@
             svg.style.display = 'block';
           });
 
-          // truncate 요소 한글 하단 잘림 방지
+          // .truncate 요소의 overflow:hidden으로 인한 한글 상하 잘림 완전 방지
           clonedCard.querySelectorAll('.truncate').forEach((el) => {
-            el.style.paddingBottom = '2px';
+            el.style.overflow = 'visible';
+            el.style.textOverflow = 'clip';
+            el.style.whiteSpace = 'normal';
+            el.style.lineHeight = '1.35';
           });
 
-          // 캡슐 배지(.badge-item) 내 텍스트 수직·수평 중앙 정렬 고정 (html2canvas 베이스라인 하향 보정 포함)
+          // html2canvas 폰트 베이스라인 하향 보정: 캡슐 배지(.badge-item) 수직 정중앙 정렬
           clonedCard.querySelectorAll('.badge-item').forEach((b) => {
-            b.style.display = 'inline-flex';
-            b.style.alignItems = 'center';
-            b.style.justifyContent = 'center';
+            b.style.display = 'inline-block';
+            b.style.textAlign = 'center';
             b.style.lineHeight = '1';
+            b.style.paddingTop = '4px';
+            b.style.paddingBottom = '7px';
           });
           const levelPillClone = clonedCard.querySelector('#modalLevelPill');
           if (levelPillClone) {
-            levelPillClone.style.paddingTop = '6px';
-            levelPillClone.style.paddingBottom = '8px';
-            levelPillClone.style.lineHeight = '1.15';
+            levelPillClone.style.display = 'inline-block';
+            levelPillClone.style.padding = '5px 16px 8px 16px';
+            levelPillClone.style.lineHeight = '1.1';
           }
-          // html2canvas 폰트 베이스라인 하향 보정: 검은색 REALTIME POLL 배지 텍스트 상하 정중앙 정렬
+          // html2canvas 폰트 베이스라인 하향 보정: 빨간 고무도장(#instaStatusBadge) 텍스트 정중앙 정렬
+          const stampClone = clonedCard.querySelector('#instaStatusBadge');
+          if (stampClone) {
+            stampClone.style.display = 'inline-block';
+            stampClone.style.textAlign = 'center';
+            stampClone.style.padding = '3px 10px 7px 10px';
+            stampClone.style.lineHeight = '1';
+          }
+          // html2canvas 폰트 베이스라인 하향 보정: 영수증 하단 검은색 알약 버튼 2개 텍스트 정중앙 정렬
+          ['#instaGoPollBtnA', '#instaGoPollBtnB'].forEach((sel) => {
+            const btnClone = clonedCard.querySelector(sel);
+            if (btnClone) {
+              btnClone.style.display = 'block';
+              btnClone.style.textAlign = 'center';
+              btnClone.style.padding = '5px 4px 8px 4px';
+              btnClone.style.lineHeight = '1.1';
+            }
+          });
+          // html2canvas 폰트 베이스라인 하향 보정: 검은색 REALTIME POLL 배지
           const pollBadgeClone = clonedCard.querySelector('#instaPollStickerBadge');
           if (pollBadgeClone) {
             pollBadgeClone.style.paddingTop = '4px';
@@ -4918,18 +4940,17 @@
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
           await new Promise((resolve) => setTimeout(resolve, 100));
 
-          const measuredWidth = CAPTURE_WIDTH + 24;
-          const measuredHeight = Math.ceil(offscreenHost.getBoundingClientRect().height || offscreenHost.scrollHeight || 620);
+          const measuredHeight = Math.ceil(clonedCard.getBoundingClientRect().height || clonedCard.scrollHeight || 600);
           const captureScale = Math.max(Number(window.devicePixelRatio) || 1, 4);
 
-          const canvas = await window.html2canvas(offscreenHost, {
+          const canvas = await window.html2canvas(clonedCard, {
             scale: captureScale,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#F1F5F9',
-            width: measuredWidth,
+            backgroundColor: null,
+            width: CAPTURE_WIDTH,
             height: measuredHeight,
-            windowWidth: measuredWidth,
+            windowWidth: CAPTURE_WIDTH,
             windowHeight: measuredHeight,
             scrollX: 0,
             scrollY: 0,
