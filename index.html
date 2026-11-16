@@ -100,6 +100,11 @@
       transform: scale(0.97) !important;
     }
 
+    #useCountCustomInput::selection {
+      background-color: #DBEAFE;
+      color: #1D4ED8;
+    }
+
     /* 투표 완료 배너 부드러운 슬라이드-다운 + 페이드인 */
     @keyframes slideDownFadeIn {
       0% {
@@ -524,7 +529,7 @@
 
                 <div
                   id="useCountInlineEditor"
-                  class="hidden items-center gap-1 bg-[#EFF6FF] border border-[#93C5FD] rounded-full pl-2.5 pr-1 py-0.5 shadow-2xs shrink-0"
+                  class="hidden items-center gap-0.5 bg-white border border-[#BFDBFE] rounded-full pl-2 pr-1 py-0.5 shadow-2xs shrink-0"
                 >
                   <input
                     id="useCountCustomInput"
@@ -534,25 +539,24 @@
                     min="0.1"
                     placeholder="숫자"
                     aria-label="예상 사용 횟수 또는 연수 입력"
-                    class="w-[52px] bg-transparent text-[#1E3A8A] font-extrabold text-[12px] text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    class="w-[44px] bg-transparent text-[#191F28] font-extrabold text-[12px] text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <div class="inline-flex items-center bg-white/80 rounded-full p-0.5 border border-[#BFDBFE]/80">
-                    <button
-                      type="button"
-                      id="useCountUnitCountBtn"
-                      class="px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#3182F6] text-white leading-none"
-                    >회</button>
-                    <button
-                      type="button"
-                      id="useCountUnitYearBtn"
-                      class="px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer text-[#64748B] hover:text-[#1D4ED8] leading-none"
-                    >년</button>
-                  </div>
+                  <span class="w-px h-3.5 bg-slate-200 mx-0.5 shrink-0" aria-hidden="true"></span>
+                  <button
+                    type="button"
+                    id="useCountUnitCountBtn"
+                    class="px-1.5 py-1 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#DBEAFE] text-[#1D4ED8] leading-none"
+                  >회</button>
+                  <button
+                    type="button"
+                    id="useCountUnitYearBtn"
+                    class="px-1.5 py-1 rounded-full text-[10.5px] font-bold transition-colors cursor-pointer text-[#94A3B8] hover:text-[#475569] leading-none"
+                  >년</button>
                   <button
                     type="button"
                     id="useCountInlineConfirmBtn"
                     aria-label="입력 확인"
-                    class="w-6 h-6 rounded-full bg-[#3182F6] hover:bg-[#1B64DA] text-white flex items-center justify-center text-[11px] font-black transition-colors cursor-pointer shrink-0"
+                    class="w-5 h-5 ml-0.5 rounded-full bg-[#3182F6] hover:bg-[#1B64DA] text-white flex items-center justify-center text-[10px] font-black transition-colors cursor-pointer shrink-0 leading-none"
                   >✓</button>
                 </div>
               </div>
@@ -4274,11 +4278,11 @@
       function syncUseCountUnitToggleUI() {
         if (!useCountUnitCountBtnEl || !useCountUnitYearBtnEl) return;
         if (editingUseCountUnit === 'year') {
-          useCountUnitYearBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#3182F6] text-white leading-none';
-          useCountUnitCountBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer text-[#64748B] hover:text-[#1D4ED8] leading-none';
+          useCountUnitYearBtnEl.className = 'px-1.5 py-1 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#DBEAFE] text-[#1D4ED8] leading-none';
+          useCountUnitCountBtnEl.className = 'px-1.5 py-1 rounded-full text-[10.5px] font-bold transition-colors cursor-pointer text-[#94A3B8] hover:text-[#475569] leading-none';
         } else {
-          useCountUnitCountBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#3182F6] text-white leading-none';
-          useCountUnitYearBtnEl.className = 'px-1.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer text-[#64748B] hover:text-[#1D4ED8] leading-none';
+          useCountUnitCountBtnEl.className = 'px-1.5 py-1 rounded-full text-[10.5px] font-extrabold transition-colors cursor-pointer bg-[#DBEAFE] text-[#1D4ED8] leading-none';
+          useCountUnitYearBtnEl.className = 'px-1.5 py-1 rounded-full text-[10.5px] font-bold transition-colors cursor-pointer text-[#94A3B8] hover:text-[#475569] leading-none';
         }
       }
 
@@ -4306,14 +4310,7 @@
         useCountBadgeBtnEl.classList.remove('hidden');
       }
 
-      function applyCustomUseCountInput() {
-        if (!useCountCustomInputEl) return;
-        const rawNum = parseFloat(useCountCustomInputEl.value);
-        if (Number.isNaN(rawNum) || rawNum <= 0) {
-          showToast('1 이상의 숫자를 입력해 주세요');
-          closeUseCountInlineEditor();
-          return;
-        }
+      function syncCustomUseCountState(rawNum) {
         rotateRoomForNewCalculation();
         if (editingUseCountUnit === 'year') {
           const cleanYear = Number(rawNum.toFixed(2).replace(/\.?0+$/, ''));
@@ -4329,6 +4326,17 @@
         }
         saveState();
         renderAll();
+      }
+
+      function applyCustomUseCountInput(silentIfInvalid = false) {
+        if (!useCountCustomInputEl) return;
+        const rawNum = parseFloat(useCountCustomInputEl.value);
+        if (Number.isNaN(rawNum) || rawNum <= 0) {
+          if (!silentIfInvalid) showToast('1 이상의 숫자를 입력해 주세요');
+          closeUseCountInlineEditor();
+          return;
+        }
+        syncCustomUseCountState(rawNum);
         closeUseCountInlineEditor();
       }
 
@@ -4345,6 +4353,8 @@
           triggerHaptic(10);
           editingUseCountUnit = 'count';
           syncUseCountUnitToggleUI();
+          const rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
+          if (!Number.isNaN(rawNum) && rawNum > 0) syncCustomUseCountState(rawNum);
           if (useCountCustomInputEl) useCountCustomInputEl.focus();
         });
       }
@@ -4354,6 +4364,8 @@
           triggerHaptic(10);
           editingUseCountUnit = 'year';
           syncUseCountUnitToggleUI();
+          const rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
+          if (!Number.isNaN(rawNum) && rawNum > 0) syncCustomUseCountState(rawNum);
           if (useCountCustomInputEl) useCountCustomInputEl.focus();
         });
       }
@@ -4361,15 +4373,21 @@
         useCountInlineConfirmBtnEl.addEventListener('click', (e) => {
           e.stopPropagation();
           triggerHaptic(12);
-          applyCustomUseCountInput();
+          applyCustomUseCountInput(false);
         });
       }
       if (useCountCustomInputEl) {
+        useCountCustomInputEl.addEventListener('input', () => {
+          const rawNum = parseFloat(useCountCustomInputEl.value);
+          if (!Number.isNaN(rawNum) && rawNum > 0) {
+            syncCustomUseCountState(rawNum);
+          }
+        });
         useCountCustomInputEl.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
             triggerHaptic(12);
-            applyCustomUseCountInput();
+            applyCustomUseCountInput(false);
           } else if (e.key === 'Escape') {
             e.preventDefault();
             closeUseCountInlineEditor();
@@ -4381,9 +4399,10 @@
           useCountInlineEditorEl &&
           !useCountInlineEditorEl.classList.contains('hidden') &&
           !useCountInlineEditorEl.contains(e.target) &&
-          e.target !== useCountBadgeBtnEl
+          useCountBadgeBtnEl &&
+          !useCountBadgeBtnEl.contains(e.target)
         ) {
-          closeUseCountInlineEditor();
+          applyCustomUseCountInput(true);
         }
       });
 
