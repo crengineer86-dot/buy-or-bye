@@ -266,33 +266,6 @@
       </div>
     </div>
 
-    <!-- 2차 투표 초대 링크 원탭 이어보내기 팝업 (모바일 브라우저 2연속 Web Share 권한 만료 폴백) -->
-    <div id="inviteLinkQuickModal" class="hidden fixed inset-0 z-[125] flex items-center justify-center p-5 bg-black/55 backdrop-blur-xs">
-      <div class="w-full max-w-[330px] bg-white rounded-3xl p-5 text-center shadow-2xl border border-slate-100">
-        <div class="w-12 h-12 mx-auto rounded-2xl bg-[#FEE500] flex items-center justify-center text-[24px] shadow-xs mb-3">
-          💬
-        </div>
-        <h3 class="text-[16px] font-black text-[#191F28] leading-snug">영수증 사진 전송 완료!</h3>
-        <p class="text-[12px] font-semibold text-[#64748B] mt-1 leading-relaxed">
-          바로 이어서 친구들이 투표할 수 있는<br />초대 링크 카드를 보내주세요!
-        </p>
-        <button
-          type="button"
-          id="inviteLinkQuickSendBtn"
-          class="w-full mt-4 bg-[#FEE500] hover:bg-[#FDD835] text-[#191F28] font-extrabold text-[13.5px] py-3.5 rounded-xl shadow-xs cursor-pointer"
-        >
-          🗳️ 투표 초대 링크 바로 보내기
-        </button>
-        <button
-          type="button"
-          id="inviteLinkQuickCloseBtn"
-          class="w-full mt-2 bg-slate-100 hover:bg-slate-200 text-[#64748B] font-bold text-[12.5px] py-2.5 rounded-xl cursor-pointer"
-        >
-          닫기 (링크 복사됨)
-        </button>
-      </div>
-    </div>
-
     <!-- ========================================== -->
     <!-- [메인 뷰] 살까 말까 판독기 홈 화면 -->
     <!-- ========================================== -->
@@ -1725,7 +1698,6 @@
                 <p class="text-[8px] font-bold tracking-[0.18em] text-[#666666] uppercase mb-0.5">ITEM TO BUY</p>
                 <h4 id="instaItemName" class="text-[15px] font-black text-[#111111] leading-snug px-2">고민 중인 아이템</h4>
                 <p id="instaItemPrice" class="text-[25px] font-black text-[#111111] tracking-tight mt-0.5 leading-none">0원</p>
-                <span id="instaSirenIcon" class="hidden"></span>
               </div>
 
               <!-- 메인 박스: LABOR TIME CONVERSION + 우측 상단 모서리 결재 고무도장 -->
@@ -2444,8 +2416,32 @@
       }
 
       function parseNumber(str) {
-        const cleaned = String(str).replace(/[^\d]/g, '');
+        const cleaned = String(str).replace(/[^\d]/g, '').slice(0, 12);
         return cleaned ? parseInt(cleaned, 10) : 0;
+      }
+
+      function formatNumericInputLive(inputEl) {
+        if (!inputEl) return 0;
+        const rawValue = inputEl.value;
+        const selStart = inputEl.selectionStart;
+        const digitsBeforeCursor = selStart !== null ? rawValue.slice(0, selStart).replace(/[^\d]/g, '').slice(0, 12).length : null;
+        const cleanedDigits = rawValue.replace(/[^\d]/g, '').slice(0, 12);
+        const numericValue = cleanedDigits ? parseInt(cleanedDigits, 10) : 0;
+        const formatted = cleanedDigits === '' ? '' : formatNumber(numericValue);
+
+        if (inputEl.value !== formatted) {
+          inputEl.value = formatted;
+          if (digitsBeforeCursor !== null && document.activeElement === inputEl) {
+            let newCursor = 0;
+            let seenDigits = 0;
+            while (newCursor < formatted.length && seenDigits < digitsBeforeCursor) {
+              if (/\d/.test(formatted[newCursor])) seenDigits++;
+              newCursor++;
+            }
+            inputEl.setSelectionRange(newCursor, newCursor);
+          }
+        }
+        return numericValue;
       }
 
       function isAllowanceMode() {
@@ -3805,25 +3801,6 @@
           .replace(/"/g, '&quot;');
       }
 
-      function renderSirenIconSvg(isDanger, animate = true) {
-        const rayColor = isDanger ? '#EF4444' : '#10B981';
-        const domeFill = isDanger ? '#EF4444' : '#10B981';
-        const domeStroke = isDanger ? '#B91C1C' : '#047857';
-        const gleamStroke = isDanger ? '#FEE2E2' : '#D1FAE5';
-        const baseTop = isDanger ? '#991B1B' : '#065F46';
-        const baseBottom = isDanger ? '#7F1D1D' : '#064E3B';
-        const pulseAttr = animate ? ' class="animate-pulse"' : '';
-        return `<svg width="16" height="16" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0;">
-          <g${pulseAttr}>
-            <path d="M12 2V4.5M5.2 4.8L7 6.6M18.8 4.8L17 6.6M2.8 11H5M19 11H21.2" stroke="${rayColor}" stroke-width="2" stroke-linecap="round"/>
-          </g>
-          <path d="M7 16V11.5C7 8.73858 9.23858 6.5 12 6.5C14.7614 6.5 17 8.73858 17 11.5V16H7Z" fill="${domeFill}" stroke="${domeStroke}" stroke-width="1.3" stroke-linejoin="round"/>
-          <path d="M9.6 11.5C9.6 10.1 10.6 9 11.8 8.8" stroke="${gleamStroke}" stroke-width="1.5" stroke-linecap="round"/>
-          <rect x="5" y="16" width="14" height="3.2" rx="1.2" fill="${baseTop}"/>
-          <rect x="4" y="19.2" width="16" height="1.8" rx="0.9" fill="${baseBottom}"/>
-        </svg>`;
-      }
-
       function checkConsumptionDanger(costPerUse, laborHours, allowanceDays, allowanceMonthPct) {
         if (isAllowanceMode()) {
           return allowanceDays >= 5 || allowanceMonthPct >= 20 || costPerUse > 15000;
@@ -3831,50 +3808,11 @@
         return laborHours >= 8 || costPerUse > 15000;
       }
 
-      function applyReceiptDangerStatus({ badgeId, sirenId, boxId, titleId, subId, isDanger, badgeFontClass }) {
-        const badgeEl = document.getElementById(badgeId);
-        const sirenEl = document.getElementById(sirenId);
-        const boxEl = document.getElementById(boxId);
-        const titleEl = document.getElementById(titleId);
-        const subEl = document.getElementById(subId);
-
-        if (badgeEl) {
-          badgeEl.textContent = isDanger ? '소비위험주의' : '소비안심양호';
-          badgeEl.className = isDanger
-            ? `${badgeFontClass} badge-item font-extrabold bg-rose-100 text-rose-600 rounded-full`
-            : `${badgeFontClass} badge-item font-extrabold bg-emerald-100 text-emerald-700 rounded-full`;
-          badgeEl.style.display = 'inline-flex';
-          badgeEl.style.alignItems = 'center';
-          badgeEl.style.justifyContent = 'center';
-          badgeEl.style.lineHeight = '1';
-          badgeEl.style.padding = '4px 8px';
-        }
-        if (sirenEl) {
-          sirenEl.innerHTML = `<span class="inline-flex items-center justify-center text-[13px] leading-none select-none">${isDanger ? '🚨' : '💚'}</span>`;
-        }
-        if (boxEl) {
-          boxEl.className = isDanger
-            ? 'bg-[#FFF1F2] border border-[#FECDD3] rounded-2xl p-2.5 text-center'
-            : 'bg-emerald-50 border border-emerald-200 rounded-2xl p-2.5 text-center';
-        }
-        if (titleEl) {
-          titleEl.className = isDanger
-            ? 'text-[14.5px] font-black leading-snug text-[#E11D48]'
-            : 'text-[14.5px] font-black leading-snug text-emerald-700';
-        }
-        if (subEl) {
-          subEl.className = isDanger
-            ? 'text-[10.5px] font-bold text-[#9F1239] mt-0.5'
-            : 'text-[10.5px] font-bold text-emerald-800 mt-0.5';
-        }
-      }
-
       function syncShareModals(costPerUse, laborHours, laborDays) {
         const displayName = state.itemName.trim() || '고민 중인 아이템';
         const allowanceDays = formatAllowanceDays(state.itemPrice);
         const allowanceMonthPct = getAllowanceMonthPct(state.itemPrice);
         const isDanger = checkConsumptionDanger(costPerUse, laborHours, allowanceDays, allowanceMonthPct);
-        const alertPrefix = isDanger ? '🚨 소비 경보!' : '💚 소비 안심!';
 
         // 상단 플로팅 영수증 미리보기 카드 동기화 (모노톤 아카이브 영수증 컨셉)
         const instaItemNameEl = document.getElementById('instaItemName');
@@ -3886,7 +3824,13 @@
         if (instaItemNameEl) instaItemNameEl.textContent = displayName;
         if (instaItemPriceEl) instaItemPriceEl.textContent = `${formatNumber(state.itemPrice)}원`;
         if (instaCostPerUseEl) instaCostPerUseEl.textContent = `약 ${formatNumber(costPerUse)}원`;
-        if (instaUseCountSubEl) instaUseCountSubEl.textContent = `(${formatNumber(Math.max(1, Number(state.useCount) || 1))}회 사용 기준)`;
+        if (instaUseCountSubEl) {
+          const safeUseCount = Math.max(1, Number(state.useCount) || 1);
+          instaUseCountSubEl.textContent =
+            state.useCountUnit === 'year' && state.useCountYearValue > 0
+              ? `(${state.useCountYearValue}년 · ${formatNumber(safeUseCount)}회 기준)`
+              : `(${formatNumber(safeUseCount)}회 사용 기준)`;
+        }
         if (instaStatusBadgeEl) instaStatusBadgeEl.textContent = isDanger ? '반려?' : '승인?';
 
         const instaWarningTitleEl = document.getElementById('instaWarningTitle');
@@ -3920,13 +3864,16 @@
         const instaSaveTotalEl = document.getElementById('instaSaveTotal');
         const instaLevelTextEl = document.getElementById('instaLevelText');
         const instaNextLevelTextEl = document.getElementById('instaNextLevelText');
-        const levelInfo = getLevelInfo(state.totalSavedAmount);
-        if (instaSaveCountEl) instaSaveCountEl.textContent = formatNumber(state.savedCount || 0);
-        if (instaSaveTotalEl) instaSaveTotalEl.textContent = `${formatNumber(state.totalSavedAmount || 0)}원`;
+        const { totalCount, totalSaved } = getHistoryStats();
+        const levelInfo = getLevelInfo(totalSaved);
+        if (instaSaveCountEl) instaSaveCountEl.textContent = formatNumber(totalCount);
+        if (instaSaveTotalEl) instaSaveTotalEl.textContent = `${formatNumber(totalSaved)}원`;
         if (instaLevelTextEl) instaLevelTextEl.textContent = `${levelInfo.name} Lv.${levelInfo.level}`;
         if (instaNextLevelTextEl) {
-          const remaining = levelInfo.nextLevel ? Math.max(0, levelInfo.nextLevel.minAmount - (state.totalSavedAmount || 0)) : 0;
-          instaNextLevelTextEl.textContent = levelInfo.nextLevel ? `다음 레벨까지 ${formatNumber(remaining)}원` : '최고 레벨 달성!';
+          const remaining = levelInfo.isMax ? 0 : Math.max(0, levelInfo.goalAmount - totalSaved);
+          instaNextLevelTextEl.textContent = levelInfo.isMax
+            ? '최고 레벨 달성!'
+            : `다음 레벨까지 ${formatNumber(remaining)}원`;
         }
       }
 
@@ -4174,27 +4121,7 @@
       });
 
       document.getElementById('itemPriceInput').addEventListener('input', (e) => {
-        const inputEl = e.target;
-        const rawValue = inputEl.value;
-        const selStart = inputEl.selectionStart;
-        const digitsBeforeCursor = selStart !== null ? rawValue.slice(0, selStart).replace(/[^\d]/g, '').length : null;
-        const cleanedDigits = rawValue.replace(/[^\d]/g, '');
-        const numericValue = cleanedDigits ? parseInt(cleanedDigits, 10) : 0;
-        const formatted = cleanedDigits === '' ? '' : formatNumber(numericValue);
-
-        if (inputEl.value !== formatted) {
-          inputEl.value = formatted;
-          if (digitsBeforeCursor !== null && document.activeElement === inputEl) {
-            let newCursor = 0;
-            let seenDigits = 0;
-            while (newCursor < formatted.length && seenDigits < digitsBeforeCursor) {
-              if (/\d/.test(formatted[newCursor])) seenDigits++;
-              newCursor++;
-            }
-            inputEl.setSelectionRange(newCursor, newCursor);
-          }
-        }
-
+        const numericValue = formatNumericInputLive(e.target);
         rotateRoomForNewCalculation();
         state.itemPrice = numericValue;
         state.isChallengeLocked = false;
@@ -4907,20 +4834,17 @@
       }
 
       hourlyInput.addEventListener('input', (e) => {
-        const val = parseNumber(e.target.value);
-        e.target.value = formatNumber(val);
+        formatNumericInputLive(e.target);
       });
 
       monthlyInput.addEventListener('input', (e) => {
-        const val = parseNumber(e.target.value);
-        e.target.value = formatNumber(val);
+        formatNumericInputLive(e.target);
         updateMonthlyPreview();
       });
 
       if (allowanceInput) {
         allowanceInput.addEventListener('input', (e) => {
-          const val = parseNumber(e.target.value);
-          e.target.value = formatNumber(val);
+          formatNumericInputLive(e.target);
           updateAllowancePreview();
         });
       }
@@ -4974,6 +4898,9 @@
         }
         saveState();
         renderAll();
+        if (rtdb && state.roomId && !isSharedRoomEntry) {
+          ensureRoomCreatedInDb(state.roomId);
+        }
         closeWageSheet();
       });
 
@@ -5372,37 +5299,6 @@
         if (successMsg) showToast(successMsg);
       }
 
-      function triggerCanvasPngDownload(canvas, filename, successMsg) {
-        playShutterSound();
-        triggerHaptic(40);
-        const downloadFromUrl = (url, revokeAfter) => {
-          const link = document.createElement('a');
-          link.download = filename;
-          link.href = url;
-          link.rel = 'noopener';
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          if (revokeAfter) {
-            setTimeout(() => URL.revokeObjectURL(url), 15000);
-          }
-          if (successMsg) showToast(successMsg);
-        };
-
-        if (typeof canvas.toBlob === 'function') {
-          canvas.toBlob((blob) => {
-            if (blob) {
-              const url = URL.createObjectURL(blob);
-              downloadFromUrl(url, true);
-            } else {
-              downloadFromUrl(canvas.toDataURL('image/png'), false);
-            }
-          }, 'image/png');
-        } else {
-          downloadFromUrl(canvas.toDataURL('image/png'), false);
-        }
-      }
-
       function isMobileClient() {
         return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
           || (navigator.maxTouchPoints > 1 && window.innerWidth <= 900);
@@ -5634,44 +5530,6 @@
         return 'download-fallback';
       }
 
-      // 인스타그램 스토리(9:16, 1080x1920) 전용 고화질 프레임 생성기
-      // 상·하단 인스스 UI 및 [투표 스티커] 여백을 확보해 원본 카드 비율이 찌그러지지 않도록 안전하게 배치
-      function createInstaStoryCanvas(sourceCanvas) {
-        if (!sourceCanvas || !sourceCanvas.width || !sourceCanvas.height) return sourceCanvas;
-        const W = 1080;
-        const H = 1920;
-        const storyCanvas = document.createElement('canvas');
-        storyCanvas.width = W;
-        storyCanvas.height = H;
-        const ctx = storyCanvas.getContext('2d');
-
-        // 인스스 감성 파스텔 그라데이션 배경
-        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-        bgGrad.addColorStop(0, '#EFF6FF');
-        bgGrad.addColorStop(0.5, '#F8FAFC');
-        bgGrad.addColorStop(1, '#F5F3FF');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        // 상단 140px / 하단 200px 안전 여백(인스스 프로필바·답장창·투표 스티커 공간) 확보 후 비율 유지 스케일링
-        const maxCardW = W - 120;
-        const maxCardH = H - 360;
-        const scale = Math.min(maxCardW / sourceCanvas.width, maxCardH / sourceCanvas.height);
-        const drawW = Math.round(sourceCanvas.width * scale);
-        const drawH = Math.round(sourceCanvas.height * scale);
-        const drawX = Math.round((W - drawW) / 2);
-        const drawY = Math.round((H - drawH) / 2) - 20;
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(15, 23, 42, 0.14)';
-        ctx.shadowBlur = 44;
-        ctx.shadowOffsetY = 18;
-        ctx.drawImage(sourceCanvas, drawX, drawY, drawW, drawH);
-        ctx.restore();
-
-        return storyCanvas;
-      }
-
       // 카카오 공유 JavaScript SDK v2 초기화 및 클릭형 피드 카드 전송기
       const KAKAO_JS_KEY = '';
       function initKakaoSdkIfConfigured() {
@@ -5784,43 +5642,6 @@
         await copyTextToClipboard(cleanTargetUrl);
         showToast(successToast);
         return 'clipboard-link';
-      }
-
-      let pendingQuickInviteUrl = '';
-      let pendingQuickInviteText = '';
-      function openInviteLinkQuickModal(url, textMsg) {
-        pendingQuickInviteUrl = url || generateShareUrl();
-        pendingQuickInviteText = textMsg || pendingQuickInviteUrl;
-        const modal = document.getElementById('inviteLinkQuickModal');
-        if (modal) modal.classList.remove('hidden');
-      }
-      function closeInviteLinkQuickModal() {
-        const modal = document.getElementById('inviteLinkQuickModal');
-        if (modal) modal.classList.add('hidden');
-      }
-      const inviteLinkQuickSendBtnEl = document.getElementById('inviteLinkQuickSendBtn');
-      if (inviteLinkQuickSendBtnEl) {
-        inviteLinkQuickSendBtnEl.addEventListener('click', async () => {
-          triggerHaptic(15, true);
-          const urlToSend = pendingQuickInviteUrl || generateShareUrl();
-          const textToSend = pendingQuickInviteText || urlToSend;
-          closeInviteLinkQuickModal();
-          if (typeof navigator.share === 'function') {
-            try {
-              await navigator.share({ text: textToSend });
-              showToast('💬 투표 초대 링크 공유 완료!');
-              return;
-            } catch (e) {
-              if (e && e.name === 'AbortError') return;
-            }
-          }
-          await copyTextToClipboard(textToSend);
-          showToast('🔗 투표 초대 링크가 복사되었어요!');
-        });
-      }
-      const inviteLinkQuickCloseBtnEl = document.getElementById('inviteLinkQuickCloseBtn');
-      if (inviteLinkQuickCloseBtnEl) {
-        inviteLinkQuickCloseBtnEl.addEventListener('click', closeInviteLinkQuickModal);
       }
 
       const prewarmedCaptureMap = new Map();
@@ -6148,9 +5969,9 @@
           console.warn('Receipt DOM capture fallback:', domErr);
         }
 
-        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 324px @3x, 9:16 비율 반영)
+        // 2) 폴백: 순수 Canvas 2D 드로잉 (실제 화면 슬림 비율 324px @3x 반영)
         const W = 324;
-        const H = 580;
+        const H = 684;
         const pixelRatio = 3;
         const canvas = document.createElement('canvas');
         canvas.width = W * pixelRatio;
