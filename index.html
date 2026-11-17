@@ -388,7 +388,8 @@
                 <div class="relative shrink-0">
                   <span
                     id="customIconStatusBadge"
-                    class="absolute -top-[21px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-[#3182F6] whitespace-nowrap pointer-events-none"
+                    class="text-[10px] font-semibold text-[#3182F6] leading-none pointer-events-none"
+                    style="position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap;"
                   >✨ 자동 매칭</span>
                   <button
                     type="button"
@@ -2966,12 +2967,13 @@
           if (state.customItemIcon) {
             const selectedCat = CATEGORY_DEFINITIONS.find((c) => c.icon === state.customItemIcon);
             const selectedLabel = selectedCat ? selectedCat.label : '선택 아이콘';
-            customIconStatusEl.textContent = `✓ '${selectedLabel}' 아이콘 고정 중`;
-            customIconStatusEl.className = 'absolute -top-[21px] right-0 text-[10px] font-bold text-[#3182F6] whitespace-nowrap pointer-events-none';
+            customIconStatusEl.textContent = `✓ ${selectedLabel}`;
+            customIconStatusEl.className = 'text-[10px] font-bold text-[#3182F6] leading-none pointer-events-none';
           } else {
             customIconStatusEl.textContent = '✨ 자동 매칭';
-            customIconStatusEl.className = 'absolute -top-[21px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-[#3182F6] whitespace-nowrap pointer-events-none';
+            customIconStatusEl.className = 'text-[10px] font-semibold text-[#3182F6] leading-none pointer-events-none';
           }
+          customIconStatusEl.style.cssText = 'position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap;';
         }
         renderIconPickerGrid(activeIcon);
         const itemPriceInput = document.getElementById('itemPriceInput');
