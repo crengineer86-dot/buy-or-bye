@@ -365,7 +365,7 @@
                     id="itemNameInput"
                     type="text"
                     value=""
-                    placeholder="예 : 핸드폰, 노트북, 헬스PT, 골프레슨, 후드티, 치킨 등"
+                    placeholder="예 : 핸드폰, 노트북, 헬스PT, 후드티, 치킨 등"
                     class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-semibold text-[14.5px] rounded-2xl px-3.5 py-3.5 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
                   />
                 </div>
@@ -390,7 +390,7 @@
                     id="customIconStatusBadge"
                     class="text-[10px] font-semibold text-[#3182F6] leading-none pointer-events-none"
                     style="position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap;"
-                  >✨ 자동 매칭</span>
+                  ><span style="position: absolute; right: 100%; margin-right: 2px;">✨</span>자동 매칭</span>
                   <button
                     type="button"
                     id="itemIconPickerBtn"
@@ -2967,10 +2967,10 @@
           if (state.customItemIcon) {
             const selectedCat = CATEGORY_DEFINITIONS.find((c) => c.icon === state.customItemIcon);
             const selectedLabel = selectedCat ? selectedCat.label : '선택 아이콘';
-            customIconStatusEl.textContent = `✓ ${selectedLabel}`;
+            customIconStatusEl.innerHTML = `<span style="position: absolute; right: 100%; margin-right: 2px;">✓</span>${selectedLabel}`;
             customIconStatusEl.className = 'text-[10px] font-bold text-[#3182F6] leading-none pointer-events-none';
           } else {
-            customIconStatusEl.textContent = '✨ 자동 매칭';
+            customIconStatusEl.innerHTML = '<span style="position: absolute; right: 100%; margin-right: 2px;">✨</span>자동 매칭';
             customIconStatusEl.className = 'text-[10px] font-semibold text-[#3182F6] leading-none pointer-events-none';
           }
           customIconStatusEl.style.cssText = 'position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap;';
