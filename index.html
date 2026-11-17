@@ -2992,11 +2992,11 @@
           }
         }
 
-        // 트랙 선 위의 4개 눈금 점(지나간 구간 bg-blue-600 / 미도달 구간 bg-slate-300) 및 하단 심플 라벨 Active 동기화
+        // 트랙 선 위의 5개 눈금 점(지나간 구간 bg-blue-600 / 미도달 구간 bg-slate-300) 및 하단 심플 라벨 Active 동기화
         document.querySelectorAll('.preset-node-btn').forEach((btn) => {
           const targetCount = parseInt(btn.getAttribute('data-set-count'), 10);
           const isPassed = Number(state.useCount) >= targetCount;
-          const isExact = Number(state.useCount) === targetCount;
+          const isExact = targetCount === 730 ? Number(state.useCount) >= 730 : Number(state.useCount) === targetCount;
           const dot = btn.querySelector('.node-dot');
 
           // 현재 핸들이 정확히 해당 눈금 점 위에 있을 때는 핸들 드래그가 방해받지 않도록 pointer-events-none 처리
@@ -3015,8 +3015,21 @@
         document.querySelectorAll('.preset-label-btn').forEach((btn) => {
           const targetCount = parseInt(btn.getAttribute('data-set-count'), 10);
           const posClass = btn.getAttribute('data-pos-class') || '';
-          const isExact = Number(state.useCount) === targetCount;
+          const isOverMax = targetCount === 730 && Number(state.useCount) > 730;
+          const isExact = isOverMax || Number(state.useCount) === targetCount;
           btn.setAttribute('aria-pressed', isExact ? 'true' : 'false');
+
+          if (targetCount === 730) {
+            if (isOverMax) {
+              if (state.useCountUnit === 'year' && state.useCountYearValue > 0) {
+                btn.textContent = `${state.useCountYearValue}년`;
+              } else {
+                btn.textContent = `${formatNumber(state.useCount)}회`;
+              }
+            } else {
+              btn.textContent = '2년';
+            }
+          }
 
           if (isExact) {
             btn.className = `preset-count-btn preset-label-btn absolute top-0 ${posClass} text-[11.5px] font-bold text-blue-600 cursor-pointer whitespace-nowrap text-center`;
@@ -4190,7 +4203,13 @@
         triggerHaptic(15);
         rotateRoomForNewCalculation();
         state.itemPrice = 0;
+        state.useCount = 1;
+        state.useCountUnit = 'count';
+        state.useCountYearValue = null;
         state.isChallengeLocked = false;
+        if (typeof closeUseCountInlineEditor === 'function') {
+          closeUseCountInlineEditor();
+        }
         saveState();
         renderAll();
       });
