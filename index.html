@@ -3354,11 +3354,13 @@
             ? allowanceDays >= 2 || allowanceMonthPct >= 8 || pollCostPerUse > 5000
             : laborHours >= 3 || pollCostPerUse > 5000);
         const aiFactbombText =
-          state.itemPrice <= 0 || isPollDanger
-            ? '숨만 쉬어도 돈 나가는 주제에 당장 결제창 닫고 통장 잠가! 🚨'
-            : isPollHold
-              ? '솔직히 예쁜 쓰레기잖아. 정신 차리고 일단 통장부터 잠가! 🗑️'
-              : '이 가격에 고민하는 게 시간 낭비야. 유난 떨지 말고 시원하게 질러! 💸';
+          state.itemPrice <= 0 || !state.itemName.trim()
+            ? '살 물건도 안 적고 구경만 하네? 심심하면 내 통장이나 채워줘! 🪙'
+            : isPollDanger
+              ? '숨만 쉬어도 돈 나가는 주제에 당장 결제창 닫고 통장 잠가! 🚨'
+              : isPollHold
+                ? '솔직히 예쁜 쓰레기잖아. 정신 차리고 일단 통장부터 잠가! 🗑️'
+                : '이 가격에 고민하는 게 시간 낭비야. 유난 떨지 말고 시원하게 질러! 💸';
 
         const aiPinnedItem = document.createElement('div');
         aiPinnedItem.className = 'bg-gradient-to-r from-[#FFFBEB] to-[#FEF3C7]/45 rounded-2xl px-3 py-3 border border-amber-300/80 shadow-2xs';
