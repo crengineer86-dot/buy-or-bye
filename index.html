@@ -2984,7 +2984,7 @@
         const useCountBadgeEl = document.getElementById('useCountBadge');
         if (useCountBadgeEl) {
           if (state.useCountUnit === 'year' && state.useCountYearValue > 0) {
-            useCountBadgeEl.textContent = `${state.useCountYearValue}년 (${formatNumber(state.useCount)}회) 사용`;
+            useCountBadgeEl.textContent = `총 ${state.useCountYearValue}년 사용`;
           } else {
             useCountBadgeEl.textContent = `총 ${formatNumber(state.useCount)}회 사용`;
           }
@@ -4278,6 +4278,7 @@
       const useCountUnitYearBtnEl = document.getElementById('useCountUnitYearBtn');
       const useCountInlineConfirmBtnEl = document.getElementById('useCountInlineConfirmBtn');
       let editingUseCountUnit = 'count';
+      let hasEditedUseCountInSession = false;
 
       function syncUseCountUnitToggleUI() {
         if (!useCountUnitCountBtnEl || !useCountUnitYearBtnEl) return;
@@ -4293,6 +4294,7 @@
       function openUseCountInlineEditor() {
         if (!useCountBadgeBtnEl || !useCountInlineEditorEl || !useCountCustomInputEl) return;
         editingUseCountUnit = state.useCountUnit === 'year' ? 'year' : 'count';
+        hasEditedUseCountInSession = false;
         syncUseCountUnitToggleUI();
         useCountCustomInputEl.value =
           editingUseCountUnit === 'year' && state.useCountYearValue > 0
@@ -4317,8 +4319,9 @@
       function syncCustomUseCountState(rawNum) {
         rotateRoomForNewCalculation();
         if (editingUseCountUnit === 'year') {
-          const cleanYear = Number(rawNum.toFixed(2).replace(/\.?0+$/, ''));
-          const convertedCount = Math.max(1, Math.min(99999, Math.round(rawNum * 365)));
+          const clampedYear = Math.max(0.1, Math.min(50, rawNum));
+          const cleanYear = Number(clampedYear.toFixed(2).replace(/\.?0+$/, ''));
+          const convertedCount = Math.max(1, Math.min(99999, Math.round(clampedYear * 365)));
           state.useCount = convertedCount;
           state.useCountUnit = 'year';
           state.useCountYearValue = cleanYear;
@@ -4355,22 +4358,44 @@
         useCountUnitCountBtnEl.addEventListener('click', (e) => {
           e.stopPropagation();
           triggerHaptic(10);
+          const prevUnit = editingUseCountUnit;
           editingUseCountUnit = 'count';
           syncUseCountUnitToggleUI();
-          const rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
+          let rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
+          if (prevUnit === 'year' && !Number.isNaN(rawNum) && rawNum > 0) {
+            rawNum = Math.max(1, Math.min(99999, Math.round(rawNum * 365)));
+            if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
+            hasEditedUseCountInSession = false;
+          }
           if (!Number.isNaN(rawNum) && rawNum > 0) syncCustomUseCountState(rawNum);
-          if (useCountCustomInputEl) useCountCustomInputEl.focus();
+          if (useCountCustomInputEl) {
+            useCountCustomInputEl.focus();
+            useCountCustomInputEl.select();
+          }
         });
       }
       if (useCountUnitYearBtnEl) {
         useCountUnitYearBtnEl.addEventListener('click', (e) => {
           e.stopPropagation();
           triggerHaptic(10);
+          const prevUnit = editingUseCountUnit;
           editingUseCountUnit = 'year';
           syncUseCountUnitToggleUI();
-          const rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
+          let rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
+          if (prevUnit === 'count' && !Number.isNaN(rawNum) && rawNum > 0) {
+            if (!hasEditedUseCountInSession || rawNum > 50) {
+              rawNum = Math.max(1, Math.min(50, Math.round(rawNum / 365)));
+            } else {
+              rawNum = Math.max(1, Math.min(50, rawNum));
+            }
+            if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
+            hasEditedUseCountInSession = false;
+          }
           if (!Number.isNaN(rawNum) && rawNum > 0) syncCustomUseCountState(rawNum);
-          if (useCountCustomInputEl) useCountCustomInputEl.focus();
+          if (useCountCustomInputEl) {
+            useCountCustomInputEl.focus();
+            useCountCustomInputEl.select();
+          }
         });
       }
       if (useCountInlineConfirmBtnEl) {
@@ -4382,8 +4407,13 @@
       }
       if (useCountCustomInputEl) {
         useCountCustomInputEl.addEventListener('input', () => {
-          const rawNum = parseFloat(useCountCustomInputEl.value);
+          hasEditedUseCountInSession = true;
+          let rawNum = parseFloat(useCountCustomInputEl.value);
           if (!Number.isNaN(rawNum) && rawNum > 0) {
+            if (editingUseCountUnit === 'year' && rawNum > 50) {
+              rawNum = 50;
+              useCountCustomInputEl.value = '50';
+            }
             syncCustomUseCountState(rawNum);
           }
         });
