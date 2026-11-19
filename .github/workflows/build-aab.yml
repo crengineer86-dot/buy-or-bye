@@ -396,13 +396,35 @@ jobs:
               encoding="utf-8",
           )
 
-          # 4. android/app/build.gradle: enforce applicationId, versionCode, versionName, and release signingConfigs
+          # 4. android/variables.gradle: enforce minSdkVersion >= 24 (required by Google Play Automatic Protection)
+          variables_path = Path("android/variables.gradle")
+          if variables_path.exists():
+              variables = variables_path.read_text(encoding="utf-8")
+              variables = re.sub(
+                  r'minSdkVersion\s*=\s*\d+',
+                  'minSdkVersion = 24',
+                  variables,
+                  count=1,
+              )
+              variables_path.write_text(variables, encoding="utf-8")
+              verified_vars = variables_path.read_text(encoding="utf-8")
+              m_var = re.search(r'minSdkVersion\s*=\s*(\d+)', verified_vars)
+              assert m_var and int(m_var.group(1)) >= 24, "variables.gradle minSdkVersion must be >= 24!"
+              print(f"=== Verified android/variables.gradle minSdkVersion = {m_var.group(1)} ===")
+
+          # 5. android/app/build.gradle: enforce applicationId, minSdkVersion, versionCode, versionName, and release signingConfigs
           gradle_path = Path("android/app/build.gradle")
           gradle = gradle_path.read_text(encoding="utf-8")
 
           gradle = re.sub(
               r'applicationId\s+"[^"]+"',
               f'applicationId "{app_id}"',
+              gradle,
+              count=1,
+          )
+          gradle = re.sub(
+              r'minSdkVersion\s+[^\r\n]+',
+              'minSdkVersion 24',
               gradle,
               count=1,
           )
@@ -450,13 +472,15 @@ jobs:
           # Verify final android/app/build.gradle settings
           verified = gradle_path.read_text(encoding="utf-8")
           assert f'applicationId "{app_id}"' in verified, "applicationId mismatch!"
+          m_min = re.search(r'minSdkVersion\s+(\d+)', verified)
+          assert m_min and int(m_min.group(1)) >= 24, "build.gradle minSdkVersion must be >= 24!"
           assert f'versionCode {version_code}' in verified, "versionCode mismatch!"
           assert f'versionName "{version_name}"' in verified, "versionName mismatch!"
           assert 'signingConfig signingConfigs.release' in verified, "release signingConfig missing!"
 
           print("=== Verified android/app/build.gradle ===")
           for line in verified.splitlines():
-              if any(k in line for k in ["applicationId", "versionCode", "versionName", "signingConfig", "storeFile"]):
+              if any(k in line for k in ["applicationId", "minSdkVersion", "versionCode", "versionName", "signingConfig", "storeFile"]):
                   print(line)
           PY
 
