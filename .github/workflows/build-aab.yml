@@ -85,7 +85,7 @@ jobs:
             exit 1
           fi
           yes | "$SDKMANAGER" --licenses > /dev/null || true
-          yes | "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          yes | "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Prepare web assets
         if: steps.check-secrets.outputs.ready == 'true'
@@ -396,7 +396,7 @@ jobs:
               encoding="utf-8",
           )
 
-          # 4. android/variables.gradle: enforce minSdkVersion >= 24 (required by Google Play Automatic Protection)
+          # 4. android/variables.gradle: enforce minSdkVersion >= 24, compileSdkVersion >= 36, targetSdkVersion >= 36
           variables_path = Path("android/variables.gradle")
           if variables_path.exists():
               variables = variables_path.read_text(encoding="utf-8")
@@ -406,16 +406,46 @@ jobs:
                   variables,
                   count=1,
               )
+              variables = re.sub(
+                  r'compileSdkVersion\s*=\s*\d+',
+                  'compileSdkVersion = 36',
+                  variables,
+                  count=1,
+              )
+              variables = re.sub(
+                  r'targetSdkVersion\s*=\s*\d+',
+                  'targetSdkVersion = 36',
+                  variables,
+                  count=1,
+              )
               variables_path.write_text(variables, encoding="utf-8")
               verified_vars = variables_path.read_text(encoding="utf-8")
-              m_var = re.search(r'minSdkVersion\s*=\s*(\d+)', verified_vars)
-              assert m_var and int(m_var.group(1)) >= 24, "variables.gradle minSdkVersion must be >= 24!"
-              print(f"=== Verified android/variables.gradle minSdkVersion = {m_var.group(1)} ===")
+              m_var_min = re.search(r'minSdkVersion\s*=\s*(\d+)', verified_vars)
+              m_var_compile = re.search(r'compileSdkVersion\s*=\s*(\d+)', verified_vars)
+              m_var_target = re.search(r'targetSdkVersion\s*=\s*(\d+)', verified_vars)
+              assert m_var_min and int(m_var_min.group(1)) >= 24, "variables.gradle minSdkVersion must be >= 24!"
+              assert m_var_compile and int(m_var_compile.group(1)) >= 36, "variables.gradle compileSdkVersion must be >= 36!"
+              assert m_var_target and int(m_var_target.group(1)) >= 36, "variables.gradle targetSdkVersion must be >= 36!"
+              print(f"=== Verified android/variables.gradle: minSdk={m_var_min.group(1)}, compileSdk={m_var_compile.group(1)}, targetSdk={m_var_target.group(1)} ===")
 
-          # 5. android/app/build.gradle: enforce applicationId, minSdkVersion, versionCode, versionName, and release signingConfigs
+          # 4b. android/gradle.properties: allow compileSdk 36 cleanly with AGP 8.x
+          gradle_props_path = Path("android/gradle.properties")
+          if gradle_props_path.exists():
+              gradle_props = gradle_props_path.read_text(encoding="utf-8")
+              if "android.suppressUnsupportedCompileSdk" not in gradle_props:
+                  gradle_props = gradle_props.rstrip() + "\nandroid.suppressUnsupportedCompileSdk=36\n"
+                  gradle_props_path.write_text(gradle_props, encoding="utf-8")
+
+          # 5. android/app/build.gradle: enforce applicationId, compileSdk, minSdkVersion, targetSdkVersion, versionCode, versionName, and release signingConfigs
           gradle_path = Path("android/app/build.gradle")
           gradle = gradle_path.read_text(encoding="utf-8")
 
+          gradle = re.sub(
+              r'compileSdk(?:Version)?\s+[^\r\n]+',
+              'compileSdk 36',
+              gradle,
+              count=1,
+          )
           gradle = re.sub(
               r'applicationId\s+"[^"]+"',
               f'applicationId "{app_id}"',
@@ -425,6 +455,12 @@ jobs:
           gradle = re.sub(
               r'minSdkVersion\s+[^\r\n]+',
               'minSdkVersion 24',
+              gradle,
+              count=1,
+          )
+          gradle = re.sub(
+              r'targetSdkVersion\s+[^\r\n]+',
+              'targetSdkVersion 36',
               gradle,
               count=1,
           )
@@ -472,15 +508,19 @@ jobs:
           # Verify final android/app/build.gradle settings
           verified = gradle_path.read_text(encoding="utf-8")
           assert f'applicationId "{app_id}"' in verified, "applicationId mismatch!"
+          m_compile = re.search(r'compileSdk(?:Version)?\s+(\d+)', verified)
+          assert m_compile and int(m_compile.group(1)) >= 36, "build.gradle compileSdk must be >= 36!"
           m_min = re.search(r'minSdkVersion\s+(\d+)', verified)
           assert m_min and int(m_min.group(1)) >= 24, "build.gradle minSdkVersion must be >= 24!"
+          m_target = re.search(r'targetSdkVersion\s+(\d+)', verified)
+          assert m_target and int(m_target.group(1)) >= 36, "build.gradle targetSdkVersion must be >= 36!"
           assert f'versionCode {version_code}' in verified, "versionCode mismatch!"
           assert f'versionName "{version_name}"' in verified, "versionName mismatch!"
           assert 'signingConfig signingConfigs.release' in verified, "release signingConfig missing!"
 
           print("=== Verified android/app/build.gradle ===")
           for line in verified.splitlines():
-              if any(k in line for k in ["applicationId", "minSdkVersion", "versionCode", "versionName", "signingConfig", "storeFile"]):
+              if any(k in line for k in ["applicationId", "compileSdk", "minSdkVersion", "targetSdkVersion", "versionCode", "versionName", "signingConfig", "storeFile"]):
                   print(line)
           PY
 
@@ -504,7 +544,7 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           set +o pipefail
-          COMPILE_SDK=$(grep -oE 'compileSdkVersion[[:space:]]*=[[:space:]]*[0-9]+' android/variables.gradle | grep -oE '[0-9]+' | head -n 1 || echo "34")
+          COMPILE_SDK=$(grep -oE 'compileSdkVersion[[:space:]]*=[[:space:]]*[0-9]+' android/variables.gradle | grep -oE '[0-9]+' | head -n 1 || echo "36")
           SDKMANAGER=$(find "$ANDROID_HOME" -name sdkmanager -type f 2>/dev/null | head -n 1 || true)
           if [ -n "$SDKMANAGER" ] && [ -n "$COMPILE_SDK" ]; then
             yes | "$SDKMANAGER" "platforms;android-${COMPILE_SDK}" > /dev/null || true
