@@ -145,6 +145,7 @@ jobs:
           import android.content.ContentValues;
           import android.content.Context;
           import android.content.Intent;
+          import android.graphics.Color;
           import android.media.MediaScannerConnection;
           import android.net.Uri;
           import android.os.Build;
@@ -152,12 +153,18 @@ jobs:
           import android.os.Environment;
           import android.provider.MediaStore;
           import android.util.Base64;
+          import android.view.View;
           import android.webkit.DownloadListener;
           import android.webkit.JavascriptInterface;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import androidx.activity.result.ActivityResultLauncher;
           import androidx.activity.result.contract.ActivityResultContracts;
+          import androidx.core.graphics.Insets;
+          import androidx.core.view.ViewCompat;
+          import androidx.core.view.WindowCompat;
+          import androidx.core.view.WindowInsetsCompat;
+          import androidx.core.view.WindowInsetsControllerCompat;
           import com.getcapacitor.BridgeActivity;
           import java.io.ByteArrayOutputStream;
           import java.io.File;
@@ -310,6 +317,28 @@ jobs:
                       }
                   );
                   super.onCreate(savedInstanceState);
+
+                  // Android 15/16 Edge-to-Edge: apply system bars & display cutout insets
+                  View contentView = findViewById(android.R.id.content);
+                  if (contentView != null) {
+                      contentView.setBackgroundColor(Color.parseColor("#F8FAFC"));
+                      ViewCompat.setOnApplyWindowInsetsListener(contentView, (v, windowInsets) -> {
+                          Insets systemBars = windowInsets.getInsets(
+                              WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+                          );
+                          Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+                          int bottomPadding = Math.max(systemBars.bottom, ime.bottom);
+                          v.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding);
+                          return WindowInsetsCompat.CONSUMED;
+                      });
+                      ViewCompat.requestApplyInsets(contentView);
+                  }
+                  WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+                  if (insetsController != null) {
+                      insetsController.setAppearanceLightStatusBars(true);
+                      insetsController.setAppearanceLightNavigationBars(true);
+                  }
+
                   if (getBridge() != null && getBridge().getWebView() != null) {
                       WebView webView = getBridge().getWebView();
                       WebSettings settings = webView.getSettings();

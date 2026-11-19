@@ -252,6 +252,28 @@
         border-color: #60A5FA;
       }
     }
+
+    /* Safe Area Inset support (Android Edge-to-Edge / iOS Notch / Foldables) */
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    #appFrame {
+      padding-bottom: calc(1.5rem + var(--safe-bottom));
+    }
+
+    .safe-top-header {
+      padding-top: calc(1rem + var(--safe-top));
+    }
+
+    .safe-top-sub-header {
+      padding-top: calc(0.875rem + var(--safe-top));
+    }
+
+    #toastContainer {
+      top: calc(1rem + var(--safe-top));
+    }
   </style>
 </head>
 <body class="min-h-screen flex justify-center items-start">
@@ -271,7 +293,7 @@
     <!-- ========================================== -->
     <div id="mainAppView" class="flex flex-col flex-1">
       <!-- ① 상단 헤더 -->
-      <header class="sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-4 pt-4 pb-3 flex items-center justify-between">
+      <header class="safe-top-header sticky top-0 z-30 bg-[#F8FAFC]/90 backdrop-blur-md px-4 pt-4 pb-3 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-[#3182F6] flex items-center justify-center text-white shadow-sm shrink-0" style="width: 32px; height: 32px; min-width: 32px;">
             <svg width="16" height="16" style="width: 16px; height: 16px; max-width: 16px; max-height: 16px;" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -895,7 +917,7 @@
     <!-- ========================================== -->
     <div id="friendPollView" class="hidden flex-col flex-1 bg-[#F8FAFC]">
       <!-- 상단 네비게이션 헤더 -->
-      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-100 relative flex items-center justify-between">
+      <header class="safe-top-sub-header sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-100 relative flex items-center justify-between">
         <button type="button" id="backFromPollToMainBtn" class="relative z-10 flex items-center gap-1 text-[#191F28] font-bold text-[13.5px] py-1 px-2 rounded-lg hover:bg-slate-100 cursor-pointer">
           <span>← 메인으로</span>
         </button>
@@ -1139,7 +1161,7 @@
     <!-- ========================================== -->
     <div id="finalVerdictView" class="hidden flex-col flex-1 bg-[#F8FAFC]">
       <!-- 상단 네비게이션 헤더 -->
-      <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-100 relative flex items-center justify-between">
+      <header class="safe-top-sub-header sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-100 relative flex items-center justify-between">
         <button type="button" id="backFromVerdictToPollBtn" class="relative z-10 flex items-center gap-1 text-[#191F28] font-bold text-[13.5px] py-1 px-2 rounded-lg hover:bg-slate-100 cursor-pointer">
           <span>← 투표판으로</span>
         </button>
