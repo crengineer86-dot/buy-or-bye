@@ -361,8 +361,20 @@
                     type="text"
                     value=""
                     placeholder="예 : 핸드폰, 노트북, 헬스PT, 후드티, 치킨 등"
-                    class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-semibold text-[14.5px] rounded-2xl px-3.5 py-3.5 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
+                    class="w-full bg-[#F8FAFC] hover:bg-[#F1F5F9] focus:bg-white text-[#191F28] font-semibold text-[14.5px] rounded-2xl pl-3.5 pr-9 py-3.5 border border-transparent focus:border-[#3182F6] focus:outline-none transition-all"
                   />
+                  <button
+                    id="clearItemNameBtn"
+                    type="button"
+                    title="상품명 지우기"
+                    aria-label="상품명 지우기"
+                    class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-gray-200 hover:bg-gray-300 active:scale-90 text-gray-500 flex items-center justify-center transition-all cursor-pointer"
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
                 </div>
                 <!-- 실물사진 촬영 / 사진첩 업로드 버튼 (이모티콘 왼쪽) -->
                 <button
@@ -1121,7 +1133,7 @@
           </div>
 
           <!-- 댓글 리스트 -->
-          <div id="pollCommentList" class="space-y-2.5 max-h-[320px] overflow-y-auto pr-0.5">
+          <div id="pollCommentList" class="space-y-2.5 max-h-[320px] overflow-y-auto overflow-x-hidden min-w-0 pr-0.5">
             <!-- JS 렌더링 -->
           </div>
 
@@ -1264,7 +1276,7 @@
             <h4 class="text-[14px] font-extrabold text-[#191F28]">💬 친구들의 베스트 팩폭 참견</h4>
             <span class="text-[11px] font-bold text-[#3182F6]">공감순 TOP 3</span>
           </div>
-          <div id="verdictBestCommentsList" class="space-y-2.5">
+          <div id="verdictBestCommentsList" class="space-y-2.5 min-w-0 overflow-x-hidden">
             <!-- JS 렌더링 -->
           </div>
         </section>
@@ -1542,7 +1554,7 @@
             </div>
             <div class="bg-[#EFF6FF] rounded-xl p-3 border border-blue-100 flex flex-col items-center justify-center text-center">
               <span id="modalMetricRightTitle" class="w-full text-[10.5px] font-bold text-[#1D4ED8] leading-tight text-center whitespace-nowrap">아낀 근무 일수</span>
-              <p id="modalGoalPct" class="w-full text-[15px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">약 0.0일 치</p>
+              <p id="modalGoalPct" class="w-full text-[15px] font-black text-[#2563EB] mt-1 text-center whitespace-nowrap">약 0.0일</p>
             </div>
           </div>
 
@@ -2975,6 +2987,10 @@
         if (document.activeElement !== itemNameInput) {
           itemNameInput.value = state.itemName;
         }
+        const clearItemNameBtn = document.getElementById('clearItemNameBtn');
+        if (clearItemNameBtn) {
+          clearItemNameBtn.classList.toggle('hidden', !(itemNameInput && itemNameInput.value.length > 0));
+        }
         const activeIcon = pickItemEmoji(state.itemName);
         const itemInputEmojiEl = document.getElementById('itemInputEmoji');
         if (itemInputEmojiEl) {
@@ -3406,17 +3422,17 @@
           comments.forEach((c) => {
             const isNewlyAdded = Boolean(lastAddedCommentId && c.id === lastAddedCommentId);
             const item = document.createElement('div');
-            item.className = `bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5${isNewlyAdded ? ' animate-comment-pop' : ''}`;
+            item.className = `bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5 min-w-0 overflow-hidden${isNewlyAdded ? ' animate-comment-pop' : ''}`;
             item.innerHTML = `
               <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[15px] shrink-0">
                 ${escapeHtml(c.avatar || '💬')}
               </div>
               <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[12px] font-extrabold text-[#191F28]">${escapeHtml(c.author)}</span>
-                  <span class="text-[10.5px] font-medium text-[#94A3B8]">${escapeHtml(c.time)}</span>
+                <div class="flex items-center justify-between gap-2 min-w-0">
+                  <span class="text-[12px] font-extrabold text-[#191F28] truncate">${escapeHtml(c.author)}</span>
+                  <span class="text-[10.5px] font-medium text-[#94A3B8] shrink-0">${escapeHtml(c.time)}</span>
                 </div>
-                <p class="text-[12.5px] font-semibold text-[#475569] mt-1 leading-snug">${escapeHtml(c.text)}</p>
+                <p class="text-[12.5px] font-semibold text-[#475569] mt-1 leading-snug break-all" style="overflow-wrap: anywhere; word-break: break-word;">${escapeHtml(c.text)}</p>
               </div>
             `;
             commentListEl.appendChild(item);
@@ -3679,18 +3695,18 @@
         } else {
           comments.slice(0, 3).forEach((c, idx) => {
             const card = document.createElement('div');
-            card.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100';
+            card.className = 'bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 min-w-0 overflow-hidden';
             card.innerHTML = `
-              <div class="flex items-center justify-between mb-1">
-                <div class="flex items-center gap-1.5">
-                  <span class="text-[13px]">${escapeHtml(c.avatar || '🔥')}</span>
-                  <span class="text-[12px] font-extrabold text-[#191F28]">${escapeHtml(c.author)}</span>
+              <div class="flex items-center justify-between gap-2 mb-1 min-w-0">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="text-[13px] shrink-0">${escapeHtml(c.avatar || '🔥')}</span>
+                  <span class="text-[12px] font-extrabold text-[#191F28] truncate">${escapeHtml(c.author)}</span>
                 </div>
-                <span class="bg-blue-50 text-[#3182F6] text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                <span class="bg-blue-50 text-[#3182F6] text-[10px] font-extrabold px-2 py-0.5 rounded-full shrink-0">
                   ${medals[idx]}
                 </span>
               </div>
-              <p class="text-[12.5px] font-semibold text-[#475569] leading-snug">"${escapeHtml(c.text)}"</p>
+              <p class="text-[12.5px] font-semibold text-[#475569] leading-snug break-all" style="overflow-wrap: anywhere; word-break: break-word;">"${escapeHtml(c.text)}"</p>
             `;
             bestListEl.appendChild(card);
           });
@@ -4141,6 +4157,22 @@
         saveState();
         renderAll();
       });
+
+      const clearItemNameBtnEl = document.getElementById('clearItemNameBtn');
+      if (clearItemNameBtnEl) {
+        clearItemNameBtnEl.addEventListener('click', () => {
+          triggerHaptic(12);
+          rotateRoomForNewCalculation();
+          const inputEl = document.getElementById('itemNameInput');
+          if (inputEl) inputEl.value = '';
+          state.itemName = '';
+          state.customItemIcon = null;
+          state.isChallengeLocked = false;
+          saveState();
+          renderAll();
+          if (inputEl) inputEl.focus();
+        });
+      }
 
       document.getElementById('itemPriceInput').addEventListener('input', (e) => {
         const numericValue = formatNumericInputLive(e.target);
@@ -4959,7 +4991,7 @@
           leftTitle: '구출한 총 노동 시간',
           leftValue: `약 ${formatNumber(totalHours)}시간`,
           rightTitle: mode === 'monthly' ? '아낀 출근 일수' : '아낀 근무 일수',
-          rightValue: `약 ${savedWorkDays.toFixed(1)}일 치`
+          rightValue: `약 ${savedWorkDays.toFixed(1)}일`
         };
       }
 
