@@ -1,0 +1,512 @@
+name: Build Signed Android AAB (Play Console Release)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: 'Android versionCode (integer, must increase for each Play Console release)'
+        required: false
+        default: '1'
+      version_name:
+        description: 'Android versionName (e.g. 1.0.0)'
+        required: false
+        default: '1.0.0'
+
+jobs:
+  build-aab:
+    name: Build Signed Release AAB
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ID: com.buyorbye.app
+      APP_NAME: 살까말까 판독기
+      VERSION_CODE: ${{ github.event.inputs.version_code || '1' }}
+      VERSION_NAME: ${{ github.event.inputs.version_name || '1.0.0' }}
+
+    steps:
+      - name: Check Required Signing Secrets
+        id: check-secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          MISSING=""
+          [ -z "$KEYSTORE_BASE64" ] && MISSING="$MISSING KEYSTORE_BASE64"
+          [ -z "$KEYSTORE_PASSWORD" ] && MISSING="$MISSING KEYSTORE_PASSWORD"
+          [ -z "$KEY_ALIAS" ] && MISSING="$MISSING KEY_ALIAS"
+          [ -z "$KEY_PASSWORD" ] && MISSING="$MISSING KEY_PASSWORD"
+
+          if [ -n "$MISSING" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "::error::Missing required GitHub Secrets:$MISSING. Please register them in Settings > Secrets and variables > Actions."
+              exit 1
+            else
+              echo "::notice::Skipping signed AAB build because GitHub Secrets are not yet configured:$MISSING"
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        if: steps.check-secrets.outputs.ready == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: steps.check-secrets.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17
+        if: steps.check-secrets.outputs.ready == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK & Accept Licenses
+        if: steps.check-secrets.outputs.ready == 'true'
+        shell: bash
+        run: |
+          set +o pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          echo "Using Android SDK at: $SDK_ROOT"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER=$(find "$SDK_ROOT" -name sdkmanager -type f 2>/dev/null | head -n 1 || true)
+          if [ -z "$SDKMANAGER" ]; then
+            echo "::error::sdkmanager not found under $SDK_ROOT"
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          yes | "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Prepare web assets
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          mkdir -p www
+          cp index.html www/
+          find . -maxdepth 1 -type f \( -name '*.css' -o -name '*.js' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' -o -name '*.webp' -o -name '*.ico' -o -name '*.json' \) ! -name 'package*.json' ! -name 'capacitor.config.*' -exec cp {} www/ \;
+          if [ -d assets ]; then cp -r assets www/; fi
+
+      - name: Initialize Capacitor and Add Android Platform
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          npm init -y
+          npm install @capacitor/core@^6.2.0 @capacitor/cli@^6.2.0 @capacitor/android@^6.2.0 @capacitor/filesystem@^6.0.0 @capacitor/share@^6.0.0 @capacitor/haptics@^6.0.0
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.buyorbye.app",
+            "appName": "살까말까 판독기",
+            "webDir": "www",
+            "server": {
+              "androidScheme": "https",
+              "cleartext": true,
+              "allowNavigation": [
+                "*.firebaseio.com",
+                "*.firebasedatabase.app",
+                "*.googleapis.com",
+                "*.gstatic.com",
+                "cdn.tailwindcss.com",
+                "cdn.jsdelivr.net",
+                "crengineer86-dot.github.io"
+              ]
+            },
+            "android": {
+              "allowMixedContent": true
+            }
+          }
+          EOF
+          npx cap add android
+          npx cap sync android
+
+      - name: Apply Custom Launcher Icons & Resources
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          if [ -d "android-assets/res" ]; then
+            cp -r android-assets/res/* android/app/src/main/res/
+            echo "Successfully applied custom launcher icons to android/app/src/main/res/"
+          fi
+
+      - name: Configure Android Permissions, MainActivity & Release build.gradle
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          python3 - << 'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          app_id = os.environ["APP_ID"]
+          app_name = os.environ["APP_NAME"]
+          version_code = int(os.environ["VERSION_CODE"])
+          version_name = os.environ["VERSION_NAME"]
+
+          # 1. AndroidManifest.xml
+          manifest_path = Path("android/app/src/main/AndroidManifest.xml")
+          manifest = manifest_path.read_text(encoding="utf-8")
+
+          for perm in [
+              "android.permission.INTERNET",
+              "android.permission.ACCESS_NETWORK_STATE",
+              "android.permission.VIBRATE",
+          ]:
+              tag = f'<uses-permission android:name="{perm}" />'
+              if perm not in manifest:
+                  manifest = manifest.replace("</manifest>", f"    {tag}\n</manifest>", 1)
+
+          if "android.permission.WRITE_EXTERNAL_STORAGE" not in manifest:
+              manifest = manifest.replace(
+                  "</manifest>",
+                  '    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />\n</manifest>',
+                  1,
+              )
+
+          if "android:usesCleartextTraffic" not in manifest:
+              manifest = re.sub(
+                  r"<application\b",
+                  '<application android:usesCleartextTraffic="true"',
+                  manifest,
+                  count=1,
+              )
+
+          manifest_path.write_text(manifest, encoding="utf-8")
+
+          # 2. strings.xml
+          strings_path = Path("android/app/src/main/res/values/strings.xml")
+          if strings_path.exists():
+              strings = strings_path.read_text(encoding="utf-8")
+              strings = re.sub(
+                  r'<string name="app_name">.*?</string>',
+                  f'<string name="app_name">{app_name}</string>',
+                  strings,
+              )
+              strings = re.sub(
+                  r'<string name="title_activity_main">.*?</string>',
+                  f'<string name="title_activity_main">{app_name}</string>',
+                  strings,
+              )
+              strings_path.write_text(strings, encoding="utf-8")
+
+          # 3. MainActivity.java
+          main_activity = Path("android/app/src/main/java/com/buyorbye/app/MainActivity.java")
+          main_activity.write_text(
+              """package com.buyorbye.app;
+
+          import android.app.Activity;
+          import android.content.ContentResolver;
+          import android.content.ContentValues;
+          import android.content.Context;
+          import android.content.Intent;
+          import android.media.MediaScannerConnection;
+          import android.net.Uri;
+          import android.os.Build;
+          import android.os.Bundle;
+          import android.os.Environment;
+          import android.provider.MediaStore;
+          import android.util.Base64;
+          import android.webkit.DownloadListener;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import androidx.activity.result.ActivityResultLauncher;
+          import androidx.activity.result.contract.ActivityResultContracts;
+          import com.getcapacitor.BridgeActivity;
+          import java.io.ByteArrayOutputStream;
+          import java.io.File;
+          import java.io.FileOutputStream;
+          import java.io.InputStream;
+          import java.io.OutputStream;
+
+          public class MainActivity extends BridgeActivity {
+              private ActivityResultLauncher<Intent> galleryPickerLauncher;
+              private volatile String pendingPickedImageDataUrl = null;
+
+              public void launchDirectGalleryPicker() {
+                  runOnUiThread(() -> {
+                      if (galleryPickerLauncher == null) return;
+                      Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                      intent.setType("image/*");
+                      galleryPickerLauncher.launch(intent);
+                  });
+              }
+
+              public String consumePendingPickedImage() {
+                  String data = pendingPickedImageDataUrl;
+                  pendingPickedImageDataUrl = null;
+                  return data != null ? data : "";
+              }
+
+              public static class AndroidGalleryBridge {
+                  private final Context context;
+
+                  public AndroidGalleryBridge(Context context) {
+                      this.context = context;
+                  }
+
+                  @JavascriptInterface
+                  public void openGalleryPicker() {
+                      if (context instanceof MainActivity) {
+                          ((MainActivity) context).launchDirectGalleryPicker();
+                      }
+                  }
+
+                  @JavascriptInterface
+                  public String consumePickedImage() {
+                      if (context instanceof MainActivity) {
+                          return ((MainActivity) context).consumePendingPickedImage();
+                      }
+                      return "";
+                  }
+
+                  @JavascriptInterface
+                  public String saveImageToGallery(String dataUrlOrBase64, String fileName) {
+                      try {
+                          if (dataUrlOrBase64 == null || dataUrlOrBase64.isEmpty()) {
+                              return "ERR:EMPTY";
+                          }
+                          String cleanBase64 = dataUrlOrBase64.contains(",")
+                              ? dataUrlOrBase64.substring(dataUrlOrBase64.indexOf(",") + 1)
+                              : dataUrlOrBase64;
+                          byte[] imageBytes = Base64.decode(cleanBase64, Base64.DEFAULT);
+                          String safeName = (fileName == null || fileName.trim().isEmpty())
+                              ? "buy_or_bye_" + System.currentTimeMillis() + ".png"
+                              : fileName.trim();
+                          if (!safeName.toLowerCase().endsWith(".png")) {
+                              safeName += ".png";
+                          }
+
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                              ContentResolver resolver = context.getContentResolver();
+                              ContentValues values = new ContentValues();
+                              values.put(MediaStore.Images.Media.DISPLAY_NAME, safeName);
+                              values.put(MediaStore.Images.Media.MIME_TYPE, "image/png");
+                              values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/BuyOrBye");
+                              values.put(MediaStore.Images.Media.IS_PENDING, 1);
+
+                              Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                              if (uri == null) {
+                                  return "ERR:URI_NULL";
+                              }
+                              try (OutputStream out = resolver.openOutputStream(uri)) {
+                                  if (out == null) {
+                                      return "ERR:STREAM_NULL";
+                                  }
+                                  out.write(imageBytes);
+                                  out.flush();
+                              }
+                              values.clear();
+                              values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                              resolver.update(uri, values, null, null);
+                              return "OK";
+                          } else {
+                              File picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                              File appDir = new File(picturesDir, "BuyOrBye");
+                              if (!appDir.exists() && !appDir.mkdirs()) {
+                                  return "ERR:MKDIR_FAILED";
+                              }
+                              File outFile = new File(appDir, safeName);
+                              try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                                  fos.write(imageBytes);
+                                  fos.flush();
+                              }
+                              MediaScannerConnection.scanFile(
+                                  context,
+                                  new String[] { outFile.getAbsolutePath() },
+                                  new String[] { "image/png" },
+                                  null
+                              );
+                              return "OK";
+                          }
+                      } catch (Exception e) {
+                          return "ERR:" + e.getMessage();
+                      }
+                  }
+              }
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  galleryPickerLauncher = registerForActivityResult(
+                      new ActivityResultContracts.StartActivityForResult(),
+                      result -> {
+                          if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                              Uri uri = result.getData().getData();
+                              if (uri != null) {
+                                  new Thread(() -> {
+                                      try (InputStream is = getContentResolver().openInputStream(uri)) {
+                                          if (is == null) return;
+                                          ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                                          byte[] chunk = new byte[16384];
+                                          int n;
+                                          while ((n = is.read(chunk)) != -1) {
+                                              buffer.write(chunk, 0, n);
+                                          }
+                                          String mime = getContentResolver().getType(uri);
+                                          if (mime == null || !mime.startsWith("image/")) {
+                                              mime = "image/jpeg";
+                                          }
+                                          String base64 = Base64.encodeToString(buffer.toByteArray(), Base64.NO_WRAP);
+                                          pendingPickedImageDataUrl = "data:" + mime + ";base64," + base64;
+                                          runOnUiThread(() -> {
+                                              if (getBridge() != null && getBridge().getWebView() != null) {
+                                                  getBridge().getWebView().evaluateJavascript(
+                                                      "window.__onAndroidGalleryImagePicked && window.__onAndroidGalleryImagePicked();",
+                                                      null
+                                                  );
+                                              }
+                                          });
+                                      } catch (Exception ignored) {
+                                      }
+                                  }).start();
+                              }
+                          }
+                      }
+                  );
+                  super.onCreate(savedInstanceState);
+                  if (getBridge() != null && getBridge().getWebView() != null) {
+                      WebView webView = getBridge().getWebView();
+                      WebSettings settings = webView.getSettings();
+                      settings.setJavaScriptEnabled(true);
+                      settings.setDomStorageEnabled(true);
+                      settings.setDatabaseEnabled(true);
+                      settings.setTextZoom(100);
+                      settings.setUseWideViewPort(true);
+                      settings.setLoadWithOverviewMode(true);
+                      settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+
+                      final AndroidGalleryBridge galleryBridge = new AndroidGalleryBridge(this);
+                      webView.addJavascriptInterface(galleryBridge, "AndroidGalleryBridge");
+                      webView.setDownloadListener(new DownloadListener() {
+                          @Override
+                          public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+                              if (url != null && url.startsWith("data:image/")) {
+                                  galleryBridge.saveImageToGallery(url, "buy_or_bye_" + System.currentTimeMillis() + ".png");
+                              }
+                          }
+                      });
+                  }
+              }
+          }
+          """,
+              encoding="utf-8",
+          )
+
+          # 4. android/app/build.gradle: enforce applicationId, versionCode, versionName, and release signingConfigs
+          gradle_path = Path("android/app/build.gradle")
+          gradle = gradle_path.read_text(encoding="utf-8")
+
+          gradle = re.sub(
+              r'applicationId\s+"[^"]+"',
+              f'applicationId "{app_id}"',
+              gradle,
+              count=1,
+          )
+          gradle = re.sub(
+              r'versionCode\s+\d+',
+              f'versionCode {version_code}',
+              gradle,
+              count=1,
+          )
+          gradle = re.sub(
+              r'versionName\s+"[^"]+"',
+              f'versionName "{version_name}"',
+              gradle,
+              count=1,
+          )
+
+          signing_block = """    signingConfigs {
+              release {
+                  storeFile file("upload-keystore.jks")
+                  storePassword System.getenv("KEYSTORE_PASSWORD")
+                  keyAlias System.getenv("KEY_ALIAS")
+                  keyPassword System.getenv("KEY_PASSWORD")
+              }
+          }
+          """
+
+          if "signingConfigs {" not in gradle:
+              gradle = re.sub(
+                  r'(\s*buildTypes\s*\{)',
+                  f'\n{signing_block}\\1',
+                  gradle,
+                  count=1,
+              )
+
+          if "signingConfig signingConfigs.release" not in gradle:
+              gradle = re.sub(
+                  r'(buildTypes\s*\{\s*release\s*\{)',
+                  r'\1\n            signingConfig signingConfigs.release',
+                  gradle,
+                  count=1,
+              )
+
+          gradle_path.write_text(gradle, encoding="utf-8")
+
+          # Verify final android/app/build.gradle settings
+          verified = gradle_path.read_text(encoding="utf-8")
+          assert f'applicationId "{app_id}"' in verified, "applicationId mismatch!"
+          assert f'versionCode {version_code}' in verified, "versionCode mismatch!"
+          assert f'versionName "{version_name}"' in verified, "versionName mismatch!"
+          assert 'signingConfig signingConfigs.release' in verified, "release signingConfig missing!"
+
+          print("=== Verified android/app/build.gradle ===")
+          for line in verified.splitlines():
+              if any(k in line for k in ["applicationId", "versionCode", "versionName", "signingConfig", "storeFile"]):
+                  print(line)
+          PY
+
+      - name: Decode Upload Keystore from GitHub Secrets
+        if: steps.check-secrets.outputs.ready == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > android/app/upload-keystore.jks
+          keytool -list -keystore android/app/upload-keystore.jks -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null
+          echo "Upload keystore decoded and verified successfully for alias: $KEY_ALIAS"
+
+      - name: Ensure Android Platform SDK & Build Signed Release AAB
+        if: steps.check-secrets.outputs.ready == 'true'
+        shell: bash
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set +o pipefail
+          COMPILE_SDK=$(grep -oE 'compileSdkVersion[[:space:]]*=[[:space:]]*[0-9]+' android/variables.gradle | grep -oE '[0-9]+' | head -n 1 || echo "34")
+          SDKMANAGER=$(find "$ANDROID_HOME" -name sdkmanager -type f 2>/dev/null | head -n 1 || true)
+          if [ -n "$SDKMANAGER" ] && [ -n "$COMPILE_SDK" ]; then
+            yes | "$SDKMANAGER" "platforms;android-${COMPILE_SDK}" > /dev/null || true
+          fi
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon
+
+      - name: Verify Signed AAB Signature
+        if: steps.check-secrets.outputs.ready == 'true'
+        run: |
+          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+          test -f "$AAB_PATH"
+          jarsigner -verify -certs "$AAB_PATH"
+          ls -lh "$AAB_PATH"
+
+      - name: Clean Up Keystore File
+        if: always()
+        run: |
+          rm -f android/app/upload-keystore.jks
+
+      - name: Upload Signed Release AAB Artifact
+        if: steps.check-secrets.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: buy-or-bye-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error

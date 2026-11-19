@@ -8,6 +8,14 @@ build/
 *.apk
 *.aab
 
+# Android Signing Keys & Secrets (NEVER commit to GitHub!)
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.b64
+keystore.properties
+
 # Generated Capacitor / Node manifests (created cleanly in CI)
 package.json
 package-lock.json
