@@ -2134,6 +2134,46 @@
         } catch (_) {}
       }
 
+      const MY_COMMENTS_STORAGE_KEY = 'buy_or_bye_my_comments_v1';
+
+      function getMyCommentIds() {
+        try {
+          const raw = localStorage.getItem(MY_COMMENTS_STORAGE_KEY);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return new Set(Array.isArray(parsed) ? parsed.map(String) : []);
+        } catch (_) {
+          return new Set();
+        }
+      }
+
+      function markCommentAsMine(commentId) {
+        if (!commentId) return;
+        try {
+          const ids = Array.from(getMyCommentIds());
+          const strId = String(commentId);
+          if (!ids.includes(strId)) {
+            ids.push(strId);
+            const trimmed = ids.slice(-200);
+            localStorage.setItem(MY_COMMENTS_STORAGE_KEY, JSON.stringify(trimmed));
+          }
+        } catch (_) {}
+      }
+
+      function unmarkCommentAsMine(commentId) {
+        if (!commentId) return;
+        try {
+          const strId = String(commentId);
+          const ids = Array.from(getMyCommentIds()).filter((id) => id !== strId);
+          localStorage.setItem(MY_COMMENTS_STORAGE_KEY, JSON.stringify(ids));
+        } catch (_) {}
+      }
+
+      function isMyComment(comment) {
+        return Boolean(comment && comment.id && getMyCommentIds().has(String(comment.id)));
+      }
+
+      let editingCommentId = null;
+
       function detachRoomListener() {
         if (activeRoomRef && activeRoomHandler) {
           activeRoomRef.off('value', activeRoomHandler);
@@ -3421,6 +3461,10 @@
         } else {
           comments.forEach((c) => {
             const isNewlyAdded = Boolean(lastAddedCommentId && c.id === lastAddedCommentId);
+            const mine = isMyComment(c);
+            const isEditing = mine && editingCommentId === c.id;
+            const safeId = escapeHtml(c.id || '');
+            const editedTag = c.edited ? ' · 수정됨' : '';
             const item = document.createElement('div');
             item.className = `bg-[#F8FAFC] rounded-2xl p-3.5 border border-slate-100 flex items-start gap-2.5 min-w-0 overflow-hidden${isNewlyAdded ? ' animate-comment-pop' : ''}`;
             item.innerHTML = `
@@ -3429,14 +3473,47 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-2 min-w-0">
-                  <span class="text-[12px] font-extrabold text-[#191F28] truncate">${escapeHtml(c.author)}</span>
-                  <span class="text-[10.5px] font-medium text-[#94A3B8] shrink-0">${escapeHtml(c.time)}</span>
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-[12px] font-extrabold text-[#191F28] truncate">${escapeHtml(c.author)}</span>
+                    ${mine ? '<span class="text-[9.5px] font-extrabold text-[#3182F6] bg-[#EFF6FF] border border-[#DBEAFE] px-1.5 py-0.5 rounded-full shrink-0">내 댓글</span>' : ''}
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <span class="text-[10.5px] font-medium text-[#94A3B8]">${escapeHtml(c.time)}${editedTag}</span>
+                    ${mine && !isEditing ? `
+                      <button type="button" data-edit-comment="${safeId}" class="text-[10.5px] font-bold text-[#64748B] hover:text-[#3182F6] px-1 py-0.5 rounded transition-colors cursor-pointer">수정</button>
+                      <button type="button" data-delete-comment="${safeId}" class="text-[10.5px] font-bold text-[#94A3B8] hover:text-rose-500 px-1 py-0.5 rounded transition-colors cursor-pointer">삭제</button>
+                    ` : ''}
+                  </div>
                 </div>
-                <p class="text-[12.5px] font-semibold text-[#475569] mt-1 leading-snug break-all" style="overflow-wrap: anywhere; word-break: break-word;">${escapeHtml(c.text)}</p>
+                ${isEditing ? `
+                  <div class="mt-2 space-y-2">
+                    <input
+                      type="text"
+                      data-edit-input="${safeId}"
+                      value="${escapeHtml(c.text)}"
+                      placeholder="팩폭 댓글 내용을 수정해 주세요..."
+                      class="w-full bg-white text-[12.5px] font-semibold text-[#191F28] px-3 py-2 rounded-xl border border-[#3182F6] focus:outline-none"
+                    />
+                    <div class="flex items-center justify-end gap-1.5">
+                      <button type="button" data-cancel-edit="${safeId}" class="text-[11px] font-bold text-[#64748B] bg-slate-200/80 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer">취소</button>
+                      <button type="button" data-save-edit="${safeId}" class="text-[11px] font-extrabold text-white bg-[#3182F6] hover:bg-[#1B64DA] px-3 py-1 rounded-lg transition-colors cursor-pointer">저장</button>
+                    </div>
+                  </div>
+                ` : `
+                  <p class="text-[12.5px] font-semibold text-[#475569] mt-1 leading-snug break-all" style="overflow-wrap: anywhere; word-break: break-word;">${escapeHtml(c.text)}</p>
+                `}
               </div>
             `;
             commentListEl.appendChild(item);
           });
+          if (editingCommentId) {
+            const editInputEl = commentListEl.querySelector(`[data-edit-input="${editingCommentId}"]`);
+            if (editInputEl) {
+              editInputEl.focus();
+              const len = editInputEl.value.length;
+              try { editInputEl.setSelectionRange(len, len); } catch (_) {}
+            }
+          }
           if (lastAddedCommentId) {
             commentListEl.scrollTo({ top: 0, behavior: 'smooth' });
             lastAddedCommentId = null;
@@ -4742,6 +4819,7 @@
         };
 
         lastAddedCommentId = commentId;
+        markCommentAsMine(commentId);
         state.pollComments.unshift(newComment);
         input.value = '';
         saveState();
@@ -4760,6 +4838,127 @@
         } else {
           showToast('💬 팩폭 참견이 등록되었어요!');
         }
+      }
+
+      async function editPollComment(commentId, nextText) {
+        if (!isMyComment({ id: commentId })) return;
+        const trimmed = String(nextText || '').trim();
+        if (!trimmed) {
+          showToast('수정할 댓글 내용을 입력해 주세요!');
+          return;
+        }
+        const roomId = ensureRoomId();
+        const target = (Array.isArray(state.pollComments) ? state.pollComments : []).find(
+          (c) => c && String(c.id) === String(commentId)
+        );
+        if (!target) {
+          editingCommentId = null;
+          renderPollAndVerdict();
+          return;
+        }
+        const prevText = target.text;
+        const prevEdited = Boolean(target.edited);
+        target.text = trimmed;
+        target.edited = true;
+        editingCommentId = null;
+        saveState();
+        renderPollAndVerdict();
+
+        if (rtdb) {
+          try {
+            await rtdb.ref(`rooms/${roomId}/comments/${commentId}`).update({
+              text: trimmed,
+              edited: true
+            });
+            showToast('✏️ 팩폭 댓글이 수정되었어요!');
+          } catch (err) {
+            console.error('Firebase comment edit failed:', err);
+            target.text = prevText;
+            target.edited = prevEdited;
+            saveState();
+            renderPollAndVerdict();
+            showToast('⚠️ 댓글 수정 동기화에 실패했어요.');
+          }
+        } else {
+          showToast('✏️ 팩폭 댓글이 수정되었어요!');
+        }
+      }
+
+      async function deletePollComment(commentId) {
+        if (!isMyComment({ id: commentId })) return;
+        const roomId = ensureRoomId();
+        const prevList = Array.isArray(state.pollComments) ? [...state.pollComments] : [];
+        state.pollComments = prevList.filter((c) => !(c && String(c.id) === String(commentId)));
+        if (editingCommentId === commentId) {
+          editingCommentId = null;
+        }
+        unmarkCommentAsMine(commentId);
+        saveState();
+        renderPollAndVerdict();
+
+        if (rtdb) {
+          try {
+            await rtdb.ref(`rooms/${roomId}/comments/${commentId}`).remove();
+            showToast('🗑️ 내가 쓴 팩폭 댓글을 삭제했어요.');
+          } catch (err) {
+            console.error('Firebase comment delete failed:', err);
+            state.pollComments = prevList;
+            markCommentAsMine(commentId);
+            saveState();
+            renderPollAndVerdict();
+            showToast('⚠️ 댓글 삭제 동기화에 실패했어요.');
+          }
+        } else {
+          showToast('🗑️ 내가 쓴 팩폭 댓글을 삭제했어요.');
+        }
+      }
+
+      const pollCommentListEl = document.getElementById('pollCommentList');
+      if (pollCommentListEl) {
+        pollCommentListEl.addEventListener('click', (e) => {
+          const editBtn = e.target.closest('[data-edit-comment]');
+          if (editBtn) {
+            triggerHaptic(12);
+            editingCommentId = editBtn.getAttribute('data-edit-comment');
+            renderPollAndVerdict();
+            return;
+          }
+          const cancelBtn = e.target.closest('[data-cancel-edit]');
+          if (cancelBtn) {
+            triggerHaptic(10);
+            editingCommentId = null;
+            renderPollAndVerdict();
+            return;
+          }
+          const saveBtn = e.target.closest('[data-save-edit]');
+          if (saveBtn) {
+            triggerHaptic(15);
+            const id = saveBtn.getAttribute('data-save-edit');
+            const inputEl = pollCommentListEl.querySelector(`[data-edit-input="${id}"]`);
+            editPollComment(id, inputEl ? inputEl.value : '');
+            return;
+          }
+          const delBtn = e.target.closest('[data-delete-comment]');
+          if (delBtn) {
+            triggerHaptic(18);
+            const id = delBtn.getAttribute('data-delete-comment');
+            deletePollComment(id);
+          }
+        });
+
+        pollCommentListEl.addEventListener('keydown', (e) => {
+          const editInput = e.target.closest('[data-edit-input]');
+          if (!editInput) return;
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const id = editInput.getAttribute('data-edit-input');
+            editPollComment(id, editInput.value);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            editingCommentId = null;
+            renderPollAndVerdict();
+          }
+        });
       }
 
       document.getElementById('addPollCommentBtn').addEventListener('click', () => {
