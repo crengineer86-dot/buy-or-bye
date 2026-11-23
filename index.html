@@ -545,13 +545,12 @@
                 >
                   <input
                     id="useCountCustomInput"
-                    type="number"
+                    type="text"
                     inputmode="numeric"
-                    step="1"
-                    min="1"
+                    maxlength="4"
                     placeholder="숫자"
                     aria-label="예상 사용 횟수, 개월 또는 연수 입력"
-                    class="w-[42px] bg-transparent text-[#191F28] font-extrabold text-[12px] text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    class="w-[46px] bg-transparent text-[#191F28] font-extrabold text-[12px] text-center focus:outline-none"
                   />
                   <span class="w-px h-3.5 bg-slate-200 mx-0.5 shrink-0" aria-hidden="true"></span>
                   <button
@@ -2459,7 +2458,7 @@
             ...parsed,
             itemName: initialItemName,
             itemPrice: initialItemPrice,
-            useCount: Math.max(1, Math.min(99999, Math.round(initialUseCount))),
+            useCount: Math.max(1, Math.min(3649635, Math.round(initialUseCount))),
             customItemIcon: parsed.customItemIcon || null,
             isInitialized: true,
             history: loadedHistory,
@@ -3068,9 +3067,9 @@
         const useCountBadgeEl = document.getElementById('useCountBadge');
         if (useCountBadgeEl) {
           if (state.useCountUnit === 'year' && state.useCountYearValue > 0) {
-            useCountBadgeEl.textContent = `총 ${state.useCountYearValue}년 사용`;
+            useCountBadgeEl.textContent = `총 ${formatNumber(state.useCountYearValue)}년 사용`;
           } else if (state.useCountUnit === 'month' && state.useCountMonthValue > 0) {
-            useCountBadgeEl.textContent = `총 ${state.useCountMonthValue}개월 사용`;
+            useCountBadgeEl.textContent = `총 ${formatNumber(state.useCountMonthValue)}개월 사용`;
           } else {
             useCountBadgeEl.textContent = `총 ${formatNumber(state.useCount)}회 사용`;
           }
@@ -3106,9 +3105,9 @@
           if (targetCount === 730) {
             if (isOverMax) {
               if (state.useCountUnit === 'year' && state.useCountYearValue > 0) {
-                btn.textContent = `${state.useCountYearValue}년`;
+                btn.textContent = `${formatNumber(state.useCountYearValue)}년`;
               } else if (state.useCountUnit === 'month' && state.useCountMonthValue > 0) {
-                btn.textContent = `${state.useCountMonthValue}개월`;
+                btn.textContent = `${formatNumber(state.useCountMonthValue)}개월`;
               } else {
                 btn.textContent = `${formatNumber(state.useCount)}회`;
               }
@@ -3970,9 +3969,9 @@
           const safeUseCount = Math.max(1, Number(state.useCount) || 1);
           instaUseCountSubEl.textContent =
             state.useCountUnit === 'year' && state.useCountYearValue > 0
-              ? `(${state.useCountYearValue}년 · ${formatNumber(safeUseCount)}회 기준)`
+              ? `(${formatNumber(state.useCountYearValue)}년 · ${formatNumber(safeUseCount)}회 기준)`
               : state.useCountUnit === 'month' && state.useCountMonthValue > 0
-                ? `(${state.useCountMonthValue}개월 · ${formatNumber(safeUseCount)}회 기준)`
+                ? `(${formatNumber(state.useCountMonthValue)}개월 · ${formatNumber(safeUseCount)}회 기준)`
                 : `(${formatNumber(safeUseCount)}회 사용 기준)`;
         }
         if (instaStatusBadgeEl) instaStatusBadgeEl.textContent = isDanger ? '반려?' : '승인?';
@@ -4405,7 +4404,6 @@
       const useCountUnitYearBtnEl = document.getElementById('useCountUnitYearBtn');
       const useCountInlineConfirmBtnEl = document.getElementById('useCountInlineConfirmBtn');
       let editingUseCountUnit = 'count';
-      let hasEditedUseCountInSession = false;
 
       function syncUseCountUnitToggleUI() {
         if (!useCountUnitCountBtnEl || !useCountUnitMonthBtnEl || !useCountUnitYearBtnEl) return;
@@ -4414,25 +4412,22 @@
         useCountUnitCountBtnEl.className = editingUseCountUnit === 'count' ? activeCls : inactiveCls;
         useCountUnitMonthBtnEl.className = editingUseCountUnit === 'month' ? activeCls : inactiveCls;
         useCountUnitYearBtnEl.className = editingUseCountUnit === 'year' ? activeCls : inactiveCls;
+      }
 
-        if (useCountCustomInputEl) {
-          if (editingUseCountUnit === 'year') {
-            useCountCustomInputEl.setAttribute('inputmode', 'decimal');
-            useCountCustomInputEl.setAttribute('step', 'any');
-            useCountCustomInputEl.setAttribute('min', '0.1');
-            useCountCustomInputEl.setAttribute('max', '50');
-          } else if (editingUseCountUnit === 'month') {
-            useCountCustomInputEl.setAttribute('inputmode', 'numeric');
-            useCountCustomInputEl.setAttribute('step', '1');
-            useCountCustomInputEl.setAttribute('min', '1');
-            useCountCustomInputEl.setAttribute('max', '60');
-          } else {
-            useCountCustomInputEl.setAttribute('inputmode', 'numeric');
-            useCountCustomInputEl.setAttribute('step', '1');
-            useCountCustomInputEl.setAttribute('min', '1');
-            useCountCustomInputEl.setAttribute('max', '99999');
-          }
+      function sanitizeUseCountIntInput() {
+        if (!useCountCustomInputEl) return NaN;
+        const digitsOnly = String(useCountCustomInputEl.value || '').replace(/[^\d]/g, '').slice(0, 4);
+        if (digitsOnly !== String(useCountCustomInputEl.value || '')) {
+          useCountCustomInputEl.value = digitsOnly;
         }
+        if (!digitsOnly) return NaN;
+        let intVal = parseInt(digitsOnly, 10);
+        if (Number.isNaN(intVal) || intVal <= 0) return NaN;
+        if (intVal > 9999) {
+          intVal = 9999;
+          useCountCustomInputEl.value = '9999';
+        }
+        return intVal;
       }
 
       function openUseCountInlineEditor() {
@@ -4443,14 +4438,14 @@
             : state.useCountUnit === 'month'
               ? 'month'
               : 'count';
-        hasEditedUseCountInSession = false;
         syncUseCountUnitToggleUI();
-        useCountCustomInputEl.value =
+        const initialVal =
           editingUseCountUnit === 'year' && state.useCountYearValue > 0
-            ? String(state.useCountYearValue)
+            ? Math.min(9999, Math.max(1, Math.round(state.useCountYearValue)))
             : editingUseCountUnit === 'month' && state.useCountMonthValue > 0
-              ? String(state.useCountMonthValue)
-              : String(state.useCount || 1);
+              ? Math.min(9999, Math.max(1, Math.round(state.useCountMonthValue)))
+              : Math.min(9999, Math.max(1, Math.round(state.useCount || 1)));
+        useCountCustomInputEl.value = String(initialVal);
         useCountBadgeBtnEl.classList.add('hidden');
         useCountInlineEditorEl.classList.remove('hidden');
         useCountInlineEditorEl.classList.add('flex');
@@ -4467,26 +4462,22 @@
         useCountBadgeBtnEl.classList.remove('hidden');
       }
 
-      function syncCustomUseCountState(rawNum) {
+      function syncCustomUseCountState(rawInt) {
+        const exactVal = Math.max(1, Math.min(9999, Math.round(rawInt)));
         rotateRoomForNewCalculation();
         if (editingUseCountUnit === 'year') {
-          const clampedYear = Math.max(0.1, Math.min(50, rawNum));
-          const cleanYear = Number(clampedYear.toFixed(2).replace(/\.?0+$/, ''));
-          const convertedCount = Math.max(1, Math.min(99999, Math.round(clampedYear * 365)));
-          state.useCount = convertedCount;
+          state.useCount = exactVal * 365;
           state.useCountUnit = 'year';
           state.useCountMonthValue = null;
-          state.useCountYearValue = cleanYear;
+          state.useCountYearValue = exactVal;
         } else if (editingUseCountUnit === 'month') {
-          const exactMonth = Math.max(1, Math.min(60, Math.round(rawNum)));
-          const convertedCount = Math.max(1, Math.min(99999, exactMonth * 30));
+          const convertedCount = exactVal % 12 === 0 ? (exactVal / 12) * 365 : exactVal * 30;
           state.useCount = convertedCount;
           state.useCountUnit = 'month';
-          state.useCountMonthValue = exactMonth;
+          state.useCountMonthValue = exactVal;
           state.useCountYearValue = null;
         } else {
-          const exactCount = Math.max(1, Math.min(99999, Math.round(rawNum)));
-          state.useCount = exactCount;
+          state.useCount = exactVal;
           state.useCountUnit = 'count';
           state.useCountMonthValue = null;
           state.useCountYearValue = null;
@@ -4497,16 +4488,27 @@
 
       function applyCustomUseCountInput(silentIfInvalid = false) {
         if (!useCountCustomInputEl) return;
-        const rawNum = editingUseCountUnit === 'year'
-          ? parseFloat(useCountCustomInputEl.value)
-          : parseInt(String(useCountCustomInputEl.value).replace(/[^\d]/g, ''), 10);
-        if (Number.isNaN(rawNum) || rawNum <= 0) {
-          if (!silentIfInvalid) showToast('1 이상의 숫자를 입력해 주세요');
+        const intVal = sanitizeUseCountIntInput();
+        if (Number.isNaN(intVal) || intVal <= 0) {
+          if (!silentIfInvalid) showToast('1 이상의 정수를 입력해 주세요');
           closeUseCountInlineEditor();
           return;
         }
-        syncCustomUseCountState(rawNum);
+        syncCustomUseCountState(intVal);
         closeUseCountInlineEditor();
+      }
+
+      function switchUseCountUnitTab(nextUnit) {
+        editingUseCountUnit = nextUnit;
+        syncUseCountUnitToggleUI();
+        // 탭 전환 시 입력창 숫자는 그대로 유지하고 새 단위 기준으로 즉시 재계산
+        const intVal = sanitizeUseCountIntInput();
+        if (!Number.isNaN(intVal) && intVal > 0) {
+          syncCustomUseCountState(intVal);
+        }
+        if (useCountCustomInputEl) {
+          useCountCustomInputEl.focus();
+        }
       }
 
       if (useCountBadgeBtnEl) {
@@ -4520,87 +4522,21 @@
         useCountUnitCountBtnEl.addEventListener('click', (e) => {
           e.stopPropagation();
           triggerHaptic(10);
-          const prevUnit = editingUseCountUnit;
-          editingUseCountUnit = 'count';
-          syncUseCountUnitToggleUI();
-          let rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
-          if (prevUnit === 'year' && !Number.isNaN(rawNum) && rawNum > 0) {
-            rawNum = Math.max(1, Math.min(99999, Math.round(rawNum * 365)));
-            if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-            hasEditedUseCountInSession = false;
-          } else if (prevUnit === 'month' && !Number.isNaN(rawNum) && rawNum > 0) {
-            rawNum = Math.max(1, Math.min(99999, Math.round(rawNum * 30)));
-            if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-            hasEditedUseCountInSession = false;
-          }
-          if (!Number.isNaN(rawNum) && rawNum > 0) syncCustomUseCountState(rawNum);
-          if (useCountCustomInputEl) {
-            useCountCustomInputEl.focus();
-            useCountCustomInputEl.select();
-          }
+          switchUseCountUnitTab('count');
         });
       }
       if (useCountUnitMonthBtnEl) {
         useCountUnitMonthBtnEl.addEventListener('click', (e) => {
           e.stopPropagation();
           triggerHaptic(10);
-          const prevUnit = editingUseCountUnit;
-          editingUseCountUnit = 'month';
-          syncUseCountUnitToggleUI();
-          let rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
-          if (!Number.isNaN(rawNum) && rawNum > 0) {
-            if (prevUnit === 'year') {
-              rawNum = Math.max(1, Math.min(60, Math.round(rawNum * 12)));
-              if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-              hasEditedUseCountInSession = false;
-            } else if (prevUnit === 'count') {
-              if (!hasEditedUseCountInSession || rawNum > 60) {
-                rawNum = Math.max(1, Math.min(60, Math.round(rawNum / 30)));
-              } else {
-                rawNum = Math.max(1, Math.min(60, Math.round(rawNum)));
-              }
-              if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-              hasEditedUseCountInSession = false;
-            } else {
-              rawNum = Math.max(1, Math.min(60, Math.round(rawNum)));
-              if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-            }
-            syncCustomUseCountState(rawNum);
-          }
-          if (useCountCustomInputEl) {
-            useCountCustomInputEl.focus();
-            useCountCustomInputEl.select();
-          }
+          switchUseCountUnitTab('month');
         });
       }
       if (useCountUnitYearBtnEl) {
         useCountUnitYearBtnEl.addEventListener('click', (e) => {
           e.stopPropagation();
           triggerHaptic(10);
-          const prevUnit = editingUseCountUnit;
-          editingUseCountUnit = 'year';
-          syncUseCountUnitToggleUI();
-          let rawNum = parseFloat(useCountCustomInputEl ? useCountCustomInputEl.value : '');
-          if (!Number.isNaN(rawNum) && rawNum > 0) {
-            if (prevUnit === 'month') {
-              rawNum = Math.max(0.1, Math.min(50, Number((rawNum / 12).toFixed(1).replace(/\.0$/, ''))));
-              if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-              hasEditedUseCountInSession = false;
-            } else if (prevUnit === 'count') {
-              if (!hasEditedUseCountInSession || rawNum > 50) {
-                rawNum = Math.max(1, Math.min(50, Math.round(rawNum / 365)));
-              } else {
-                rawNum = Math.max(1, Math.min(50, rawNum));
-              }
-              if (useCountCustomInputEl) useCountCustomInputEl.value = String(rawNum);
-              hasEditedUseCountInSession = false;
-            }
-            syncCustomUseCountState(rawNum);
-          }
-          if (useCountCustomInputEl) {
-            useCountCustomInputEl.focus();
-            useCountCustomInputEl.select();
-          }
+          switchUseCountUnitTab('year');
         });
       }
       if (useCountInlineConfirmBtnEl) {
@@ -4612,30 +4548,9 @@
       }
       if (useCountCustomInputEl) {
         useCountCustomInputEl.addEventListener('input', () => {
-          hasEditedUseCountInSession = true;
-          if (editingUseCountUnit === 'month' || editingUseCountUnit === 'count') {
-            const digitsOnly = String(useCountCustomInputEl.value).replace(/[^\d]/g, '');
-            if (digitsOnly !== String(useCountCustomInputEl.value)) {
-              useCountCustomInputEl.value = digitsOnly;
-            }
-            if (!digitsOnly) return;
-            let intVal = parseInt(digitsOnly, 10);
-            if (Number.isNaN(intVal) || intVal <= 0) return;
-            const maxAllowed = editingUseCountUnit === 'month' ? 60 : 99999;
-            if (intVal > maxAllowed) {
-              intVal = maxAllowed;
-              useCountCustomInputEl.value = String(maxAllowed);
-            }
+          const intVal = sanitizeUseCountIntInput();
+          if (!Number.isNaN(intVal) && intVal > 0) {
             syncCustomUseCountState(intVal);
-            return;
-          }
-          let rawNum = parseFloat(useCountCustomInputEl.value);
-          if (!Number.isNaN(rawNum) && rawNum > 0) {
-            if (rawNum > 50) {
-              rawNum = 50;
-              useCountCustomInputEl.value = '50';
-            }
-            syncCustomUseCountState(rawNum);
           }
         });
         useCountCustomInputEl.addEventListener('keydown', (e) => {
