@@ -99,6 +99,7 @@ jobs:
               "android.permission.INTERNET",
               "android.permission.ACCESS_NETWORK_STATE",
               "android.permission.VIBRATE",
+              "com.google.android.gms.permission.AD_ID",
           ]:
               tag = f'<uses-permission android:name="{perm}" />'
               if perm not in manifest:
